@@ -40,6 +40,7 @@ namespace Sage100AddressBook.Helpers
 
         #region Private methods
 
+#if DEBUG
         /// <summary>
         /// This is only used to get the application redirect to use for the application registration.
         /// </summary>
@@ -49,6 +50,7 @@ namespace Sage100AddressBook.Helpers
 
             Debug.WriteLine(uri);
         }
+#endif
 
         /// <summary>
         /// Makes the web request to authenticate.

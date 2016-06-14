@@ -12,8 +12,6 @@
     <Color x:Key="SystemAccentColor">Green</Color>
 
     <x:String x:Key="ida:ClientID">84e162ef-0538-4de8-b8b7-ee387b8aaa8e</x:String>
-    <x:String x:Key="ida:AADInstance">https://login.microsoftonline.com/</x:String>
-    <x:String x:Key="ida:Domain">swmsagedev.onmicrosoft.com</x:String>
     
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     

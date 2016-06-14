@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Services.NavigationService;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -46,19 +47,19 @@ namespace Sage100AddressBook.ViewModels
         }
 
         public void GotoDetailsPage() =>
-            NavigationService.Navigate(typeof(Views.DetailPage), Search);
+            NavigationService.Navigate(typeof(Views.DetailPage), Search, new SuppressNavigationTransitionInfo());
 
         public void GotoSearchResultsPage() =>
-            NavigationService.Navigate(typeof(Views.SearchResultsPage), Search);
+            NavigationService.Navigate(typeof(Views.SearchResultsPage), Search, new SuppressNavigationTransitionInfo());
 
         public void GotoSettings() =>
-            NavigationService.Navigate(typeof(Views.SettingsPage), 0);
+            NavigationService.Navigate(typeof(Views.SettingsPage), 0, new SuppressNavigationTransitionInfo());
 
         public void GotoPrivacy() =>
-            NavigationService.Navigate(typeof(Views.SettingsPage), 1);
+            NavigationService.Navigate(typeof(Views.SettingsPage), 1, new SuppressNavigationTransitionInfo());
 
         public void GotoAbout() =>
-            NavigationService.Navigate(typeof(Views.SettingsPage), 2);
+            NavigationService.Navigate(typeof(Views.SettingsPage), 2, new SuppressNavigationTransitionInfo());
 
     }
 }
