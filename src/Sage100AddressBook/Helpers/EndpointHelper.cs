@@ -26,12 +26,14 @@ namespace Sage100AddressBook.Helpers
             if (string.IsNullOrEmpty(endpoint)) throw new ArgumentNullException("endpoint");
             if (string.IsNullOrEmpty(accessToken)) throw new ArgumentNullException("accessToken");
 
+            var uri = new Uri(string.Format("https://graph.microsoft.com/v1.0/{0}", endpoint));
+
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                using (HttpResponseMessage response = await client.GetAsync(new Uri(endpoint)))
+                using (HttpResponseMessage response = await client.GetAsync(uri))
                 {
                     if (response.IsSuccessStatusCode)
                     {

@@ -60,7 +60,7 @@
             </controls:PageHeader.SecondaryCommands>
 
         </controls:PageHeader>
-        
+
         <controls:Resizer x:Name="parameterResizer" Margin="16,16,16,0"
                           RelativePanel.AlignLeftWithPanel="True"
                           RelativePanel.Below="pageHeader">
@@ -92,6 +92,16 @@
                    RelativePanel.AlignLeftWith="parameterResizer"
                    RelativePanel.Below="parameterResizer"
                    Text="Current Visual State" />
+
+        <Button x:Name="GetUsers" Margin="16,20,-60,0" Content="Get Users" HorizontalAlignment="Left"
+                Height="32" VerticalAlignment="Top" Command="{x:Bind ViewModel.Users}"
+                Width="129"  RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.Below="stateTextBox"/>
+
+        <ListView x:Name="listView" Margin="16,20" Height="300"
+                  VerticalAlignment="Top" RelativePanel.AlignRightWithPanel="True"
+                  RelativePanel.AlignLeftWithPanel="True" ItemsSource="{x:Bind ViewModel.UserList, Mode=OneWay}"
+                          RelativePanel.Below="GetUsers"/>
         <!--<GridView x:Name="gridView" HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="0"/>-->
 
     </RelativePanel>

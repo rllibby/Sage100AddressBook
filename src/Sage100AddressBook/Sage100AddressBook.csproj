@@ -104,7 +104,8 @@
     <Compile Include="Helpers\EndpointHelper.cs" />
     <Compile Include="Models\AddressEntry.cs" />
     <Compile Include="Models\Customer.cs" />
-    <Compile Include="Models\Me.cs" />
+    <Compile Include="Models\GraphUser.cs" />
+    <Compile Include="Models\GraphUsers.cs" />
     <Compile Include="Models\NavigationArgs.cs" />
     <Compile Include="Models\PieChartData.cs" />
     <Compile Include="Models\Sage100BaseEntity.cs" />

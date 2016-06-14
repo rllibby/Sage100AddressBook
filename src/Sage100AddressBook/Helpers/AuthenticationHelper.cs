@@ -151,11 +151,11 @@ namespace Sage100AddressBook.Helpers
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    var user = await EndpointHelper.GetJson("https://graph.microsoft.com/v1.0/me", token);
+                    var user = await EndpointHelper.GetJson("me", token);
 
                     if (user != null)
                     {
-                        var me = JsonConvert.DeserializeObject<Me>(user);
+                        var me = JsonConvert.DeserializeObject<GraphUser>(user);
 
                         UserName = me.FirstName + " " + me.LastName;
                     }
