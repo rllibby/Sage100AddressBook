@@ -11,6 +11,7 @@ using Template10.Common;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.ViewModels
@@ -49,7 +50,7 @@ namespace Sage100AddressBook.ViewModels
 
             if (_addresses.Count == -1)  //to-do this works just need to figure out how to handle back button to return to search
             {
-                NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault()));
+                NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault()), new SuppressNavigationTransitionInfo());
                 //NavigationService.ClearCache(true);
             }
             else
@@ -115,7 +116,7 @@ namespace Sage100AddressBook.ViewModels
 
             //AppShell.Current.NavigateToPage(typeof(AddressDetailPage), CurrentSight.Id.ToString("D"));
             //NavigationService.Navigate(typeof(DocumentViewerPage));
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress));
+            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress), new SuppressNavigationTransitionInfo());
         }
 
         private NavigationArgs GetNavArgs(AddressEntry entry)

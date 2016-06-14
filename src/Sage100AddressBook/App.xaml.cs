@@ -65,7 +65,7 @@ namespace Sage100AddressBook
             {
                 await AuthenticationHelper.Instance.SignIn();
 
-                NavigationService.Navigate(typeof(Views.MainPage), new SuppressNavigationTransitionInfo());
+                NavigationService.Navigate(typeof(Views.MainPage), null, new SuppressNavigationTransitionInfo());
             }
             finally
             {
