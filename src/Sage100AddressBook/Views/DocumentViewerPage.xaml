@@ -1,0 +1,44 @@
+﻿<Page
+    x:Class="Sage100AddressBook.Views.DocumentViewerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:Behaviors="using:Template10.Behaviors"
+    xmlns:controls="using:Template10.Controls"
+    xmlns:local="using:Sage100AddressBook.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="using:Sage100AddressBook.ViewModels"
+    xmlns:models ="using:Sage100AddressBook.Models"
+    mc:Ignorable="d">
+
+    <Page.DataContext>
+        <viewModels:DocumentViewerPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+
+            <!--  header  -->
+        <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}" Text="Document" />
+        <!--RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Document" />-->
+
+        <!--  content  -->
+        <ScrollViewer Margin="12,20,12,12" Grid.Row="1">
+            <Image x:Name="Output" Source="{Binding DocumentImage}" Stretch="None" Margin="0,10,0,0" />
+        </ScrollViewer>
+        <!--<WebView x:Name="Browser" Grid.Row="1"/>-->
+        <!--RelativePanel.AlignLeftWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.Below="pageHeader"-->
+        <!--/>-->
+        <!--</RelativePanel>-->
+    </Grid>
+</Page>

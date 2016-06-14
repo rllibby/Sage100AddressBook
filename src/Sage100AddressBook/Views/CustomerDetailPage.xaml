@@ -1,0 +1,182 @@
+﻿<Page xmlns:telerikChart="using:Telerik.UI.Xaml.Controls.Chart" 
+    x:Class="Sage100AddressBook.Views.CustomerDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Sage100AddressBook.Views"
+    xmlns:viewModels="using:Sage100AddressBook.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Behaviors="using:Template10.Behaviors"
+    xmlns:controls="using:Template10.Controls"
+    xmlns:converters="using:Template10.Converters"
+    xmlns:models ="using:Sage100AddressBook.Models"
+    mc:Ignorable="d">
+
+    <Page.DataContext>
+        <viewModels:CustomerDetailPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <!--<DataTemplate x:Key="customerTemplate" x:DataType="models:Customer" >
+            <StackPanel MinWidth="356" MinHeight="124" Margin="10,10,0,0">
+                <TextBlock Text="{x:Bind CustomerName}"
+                               Style="{StaticResource HeaderTextBlockStyle}"
+                           
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind AddressLine1}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind AddressLine2}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind AddressLine3}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Bind City}" Margin="0,0,4,0"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   />
+                    <TextBlock Text="{x:Bind State}" Margin="0,0,4,0"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                    <TextBlock Text="{x:Bind ZipCode}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                </StackPanel>
+                <TextBlock Text="{x:Bind Telephone}" Margin="0,10,0,0"
+                               Style="{StaticResource SubheaderTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind EmailAddress}" Margin="0,4,0,0"
+                               Style="{StaticResource SubheaderTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+            </StackPanel>
+
+
+        </DataTemplate>-->
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+    </Page.Resources>
+
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!--  header  -->
+        <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}"
+                             RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.AlignTopWithPanel="True" Text="Customer Detail"/>
+
+        <!--  content  -->
+
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="pageHeader">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="500"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!--<Grid.DataContext>
+                <Binding Source="{x:Bind ViewModel.CurrentCustomer, Mode=OneTime}" />
+            </Grid.DataContext>-->
+
+            <StackPanel MinWidth="356" MinHeight="124" Margin="10,10,0,0">
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
+                               Style="{StaticResource HeaderTextBlockStyle}"
+                           
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.City}" Margin="0,0,4,0"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   />
+                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.State}" Margin="0,0,4,0"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                </StackPanel>
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.Telephone}" Margin="0,10,0,0"
+                               Style="{StaticResource SubheaderTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.EmailAddress}" Margin="0,4,0,0"
+                               Style="{StaticResource SubheaderTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis"
+                               />
+
+                <TextBlock Text="Date Established" />
+                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" ></TextBlock>
+            </StackPanel>
+
+            <!--<telerikChart:RadPieChart  x:Name="pieChart" PaletteName="DefaultDark" Grid.Column="1" >
+                <telerikChart:PieSeries ItemsSource="{x:Bind ViewModel.AgingChartData}" ShowLabels="True" RadiusFactor=".50">
+                    <telerikChart:PieSeries.ValueBinding>
+                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value"/>
+                    </telerikChart:PieSeries.ValueBinding>
+
+                    <telerikChart:PieSeries.LabelDefinitions>
+                        <telerikChart:ChartSeriesLabelDefinition Margin="-10">
+                            <telerikChart:ChartSeriesLabelDefinition.Binding>
+                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
+                            </telerikChart:ChartSeriesLabelDefinition.Binding>
+                        </telerikChart:ChartSeriesLabelDefinition>
+                    </telerikChart:PieSeries.LabelDefinitions>
+                    
+                </telerikChart:PieSeries>
+            </telerikChart:RadPieChart>-->
+
+            <telerikChart:RadPieChart  x:Name="pieChart" PaletteName="DefaultDark" Grid.Column="1" >
+                <telerikChart:DoughnutSeries ItemsSource="{x:Bind ViewModel.AgingChartData}" ShowLabels="True" RadiusFactor=".50">
+                    <telerikChart:DoughnutSeries.ValueBinding>
+                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value"/>
+                    </telerikChart:DoughnutSeries.ValueBinding>
+
+                    <telerikChart:DoughnutSeries.LabelDefinitions>
+                        <telerikChart:ChartSeriesLabelDefinition Margin="-10">
+                            <telerikChart:ChartSeriesLabelDefinition.Binding>
+                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
+                            </telerikChart:ChartSeriesLabelDefinition.Binding>
+                        </telerikChart:ChartSeriesLabelDefinition>
+                    </telerikChart:DoughnutSeries.LabelDefinitions>
+
+                </telerikChart:DoughnutSeries>
+            </telerikChart:RadPieChart>
+
+            <!--<telerik:PieSeries ItemsSource="{Binding Data}" RadiusFactor="0.95">
+                <telerik:PieSeries.ValueBinding>
+                    <telerik:PropertyNameDataPointBinding PropertyName="Percent" />
+                </telerik:PieSeries.ValueBinding>
+
+                <telerik:PieSeries.LabelDefinitions>
+                    <telerik:ChartSeriesLabelDefinition Margin="-10">
+                        <telerik:ChartSeriesLabelDefinition.Binding>
+                            <telerik:PropertyNameDataPointBinding PropertyName="Label" />
+                        </telerik:ChartSeriesLabelDefinition.Binding>
+                    </telerik:ChartSeriesLabelDefinition>
+                </telerik:PieSeries.LabelDefinitions>
+            </telerik:PieSeries>-->
+            <!--<ContentPresenter Content="{x:Bind ViewModel.CurrentCustomer, Mode=TwoWay}" ContentTemplate="{StaticResource customerTemplate}"/>-->
+
+        </Grid>
+    </RelativePanel>
+</Page>

@@ -1,0 +1,3 @@
+﻿Client ID: 
+
+Client ID for Sage100AddressBook application: c892bc44-69bf-4d97-a9d3-96a0457df545
