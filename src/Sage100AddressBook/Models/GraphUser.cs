@@ -7,10 +7,25 @@ using Newtonsoft.Json;
 namespace Sage100AddressBook.Models
 {
     /// <summary>
-    /// POCO class for Microsoft Graph /v1.0/Me response.
+    /// POCO class for Microsoft Graph user response.
     /// </summary>
-    public class Me
+    public class GraphUser
     {
+        #region Public methods
+
+        /// <summary>
+        /// Returns the string representation of the object.
+        /// </summary>
+        /// <returns>The string representation of the object.</returns>
+        public override string ToString()
+        {
+            return string.Format("(id={0}) {1}, {2}", Id ?? string.Empty, LastName ?? string.Empty, FirstName ?? string.Empty);
+        }
+
+        #endregion
+
+        #region Public properties
+
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
@@ -28,5 +43,7 @@ namespace Sage100AddressBook.Models
 
         [JsonProperty(PropertyName = "mobilePhone")]
         public string MobilePhone { get; set; }
+
+        #endregion
     }
 }

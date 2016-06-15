@@ -40,6 +40,7 @@ namespace Sage100AddressBook.Helpers
 
         #region Private methods
 
+#if DEBUG
         /// <summary>
         /// This is only used to get the application redirect to use for the application registration.
         /// </summary>
@@ -49,6 +50,7 @@ namespace Sage100AddressBook.Helpers
 
             Debug.WriteLine(uri);
         }
+#endif
 
         /// <summary>
         /// Makes the web request to authenticate.
@@ -149,11 +151,11 @@ namespace Sage100AddressBook.Helpers
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    var user = await EndpointHelper.GetJson("https://graph.microsoft.com/v1.0/me", token);
+                    var user = await EndpointHelper.GetJson("me", token);
 
                     if (user != null)
                     {
-                        var me = JsonConvert.DeserializeObject<Me>(user);
+                        var me = JsonConvert.DeserializeObject<GraphUser>(user);
 
                         UserName = me.FirstName + " " + me.LastName;
                     }
