@@ -5,19 +5,22 @@
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Services.SettingsServices;
 using System.Threading.Tasks;
+using Template10.Common;
 using Template10.Controls;
 using Windows.ApplicationModel.Activation;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace Sage100AddressBook
 {
-    /// Documentation on APIs used in this page:
-    /// https://github.com/Windows-XAML/Template10/wiki
-
+    /// <summary>
+    /// The application class.
+    /// </summary>
     [Bindable]
-    sealed partial class App : Template10.Common.BootStrapper
+    sealed partial class App : BootStrapper
     {
         #region Constructor
 
@@ -27,6 +30,7 @@ namespace Sage100AddressBook
         public App()
         {
             InitializeComponent();
+
             SplashFactory = (e) => new Views.Splash(e);
 
             var _settings = SettingsService.Instance;
@@ -40,14 +44,17 @@ namespace Sage100AddressBook
 
         #region Public methods
 
+        /// <summary>
+        /// Initialization.
+        /// </summary>
+        /// <param name="args">The activatino event arguments.</param>
+        /// <returns>The async task.</returns>
         public override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             if (Window.Current.Content as ModalDialog == null)
             {
-                // create a new frame 
                 var nav = NavigationServiceFactory(BackButton.Attach, ExistingContent.Include);
 
-                // create modal root
                 Window.Current.Content = new ModalDialog
                 {
                     DisableBackButtonWhenModal = true,
@@ -59,8 +66,19 @@ namespace Sage100AddressBook
             await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Application starting.
+        /// </summary>
+        /// <param name="startKind">The reason for starting; launching or activation.</param>
+        /// <param name="args">The activation event arguments.</param>
+        /// <returns>The async task.</returns>
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
         {
+            var titleBar = ApplicationView.GetForCurrentView().TitleBar;
+
+            titleBar.ButtonBackgroundColor = Colors.Black;
+            titleBar.ButtonForegroundColor = Colors.White;
+
             try
             {
                 await AuthenticationHelper.Instance.SignIn();

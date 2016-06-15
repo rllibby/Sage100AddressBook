@@ -9,8 +9,6 @@ using Windows.Security.Authentication.Web;
 using Windows.Security.Authentication.Web.Core;
 using Windows.Storage;
 using Windows.UI.Xaml;
-using Newtonsoft.Json;
-using Sage100AddressBook.Models;
 
 #if DEBUG
 using System.Diagnostics;
@@ -26,6 +24,8 @@ namespace Sage100AddressBook.Helpers
         #region Private constants
 
         private const string AccountId = "AccountId";
+        private const string DisplayName = "DisplayName";
+        private const string TokenExpires = "TokenExpiresOn";
         private const string User = "User";
 
         #endregion
@@ -33,6 +33,7 @@ namespace Sage100AddressBook.Helpers
         #region Private properties
 
         private static AuthenticationHelper _instance = new AuthenticationHelper();
+        private DateTime _tokenExpiration = DateTime.Now;
         private string _userName;
         private string _token;
 
@@ -44,6 +45,16 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// This is only used to get the application redirect to use for the application registration.
         /// </summary>
+        /// <remarks>
+        /// To register your application, the following must me done:
+        /// 
+        /// 1   -   Build the application and run it, making a call to this method.
+        /// 2   -   Evaluate the uri and save the string value which will be used for application registration.
+        /// 3   -   Create a new native app entry in Microsoft Graph; https://dev.office.com/app-registration
+        /// 4   -   Paste the value from step 2 into the Redirect URI field.
+        /// 5   -   Register the app and copy the Client ID.
+        /// 6   -   Add the client ID to your application, which will be used during the authentication process.
+        /// </remarks>
         private void GetAppRedirect()
         {
             var uri = string.Format("ms-appx-web://Microsoft.AAD.BrokerPlugIn/{0}", WebAuthenticationBroker.GetCurrentApplicationCallbackUri().Host.ToUpper());
@@ -67,6 +78,18 @@ namespace Sage100AddressBook.Helpers
             if (requestResult.ResponseStatus == WebTokenRequestStatus.Success)
             {
                 var tokenResponse = requestResult.ResponseData[0];
+
+                foreach (var property in tokenResponse.Properties)
+                {
+                    if (property.Key.Equals(DisplayName)) UserName = property.Value;
+                    if (property.Key.Equals(TokenExpires))
+                    {
+                        var expiresOnWin32Ticks = double.Parse(property.Value);
+                        var epochStart = new DateTime(1601, 01, 01, 0, 0, 0, 0, DateTimeKind.Utc);
+
+                        _tokenExpiration = epochStart.AddSeconds(expiresOnWin32Ticks).ToLocalTime();
+                    }
+                }
 
                 ApplicationData.Current.LocalSettings.Values.Remove(AccountId);
                 ApplicationData.Current.LocalSettings.Values[AccountId] = requestResult.ResponseData[0].WebAccount.Id;
@@ -149,18 +172,6 @@ namespace Sage100AddressBook.Helpers
             {
                 var token = await GetAccessTokenForGraph();
 
-                if (!string.IsNullOrEmpty(token))
-                {
-                    var user = await EndpointHelper.GetJson("me", token);
-
-                    if (user != null)
-                    {
-                        var me = JsonConvert.DeserializeObject<GraphUser>(user);
-
-                        UserName = me.FirstName + " " + me.LastName;
-                    }
-                }
-
                 if (Token != token)
                 {
                     Token = token;
@@ -236,7 +247,17 @@ namespace Sage100AddressBook.Helpers
         /// </summary>
         public string Token
         {
-            get { return _token; }
+            get
+            {
+                if (!string.IsNullOrEmpty(_token) && (_tokenExpiration < DateTime.Now))
+                {
+                    _token = null;
+
+                    Notify();
+                }
+
+                return _token;
+            }
             set
             {
                 _token = value;
@@ -251,7 +272,7 @@ namespace Sage100AddressBook.Helpers
         /// </summary>
         public bool SignedIn
         {
-            get { return !string.IsNullOrEmpty(_token); }
+            get { return !string.IsNullOrEmpty(Token); }
         }
 
         /// <summary>

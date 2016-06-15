@@ -1,4 +1,7 @@
-using Newtonsoft.Json;
+/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using System;
@@ -16,25 +19,18 @@ namespace Sage100AddressBook.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         private DelegateCommand _users;
-        private ObservableCollection<GraphUser> _userList = new ObservableCollection<GraphUser>();
+        private ObservableCollectionEx<GraphUser> _userList = new ObservableCollectionEx<GraphUser>();
 
         private async void GetUsers()
         {
-            if (!AuthenticationHelper.Instance.SignedIn) await AuthenticationHelper.Instance.SignIn();
-
-            var data = await EndpointHelper.GetJson("users", AuthenticationHelper.Instance.Token);
-
-            if (data != null)
+            await Dispatcher.DispatchAsync(async () =>
             {
-                var collection = JsonConvert.DeserializeObject<GraphUsers>(data);
+                var me = await GraphUser.Get(AuthenticationHelper.Instance.Token);
+                var all = await GraphUser.All(AuthenticationHelper.Instance.Token);
 
                 _userList.Clear();
-
-                foreach (var user in collection.Users)
-                {
-                    _userList.Add(user);
-                }
-            }
+                _userList.Set(all);
+            });
         }
 
         public MainPageViewModel()
@@ -48,6 +44,7 @@ namespace Sage100AddressBook.ViewModels
         }
 
         string _Value = "";
+
         public string Search { get { return _Value; } set { Set(ref _Value, value); } }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)

@@ -3,25 +3,25 @@
  */
 
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Sage100AddressBook.Models
 {
     /// <summary>
-    /// Class for handling POCO return on Graph users collection.
+    /// Internal class for handling POCO return on Graph users collection.
     /// </summary>
-    public class GraphUsers
+    internal class GraphUsers
     {
         #region Private fields
 
-        private List<GraphUser> _users = new List<GraphUser>();
+        private ObservableCollection<GraphUser> _users = new ObservableCollection<GraphUser>();
 
         #endregion
 
         #region Public properties
 
         [JsonProperty(PropertyName = "value")]
-        public List<GraphUser> Users
+        public ObservableCollection<GraphUser> Users
         {
             get { return _users; }
             set { _users = value; }
