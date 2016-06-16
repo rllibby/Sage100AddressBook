@@ -101,13 +101,11 @@
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Helpers\AuthenticationHelper.cs" />
-    <Compile Include="Helpers\EndpointHelper.cs" />
+    <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\ObservableCollectionEx.cs" />
     <Compile Include="Models\AddressEntry.cs" />
     <Compile Include="Models\Customer.cs" />
-    <Compile Include="Models\GraphUser.cs" />
-    <Compile Include="Models\GraphUsers.cs" />
     <Compile Include="Models\NavigationArgs.cs" />
     <Compile Include="Models\PieChartData.cs" />
     <Compile Include="Models\Sage100BaseEntity.cs" />
@@ -200,7 +198,7 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Styles\Custom.xaml">
+    <Page Include="Resources\Custom.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -250,9 +248,7 @@
       <Name>Telerik UI For Universal Windows Platform</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

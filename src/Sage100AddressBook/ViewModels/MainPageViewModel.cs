@@ -3,7 +3,6 @@
  */
 
 using Sage100AddressBook.Helpers;
-using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,18 +17,42 @@ namespace Sage100AddressBook.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        private ObservableCollectionEx<object> _userList = new ObservableCollectionEx<object>();
         private DelegateCommand _users;
-        private ObservableCollectionEx<GraphUser> _userList = new ObservableCollectionEx<GraphUser>();
 
         private async void GetUsers()
         {
             await Dispatcher.DispatchAsync(async () =>
             {
-                var me = await GraphUser.Get(AuthenticationHelper.Instance.Token);
-                var all = await GraphUser.All(AuthenticationHelper.Instance.Token);
+                var client = await AuthenticationHelper.GetClient();
 
-                _userList.Clear();
-                _userList.Set(all);
+                if (client == null) return;
+
+                var users = await client.Users.Request().GetAsync();
+                var steve = users[users.Count - 1];
+
+                if (steve == null) return;
+
+                // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
+                // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
+
+                // var drive = await client.Users[steve.Id].Drive.Root.Request().GetAsync();
+
+                _userList.BeginUpdate();
+
+                try
+                {
+                    _userList.Clear();
+                    foreach (var user in users)
+                    {
+                        _userList.Add(user.DisplayName);
+                    }
+                }
+                finally
+                {
+                    _userList.EndUpdate(Dispatcher);
+                }
+                
             });
         }
 
@@ -91,7 +114,7 @@ namespace Sage100AddressBook.ViewModels
             get { return _users; }
         }
 
-        public ObservableCollection<GraphUser> UserList
+        public ObservableCollection<object> UserList
         {
             get { return _userList; }
         }

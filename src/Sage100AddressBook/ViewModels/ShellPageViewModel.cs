@@ -32,7 +32,7 @@ namespace Sage100AddressBook.ViewModels
         {
             if (AuthenticationHelper.Instance.SignedIn)
             {
-                await AuthenticationHelper.Instance.SignOut();
+                AuthenticationHelper.Instance.SignOut();
                 return;
             }
 

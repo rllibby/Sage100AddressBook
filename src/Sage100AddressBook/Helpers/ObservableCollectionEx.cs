@@ -110,7 +110,7 @@ namespace Sage100AddressBook.Helpers
         /// Removes a lock count from the notification counter and fires a reset if the count is at zero.
         /// </summary>
         /// <param name="notify">The dispatcher wrapper to used for thread access.</param>
-        public void EndUpdate(DispatcherWrapper notify = null)
+        public void EndUpdate(IDispatcherWrapper notify = null)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace Sage100AddressBook.Helpers
         /// Fires a notification that the collection has been reset and should be queried for the changes.
         /// </summary>
         /// <param name="notify">The dispatcher wrapper to used for thread access.</param>
-        public async void Reset(DispatcherWrapper notify = null)
+        public async void Reset(IDispatcherWrapper notify = null)
         {
             if (_suppressNotification > 0) return;
 
