@@ -36,7 +36,7 @@ namespace Sage100AddressBook.ViewModels
                 // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
                 // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
 
-                // var drive = await client.Users[steve.Id].Drive.Root.Request().GetAsync();
+                var drive = await client.Me.Drive.Root.Request().GetAsync();
 
                 _userList.BeginUpdate();
 
