@@ -51,6 +51,8 @@ namespace Sage100AddressBook.Helpers
             var authenticationProvider = new OAuth2AuthenticationProvider(_clientId, _redirectUrl, new string[]
                 {
                     "offline_access",
+                    "https://graph.microsoft.com/Files.ReadWrite",
+                    "https://graph.microsoft.com/Group.ReadWrite.All",
                     "https://graph.microsoft.com/Directory.ReadWrite.All",
                     "https://graph.microsoft.com/Directory.AccessAsUser.All",
                 });
