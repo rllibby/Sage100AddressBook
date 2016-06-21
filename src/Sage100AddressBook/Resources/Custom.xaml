@@ -11,7 +11,8 @@
     <Color x:Key="ContrastColor">White</Color>
     <Color x:Key="SystemAccentColor">Green</Color>
 
-    <x:String x:Key="ida:ClientID">84e162ef-0538-4de8-b8b7-ee387b8aaa8e</x:String>
+    <x:String x:Key="ida:ClientID">c7e74706-9144-4cb0-8fad-7acd173f5666</x:String>
+    <x:String x:Key="ida:ReturnUrl">urn:ietf:wg:oauth:2.0:oob</x:String>
     
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     

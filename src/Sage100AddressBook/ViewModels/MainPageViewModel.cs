@@ -1,6 +1,8 @@
-using Newtonsoft.Json;
+/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using Sage100AddressBook.Helpers;
-using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,26 +17,43 @@ namespace Sage100AddressBook.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        private ObservableCollectionEx<object> _userList = new ObservableCollectionEx<object>();
         private DelegateCommand _users;
-        private ObservableCollection<GraphUser> _userList = new ObservableCollection<GraphUser>();
 
         private async void GetUsers()
         {
-            if (!AuthenticationHelper.Instance.SignedIn) await AuthenticationHelper.Instance.SignIn();
-
-            var data = await EndpointHelper.GetJson("users", AuthenticationHelper.Instance.Token);
-
-            if (data != null)
+            await Dispatcher.DispatchAsync(async () =>
             {
-                var collection = JsonConvert.DeserializeObject<GraphUsers>(data);
+                var client = await AuthenticationHelper.GetClient();
 
-                _userList.Clear();
+                if (client == null) return;
 
-                foreach (var user in collection.Users)
+                var users = await client.Users.Request().GetAsync();
+                var steve = users[users.Count - 1];
+
+                if (steve == null) return;
+
+                // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
+                // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
+
+                // var drive = await client.Users[steve.Id].Drive.Root.Request().GetAsync();
+
+                _userList.BeginUpdate();
+
+                try
                 {
-                    _userList.Add(user);
+                    _userList.Clear();
+                    foreach (var user in users)
+                    {
+                        _userList.Add(user.DisplayName);
+                    }
                 }
-            }
+                finally
+                {
+                    _userList.EndUpdate(Dispatcher);
+                }
+                
+            });
         }
 
         public MainPageViewModel()
@@ -48,6 +67,7 @@ namespace Sage100AddressBook.ViewModels
         }
 
         string _Value = "";
+
         public string Search { get { return _Value; } set { Set(ref _Value, value); } }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
@@ -94,7 +114,7 @@ namespace Sage100AddressBook.ViewModels
             get { return _users; }
         }
 
-        public ObservableCollection<GraphUser> UserList
+        public ObservableCollection<object> UserList
         {
             get { return _userList; }
         }

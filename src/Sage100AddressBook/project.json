@@ -1,11 +1,7 @@
 ﻿{
   "dependencies": {
-    "Microsoft.Azure.ActiveDirectory.GraphClient": "2.1.0",
-    "Microsoft.IdentityModel.Clients.ActiveDirectory": "3.10.305231913",
+    "Microsoft.Graph": "1.0.1",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
-    "Microsoft.Office365.Discovery": "1.0.22",
-    "Microsoft.Office365.OutlookServices": "1.0.41",
-    "Microsoft.Office365.SharePoint": "1.0.22",
     "Microsoft.Xaml.Behaviors.Uwp.Managed": "1.1.0",
     "Newtonsoft.Json": "8.0.3",
     "Template10": "1.1.11"
