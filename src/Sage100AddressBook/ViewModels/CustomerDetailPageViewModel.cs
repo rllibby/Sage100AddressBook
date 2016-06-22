@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
+using Sage100AddressBook.Services.DocumentViewerServices;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Controls;
+using Sage100AddressBook.Views;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -18,10 +22,26 @@ namespace Sage100AddressBook.ViewModels
 
         private CustomerWebService _webService;
 
+
+
+        private DocumentEntry _currentDocument;
+
+        private DocumentRetrievalService _docRetrievalService;
+
+
+
+        private ObservableCollection<DocumentGroup> _documentGroups;
+        //private BitmapImage _sightImage;
+        private ObservableCollection<DocumentEntry> _documents;
+
+
+
+
         public CustomerDetailPageViewModel()
         {
             _webService = new CustomerWebService();
             _currentCustomer = new Customer();
+            _docRetrievalService = new DocumentRetrievalService();
         }
         public Customer CurrentCustomer
         {
@@ -39,6 +59,10 @@ namespace Sage100AddressBook.ViewModels
             CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
             buildChartData(CurrentCustomer);
             //to-do make several additional calls for quotes, orders, invoices, etc. - but don't await??
+
+            //grab folders and documents for this customer - to-do: perhaps do this when pivot page is opened OR in a task.run
+            _documents = new ObservableCollection<DocumentEntry>(await _docRetrievalService.RetrieveDocumentsAsync(navArgs.Id, navArgs.CompanyCode));
+            BuildDocumentGroups();
             await Task.CompletedTask;
         }
 
@@ -68,6 +92,48 @@ namespace Sage100AddressBook.ViewModels
                 }
                 
             }
+        }
+
+        private void BuildDocumentGroups()
+        {
+            var grouped = from document in Documents
+                          group document by document.Folder
+                into grp
+                          orderby grp.Key descending
+                          select new DocumentGroup
+                          {
+                              GroupName = grp.Key,
+                              DocumentEntries = grp.ToList()
+                          };
+
+            DocumentGroups = new ObservableCollection<DocumentGroup>(grouped.ToList());
+        }
+
+        public ObservableCollection<DocumentGroup> DocumentGroups
+        {
+            get { return _documentGroups; }
+            set { Set(ref _documentGroups, value); }
+        }
+
+        public ObservableCollection<DocumentEntry> Documents
+        {
+            get { return _documents; }
+            set { Set(ref _documents, value); }
+        }
+
+        public DocumentEntry CurrentDocument
+        {
+            get { return _currentDocument; }
+            set { Set(ref _currentDocument, value); }
+        }
+        public void DocumentClicked(object sender, ItemClickEventArgs args)
+        {
+            _currentDocument = args.ClickedItem as DocumentEntry;
+
+
+            //AppShell.Current.NavigateToPage(typeof(AddressDetailPage), CurrentSight.Id.ToString("D"));
+            //NavigationService.Navigate(typeof(DocumentViewerPage));
+            NavigationService.Navigate(typeof(DocumentViewerPage), _currentDocument, new SuppressNavigationTransitionInfo());
         }
     }
 }
