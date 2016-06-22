@@ -17,28 +17,20 @@
     </Page.DataContext>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-
-            <!--  header  -->
-        <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}" Text="Document" />
-        <!--RelativePanel.AlignLeftWithPanel="True"
-                             RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="Document" />-->
-
-        <!--  content  -->
-        <ScrollViewer Margin="12,20,12,12" Grid.Row="1">
-            <Image x:Name="Output" Source="{Binding DocumentImage}" Stretch="None" Margin="0,10,0,0" />
+        <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}" Text="{x:Bind ViewModel.DocumentName, Mode=OneWay}">
+            <AppBarButton Icon="OpenFile" Label="Open" Foreground="{StaticResource ContrastColorBrush}" Command="{x:Bind ViewModel.Open}"/>
+        </controls:PageHeader>
+        
+        <ScrollViewer x:Name="viewer" Margin="12,20,12,12" Grid.Row="1" ZoomMode="Enabled" MaxZoomFactor="8" VerticalScrollMode="Auto" HorizontalScrollMode="Auto">
+            <Image x:Name="Output" Source="{Binding DocumentImage}" Stretch="None" Margin="0,10,0,0"
+             DoubleTapped="{x:Bind ViewModel.OnImageDoubleTapped}"/>
         </ScrollViewer>
-        <!--<WebView x:Name="Browser" Grid.Row="1"/>-->
-        <!--RelativePanel.AlignLeftWithPanel="True"
-                RelativePanel.AlignRightWithPanel="True"
-                RelativePanel.Below="pageHeader"-->
-        <!--/>-->
-        <!--</RelativePanel>-->
+        
+        <ProgressRing Width="100" Height="100" Grid.Row="1" HorizontalAlignment="Center" IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />        
     </Grid>
 </Page>
