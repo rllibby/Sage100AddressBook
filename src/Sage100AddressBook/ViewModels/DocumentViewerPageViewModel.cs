@@ -9,6 +9,7 @@ using Template10.Services.NavigationService;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Media;
+using Sage100AddressBook.Models;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -35,10 +36,11 @@ namespace Sage100AddressBook.ViewModels
             //Sage100AddressBook.Views.DocumentViewerPage.Browser.Navigate("http://espn.com");
 
             //to-do - eventually will want to obtain url from the parameter
-            var url = "https://swmsagedev-my.sharepoint.com/personal/steve_swmsagedev_onmicrosoft_com/_layouts/15/guestaccess.aspx?guestaccesstoken=5T9hTXjlxFe9qJQm1DUPHC9p%2bCUQEKHT8syowQa747E%3d&docid=0823727dd340d4ae884dbc9525a2932ed";
+            //var url = "https://swmsagedev-my.sharepoint.com/personal/steve_swmsagedev_onmicrosoft_com/_layouts/15/guestaccess.aspx?guestaccesstoken=5T9hTXjlxFe9qJQm1DUPHC9p%2bCUQEKHT8syowQa747E%3d&docid=0823727dd340d4ae884dbc9525a2932ed";
 
+            var doc = (DocumentEntry)parameter;
             //get a stream for a pdf page
-            var stream = await _documentViewerService.GetPDFStreamAsync(url);
+            var stream = await _documentViewerService.GetPDFStreamAsync(doc.Id);
 
             BitmapImage src = new BitmapImage();
 

@@ -36,7 +36,12 @@ namespace Sage100AddressBook.ViewModels
                 // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
                 // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
 
-                var drive = await client.Me.Drive.Root.Request().GetAsync();
+                //var drive = await client.Me.Drive.Root.ItemWithPath("303141564E4554").Children.Request().GetAsync();
+                //var drive = await client.Me.Drive.Root.Children.Request().GetAsync();
+
+                // 01TOWMY6NRLXLIHDGJGJEYARBZ2IAJFBOG
+
+                //var response = await client.Me.Drive.Items["01TOWMY6NRLXLIHDGJGJEYARBZ2IAJFBOG"].Content.Request().GetAsync();
 
                 _userList.BeginUpdate();
 
