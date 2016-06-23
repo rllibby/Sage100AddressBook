@@ -52,6 +52,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                         State = "CA",
                         ZipCode = "92614",
                         Phone = "(949) 555-1323",
+                        EmailAddress = "adamson@gmail.com",
                         PhoneRaw = "9495551323",
                         Type = "Customer",
                         ParentId = null
@@ -79,6 +80,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                         State = "CA",
                         ZipCode = "92614",
                         Phone = "(949) 555-1323",
+                        EmailAddress = "jmamma@hotmail.com",
                         PhoneRaw = "9495551323",
                         Type = "Contact",
                         ParentId = "123"
@@ -87,6 +89,5 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
             }
             return retVal;
         }
-
     }
 }

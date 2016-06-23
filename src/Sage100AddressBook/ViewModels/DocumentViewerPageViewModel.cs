@@ -46,17 +46,19 @@ namespace Sage100AddressBook.ViewModels
 
             Loading = true;
 
+            var fileName = string.Empty;
+
             try
             {
                 using (var stream = await _documentViewerService.GetFileStream(_document.Id))
                 {
-                    await _documentViewerService.SaveToFile(stream, _document.Name);
-                    await _documentViewerService.LaunchFileAssociation(_document.Name);
+                    fileName = await _documentViewerService.SaveToFile(stream, _document.Name);
+                    await _documentViewerService.LaunchFileAssociation(fileName);
                 }
             }
             catch (Exception exception)
             {
-                await Dialogs.ShowException(string.Format("Failed to launch the file '{0}'.", _document.Name), exception, false);
+                await Dialogs.ShowException(string.Format("Failed to launch the file '{0}'.", fileName), exception, false);
             }
             finally
             {

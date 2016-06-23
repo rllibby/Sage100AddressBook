@@ -86,7 +86,7 @@ namespace Sage100AddressBook.Helpers
         /// </summary>
         /// <param name="collection">The collection to load the new items from.</param>
         /// <param name="notify">The dispatcher wrapper to used for thread access.</param>
-        public void Set(IEnumerable<T> collection, DispatcherWrapper notify = null)
+        public void Set(IEnumerable<T> collection, IDispatcherWrapper notify = null)
         {
             try
             {
