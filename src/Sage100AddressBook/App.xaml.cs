@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.ApplicationModel;
 using System.IO.IsolatedStorage;
+using Windows.Foundation.Metadata;
 
 namespace Sage100AddressBook
 {
@@ -100,10 +101,28 @@ namespace Sage100AddressBook
         /// <returns>The async task.</returns>
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
         {
-            var titleBar = ApplicationView.GetForCurrentView().TitleBar;
+            var view = ApplicationView.GetForCurrentView();
 
-            titleBar.ButtonBackgroundColor = Colors.Black;
-            titleBar.ButtonForegroundColor = Colors.White;
+            view.TitleBar.ButtonBackgroundColor = Colors.Black;
+            view.TitleBar.ButtonForegroundColor = Colors.White;
+            view.TitleBar.BackgroundColor = Colors.Black;
+            view.TitleBar.ForegroundColor = Colors.White;
+            view.TitleBar.ButtonHoverForegroundColor = Colors.DarkGray;
+            view.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(255, 0, 220, 0);
+            view.TitleBar.ButtonPressedForegroundColor = Colors.White;
+            view.TitleBar.ButtonInactiveBackgroundColor = Color.FromArgb(255, 40, 40, 40);
+            view.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+            view.TitleBar.InactiveBackgroundColor = Color.FromArgb(255, 40, 40, 40);
+            view.TitleBar.InactiveForegroundColor = Colors.Gray;
+
+            if (ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
+            {
+                var statusBar = StatusBar.GetForCurrentView();
+
+                statusBar.BackgroundColor = Colors.Black;
+                statusBar.ForegroundColor = Colors.White;
+                statusBar.BackgroundOpacity = 1;
+            }
 
             try
             {

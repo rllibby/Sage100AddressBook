@@ -8,7 +8,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:vm="using:Sage100AddressBook.ViewModels" mc:Ignorable="d">
+      xmlns:vm="using:Sage100AddressBook.ViewModels"
+      mc:Ignorable="d"
+      >
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
