@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Data.Pdf;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
@@ -66,7 +67,7 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
         /// <param name="source">The source stream.</param>
         /// <param name="fileName">The filename to save the stream as.</param>
         /// <returns>True if the file was saved, otherwise false.</returns>
-        public async Task<bool> SaveToFile(Stream source, string fileName)
+        public async Task<string> SaveToFile(Stream source, string fileName)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (string.IsNullOrEmpty(fileName)) throw new ArgumentNullException("fileName");
@@ -75,21 +76,29 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
             {
                 using (var store = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    using (var dest = new IsolatedStorageFileStream(fileName, FileMode.Create, store))
+                    var startingFileName = fileName;
+                    var count = 1;
+
+                    while (store.FileExists(fileName))
+                    {
+                        fileName = string.Format("{0}-Copy({1}){2}", Path.GetFileNameWithoutExtension(startingFileName), count++, Path.GetExtension(startingFileName));
+                    }
+
+                    using (var dest = new IsolatedStorageFileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, store))
                     {
                         await source.CopyToAsync(dest);
                         await dest.FlushAsync();
                     }
                 }
 
-                return true;
+                return fileName;
             }
             catch (Exception exception)
             {
                 await Dialogs.ShowException(string.Format("Failed to save the stream to file '{0}'.", fileName), exception, false);
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -110,7 +119,7 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                     var folder = ApplicationData.Current.LocalFolder;
                     var file = await folder.GetFileAsync(fileName);
 
-                    result = await Windows.System.Launcher.LaunchFileAsync(file);
+                    result = await Launcher.LaunchFileAsync(file);
                 }
                 catch (Exception exception)
                 {

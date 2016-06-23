@@ -13,6 +13,8 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.ApplicationModel;
+using System.IO.IsolatedStorage;
 
 namespace Sage100AddressBook
 {
@@ -22,6 +24,28 @@ namespace Sage100AddressBook
     [Bindable]
     sealed partial class App : BootStrapper
     {
+        #region Private methods
+
+        /// <summary>
+        /// Cleanup the temporary files in the user's isolated storage.
+        /// </summary>
+        private void CleanupIsolatedStorage()
+        {
+            using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                foreach (var file in store.GetFileNames())
+                {
+                    try
+                    {
+                        store.DeleteFile(file);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -63,6 +87,8 @@ namespace Sage100AddressBook
                 };
             }
 
+            CleanupIsolatedStorage();
+
             await Task.CompletedTask;
         }
 
@@ -88,6 +114,29 @@ namespace Sage100AddressBook
             finally
             {
                 await Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// Method that is called when suspending or shutting down.
+        /// </summary>
+        /// <param name="s">The sender of the event.</param>
+        /// <param name="e">Thesuspending event arguments.</param>
+        /// <param name="prelaunchActivated">True if pre-launch activated.</param>
+        /// <returns></returns>
+        public override Task OnSuspendingAsync(object s, SuspendingEventArgs e, bool prelaunchActivated)
+        {
+            var deferral = e.SuspendingOperation.GetDeferral();
+
+            try
+            {
+                CleanupIsolatedStorage();
+
+                return base.OnSuspendingAsync(s, e, prelaunchActivated);
+            }
+            finally
+            {
+                deferral.Complete();
             }
         }
 
