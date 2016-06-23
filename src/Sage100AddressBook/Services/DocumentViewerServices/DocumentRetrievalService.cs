@@ -1,53 +1,86 @@
-﻿using Microsoft.Graph;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Services.DocumentViewerServices
 {
+    /// <summary>
+    /// The document retrieval service class.
+    /// </summary>
     public class DocumentRetrievalService
     {
-        public static DocumentViewerService Instance { get; } = new DocumentViewerService();
+        #region Private fields
 
-        public async Task<IEnumerable<DocumentEntry>> RetrieveDocumentsAsync(string id, string comp)
+        private static DocumentViewerService _documentViewer = DocumentViewerService.Instance;
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Task to obtain the documents in the user's folder.
+        /// </summary>
+        /// <param name="id">The id of the base Graph folder for the user.</param>
+        /// <param name="companyCode">The company code.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DocumentEntry>> RetrieveDocumentsAsync(string id, string companyCode)
         {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+
             var client = await AuthenticationHelper.GetClient();
+            var result = new List<DocumentEntry>();
 
-            // I FEEL LUCKY
-            //if (client == null) return;
+            try
+            { 
+                var driveFolders = await client.Me.Drive.Root.ItemWithPath(id).Children.Request().GetAsync();
 
+                if (driveFolders.Count == 0) return result;
 
-            // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
-            // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
-
-            //These are the folders
-            var driveFolders = await client.Me.Drive.Root.ItemWithPath(id).Children.Request().GetAsync();
-
-            var retVal = new List<DocumentEntry>();
-
-            if (driveFolders.Count > 0)
-            {
-                foreach (DriveItem folder in driveFolders.CurrentPage)
+                foreach (var folder in driveFolders.CurrentPage)
                 {
                     var docs = await client.Me.Drive.Items[folder.Id].Children.Request().GetAsync();
 
-                    foreach (DriveItem doc in docs.CurrentPage)
+                    foreach (var doc in docs.CurrentPage)
                     {
-                        retVal.Add(new DocumentEntry()
+                        result.Add(new DocumentEntry()
                         {
                             Folder = folder.Name,
                             Id = doc.Id,
                             Name = doc.Name,
-                            LastModifiedDate = doc.LastModifiedDateTime
+                            LastModifiedDate = doc.LastModifiedDateTime?.DateTime.ToLocalTime()
                         });
                     }
                 }
+
+                return result;
             }
-            return retVal;
+            catch (Exception exception)
+            {
+                await Dialogs.ShowException(string.Format("Failed to load the documents for resource '{0}'.", id), exception, false);
+            }
+
+            return result;
         }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Returns the document viewer service.
+        /// </summary>
+        public DocumentViewerService DocumentViewer
+        {
+            get { return _documentViewer; }
+        }
+
+        #endregion
     }
 }

@@ -1,89 +1,174 @@
-﻿using System;
-using System.Collections.Generic;
-using Sage100AddressBook.Models;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage.Streams;
-using Windows.Data.Pdf;
-using System.IO.IsolatedStorage;
-using Windows.UI.Xaml;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using Sage100AddressBook.Helpers;
+using System;
+using System.IO;
+using System.IO.IsolatedStorage;
+using System.Threading.Tasks;
+using Windows.Data.Pdf;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace Sage100AddressBook.Services.DocumentViewerServices
 {
+    /// <summary>
+    /// Class for downloading the drive file as a stream.
+    /// </summary>
     public class DocumentViewerService
     {
-        public static DocumentViewerService Instance { get; } = new DocumentViewerService();
+        #region Private fields
 
-        public async Task<IRandomAccessStream> GetPDFStreamAsync(string id)
-        {
-            var client = await AuthenticationHelper.GetClient();
+        private static DocumentViewerService _instance = new DocumentViewerService();
 
+        #endregion
 
-            var response = await client.Me.Drive.Items[id].Content.Request().GetAsync();
-            var ras = response.AsRandomAccessStream();
-
-
-            var document = await PdfDocument.LoadFromStreamAsync(ras);
-
-            var outStream = new InMemoryRandomAccessStream();
-            uint pageIndex = 0;
-            using (PdfPage page = document.GetPage(pageIndex))
-            {
-                var options1 = new PdfPageRenderOptions();
-                options1.BackgroundColor = Windows.UI.Colors.Beige;
-                options1.DestinationHeight = (uint)(page.Size.Height / 2);
-                options1.DestinationWidth = (uint)(page.Size.Width / 2);
-                await page.RenderToStreamAsync(outStream, options1);
-            }
-
-            return outStream;
-
-        }
-
-
+        #region Constructor
 
         /// <summary>
-        /// Loads and displays the PDF from the data stream.
+        /// Constructor.
         /// </summary>
-        /// <param name="caller">The dependency object requesting the PDF.</param>
-        /// <param name="stream">The stream which represents the PDF.</param>
-        //private static void ShowPdf(DependencyObject caller, Stream pdf)
-        //{
-        //    if ((pdf == null) || (caller == null)) return;
+        private DocumentViewerService() { }
 
-        //    try
-        //    {
-        //        using (var store = IsolatedStorageFile.GetUserStoreForApplication())
-        //        {
-        //            using (var stream = new IsolatedStorageFileStream("outdoorpro.pdf", System.IO.FileMode.Create, store))
-        //            {
-        //                pdf.CopyTo(stream);
-        //                stream.Flush();
-        //            }
-        //        }
+        #endregion
 
-        //        caller.Dispatcher.BeginInvoke(async () =>
-        //        {
-        //            var folder = ApplicationData.Current.LocalFolder;
-        //            var file = await folder.GetFileAsync("outdoorpro.pdf");
+        #region Public methods
 
-        //            await Windows.System.Launcher.LaunchFileAsync(file);
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (Debugger.IsAttached)
-        //        {
-        //            Debug.WriteLine("Exception during UserGuide");
-        //            Debug.WriteLine(ex.Message);
-        //        }
-        //    }
-        //}
+        /// <summary>
+        /// Obtains the file stream from the given Graph file id.
+        /// </summary>
+        /// <param name="id">The Graph file identifier.</param>
+        /// <returns>The file stream.</returns>
+        public async Task<Stream> GetFileStream(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
 
+            try
+            {
+                var client = await AuthenticationHelper.GetClient();
+                
+                return await client.Me.Drive.Items[id].Content.Request().GetAsync();   
+            }
+            catch (Exception exception)
+            {
+                await Dialogs.ShowException(string.Format("Failed to open the stream for resource '{0}'.", id), exception, false);
+            }
 
+            return null;
+        } 
+
+        /// <summary>
+        /// Saves the specified stream to a local file in isolated storage.
+        /// </summary>
+        /// <param name="source">The source stream.</param>
+        /// <param name="fileName">The filename to save the stream as.</param>
+        /// <returns>True if the file was saved, otherwise false.</returns>
+        public async Task<bool> SaveToFile(Stream source, string fileName)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (string.IsNullOrEmpty(fileName)) throw new ArgumentNullException("fileName");
+
+            try
+            {
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    using (var dest = new IsolatedStorageFileStream(fileName, FileMode.Create, store))
+                    {
+                        await source.CopyToAsync(dest);
+                        await dest.FlushAsync();
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                await Dialogs.ShowException(string.Format("Failed to save the stream to file '{0}'.", fileName), exception, false);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Launches the associated application to display the local file.
+        /// </summary>
+        /// <param name="fileName">The name of the local file to display.</param>
+        /// <returns>True if the file association was launched.</returns>
+        public async Task<bool> LaunchFileAssociation(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) throw new ArgumentNullException("fileName");
+
+            var result = false;
+
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                try
+                {
+                    var folder = ApplicationData.Current.LocalFolder;
+                    var file = await folder.GetFileAsync(fileName);
+
+                    result = await Windows.System.Launcher.LaunchFileAsync(file);
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to launch the file '{0}'.", fileName), exception, false);
+                }
+            });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a pdf stream from the given Graph file resource id.
+        /// </summary>
+        /// <param name="id">The Graph file identifier.</param>
+        /// <returns>The random access stream on success, null on failure.</returns>
+        public async Task<IRandomAccessStream> GetPdfStream(string id)
+        {
+            try
+            {
+                using (var source = await GetFileStream(id))
+                {
+                    var document = await PdfDocument.LoadFromStreamAsync(source.AsRandomAccessStream());
+                    var outStream = new InMemoryRandomAccessStream();
+
+                    using (var page = document.GetPage(0))
+                    {
+                        var options = new PdfPageRenderOptions();
+
+                        options.BackgroundColor = Windows.UI.Colors.Beige;
+                        options.DestinationHeight = (uint)(page.Size.Height / 2);
+                        options.DestinationWidth = (uint)(page.Size.Width / 2);
+
+                        await page.RenderToStreamAsync(outStream, options);
+                    }
+
+                    return outStream;
+                }
+            }
+            catch (Exception exception)
+            {
+                await Dialogs.ShowException(string.Format("Failed to create the PDF stream from resource '{0}'.", id), exception, false);
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Returns the singleton instance.
+        /// </summary>
+        public static DocumentViewerService Instance
+        {
+            get { return _instance; }
+        }
+
+        #endregion
     }
 }

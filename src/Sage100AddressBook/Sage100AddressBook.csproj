@@ -101,9 +101,11 @@
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Helpers\AuthenticationHelper.cs" />
+    <Compile Include="Helpers\Dialogs.cs" />
     <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\ObservableCollectionEx.cs" />
+    <Compile Include="Helpers\VisualTree.cs" />
     <Compile Include="Models\AddressEntry.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\DocumentEntry.cs" />
@@ -246,8 +248,8 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="Telerik UI For Universal Windows Platform, Version=2016.2.504.45">
-      <Name>Telerik UI For Universal Windows Platform %28Telerik UI For Universal Windows Platform, Version=2016.2.504.45%29</Name>
+    <SDKReference Include="Telerik UI For Universal Windows Platform, Version=2016.2.608.45">
+      <Name>Telerik UI For Universal Windows Platform</Name>
     </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

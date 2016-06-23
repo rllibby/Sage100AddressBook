@@ -17,24 +17,19 @@ namespace Sage100AddressBook.ViewModels
 {
     public class CustomerDetailPageViewModel : ViewModelBase
     {
+        #region Private fields
+
         //private readonly IDataModelService _dataModelService = DataModelServiceFactory.CurrentDataModelService();
         private Customer _currentCustomer;
-
         private CustomerWebService _webService;
-
-
-
         private DocumentEntry _currentDocument;
-
         private DocumentRetrievalService _docRetrievalService;
-
-
-
         private ObservableCollection<DocumentGroup> _documentGroups;
         //private BitmapImage _sightImage;
         private ObservableCollection<DocumentEntry> _documents;
+        private bool _loading;
 
-
+        #endregion
 
 
         public CustomerDetailPageViewModel()
@@ -54,15 +49,25 @@ namespace Sage100AddressBook.ViewModels
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
-            //Customer = (suspensionState.ContainsKey(nameof(Customer))) ? suspensionState[nameof(Customer)]?.ToString() : parameter?);
-            var navArgs = (NavigationArgs)parameter;
-            CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
-            buildChartData(CurrentCustomer);
-            //to-do make several additional calls for quotes, orders, invoices, etc. - but don't await??
+            Loading = true;
 
-            //grab folders and documents for this customer - to-do: perhaps do this when pivot page is opened OR in a task.run
-            _documents = new ObservableCollection<DocumentEntry>(await _docRetrievalService.RetrieveDocumentsAsync(navArgs.Id, navArgs.CompanyCode));
-            BuildDocumentGroups();
+            try
+            {
+                //Customer = (suspensionState.ContainsKey(nameof(Customer))) ? suspensionState[nameof(Customer)]?.ToString() : parameter?);
+                var navArgs = (NavigationArgs)parameter;
+
+                CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
+                buildChartData(CurrentCustomer);
+                //to-do make several additional calls for quotes, orders, invoices, etc. - but don't await??
+
+                //grab folders and documents for this customer - to-do: perhaps do this when pivot page is opened OR in a task.run
+                _documents = new ObservableCollection<DocumentEntry>(await _docRetrievalService.RetrieveDocumentsAsync(navArgs.Id, navArgs.CompanyCode));
+                BuildDocumentGroups();
+            }
+            finally
+            {
+                Loading = false;
+            }
             await Task.CompletedTask;
         }
 
@@ -135,5 +140,23 @@ namespace Sage100AddressBook.ViewModels
             //NavigationService.Navigate(typeof(DocumentViewerPage));
             NavigationService.Navigate(typeof(DocumentViewerPage), _currentDocument, new SuppressNavigationTransitionInfo());
         }
+
+        #region Public properties
+
+        /// <summary>
+        /// True if loading, otherwise false.
+        /// </summary>
+        public bool Loading
+        {
+            get { return _loading; }
+            set
+            {
+                _loading = value;
+
+                base.RaisePropertyChanged();
+            }
+        }
+
+        #endregion
     }
 }

@@ -214,5 +214,11 @@
 
 
         </Pivot>
+        <ProgressRing Width="100" Height="100" HorizontalAlignment="Center" 
+                     RelativePanel.AlignLeftWithPanel="True"
+                     RelativePanel.AlignRightWithPanel="True"
+                     RelativePanel.AlignTopWithPanel="True"
+                     RelativePanel.AlignBottomWithPanel="True" IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}"
+                     />
     </RelativePanel>
 </Page>
