@@ -67,7 +67,6 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                         State = "CA",
                         ZipCode = "92614",
                         Phone = "(949) 555-1323",
-                        EmailAddress = "mcconaughey@yahoo.com",
                         PhoneRaw = "9495551323",
                         Type = "Customer",
                         ParentId = null
