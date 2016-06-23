@@ -26,7 +26,8 @@
     </ItemsPanelTemplate>
 
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-
+    <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
+    
     <ResourceDictionary.ThemeDictionaries>
 
         <ResourceDictionary x:Key="Light">
