@@ -14,7 +14,17 @@
 
     <x:String x:Key="ida:ClientID">c7e74706-9144-4cb0-8fad-7acd173f5666</x:String>
     <x:String x:Key="ida:ReturnUrl">urn:ietf:wg:oauth:2.0:oob</x:String>
-    
+
+    <!-- Grid item panel template when mobile -->
+    <ItemsPanelTemplate x:Key="AddressItemsMobilePanelTemplate">
+        <ItemsStackPanel />
+    </ItemsPanelTemplate>
+
+    <!-- Grid item panel template when not mobile -->
+    <ItemsPanelTemplate x:Key="AddressItemsPanelTemplate">
+        <ItemsWrapGrid MaximumRowsOrColumns="8" Orientation="Horizontal" />
+    </ItemsPanelTemplate>
+
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
 
     <ResourceDictionary.ThemeDictionaries>

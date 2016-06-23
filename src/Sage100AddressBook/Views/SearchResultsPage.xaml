@@ -21,16 +21,6 @@
                             ItemsPath="AddressEntries"
         />
 
-        <!-- Grid item panel template when mobile -->
-        <ItemsPanelTemplate x:Key="AddressItemsMobilePanelTemplate">
-            <ItemsStackPanel />
-        </ItemsPanelTemplate>
-        
-        <!-- Grid item panel template when not mobile -->
-        <ItemsPanelTemplate x:Key="AddressItemsPanelTemplate">
-            <ItemsWrapGrid MaximumRowsOrColumns="8" Orientation="Horizontal" />
-        </ItemsPanelTemplate>
-
         <!-- Item template for AddressEntry group header -->
         <DataTemplate x:Key="AddressGroupHeaderTemplate" x:DataType="models:AddressGroup">
             <TextBlock Text="{x:Bind GroupName, Mode=OneWay}" Margin="10,10" Foreground="{StaticResource CustomColorBrush}" Style="{StaticResource TitleTextBlockStyle}"/>
