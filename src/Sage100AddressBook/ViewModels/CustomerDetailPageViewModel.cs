@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
@@ -200,37 +199,11 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-<<<<<<< HEAD
-                AgingChartData = new ObservableCollection<PieChartData>();
-                if (currentCustomer.CurrentBalance != 0)
-                {
-                    AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent });
-                }
-                if (currentCustomer.AgingCategory1 != 0)
-                {
-                    AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 });
-                }
-                if (currentCustomer.AgingCategory2 != 0)
-                {
-                    AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 });
-                }
-                if (currentCustomer.AgingCategory3 != 0)
-                {
-                    AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 });
-                }
-                if (currentCustomer.AgingCategory4 != 0)
-                {
-                    AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 });
-                }
-
-
-=======
                 CurrentDocument = (sender as GridView)?.SelectedItem as DocumentEntry;
             }
             finally
             {
                 _open.RaiseCanExecuteChanged();
->>>>>>> refs / remotes / origin / dev
             }
         }
 

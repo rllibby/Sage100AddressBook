@@ -25,6 +25,7 @@
         <ItemsWrapGrid MaximumRowsOrColumns="8" Orientation="Horizontal" />
     </ItemsPanelTemplate>
 
+    <converters:ReverseBooleanToVisbilityConverter x:Key="ReverseBooleanToVisibility" />
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
     <converters:StringToImageConverter x:Key="StringToImage" />
