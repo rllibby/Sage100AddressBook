@@ -1,4 +1,4 @@
-﻿<Page x:Class="Sage100AddressBook.Views.SearchResultsPage"
+﻿<Page x:Class="Sage100AddressBook.Views.RecentPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
@@ -11,16 +11,15 @@
       mc:Ignorable="d">
 
     <Page.DataContext>
-        <viewModels:SearchResultsPageViewModel x:Name="ViewModel" />
+        <viewModels:RecentPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
     <Page.Resources>
         <CollectionViewSource x:Name="CvsAddresses"
                               IsSourceGrouped="True"
                               ItemsPath="AddressEntries"
-                              Source="{x:Bind ViewModel.AddressGroups, Mode=OneWay}" />
+                              Source="{x:Bind ViewModel.Recent.Groups, Mode=OneWay}" />
 
-        <!--  Item template for AddressEntry group header  -->
         <DataTemplate x:Key="AddressGroupHeaderTemplate" x:DataType="models:AddressGroup">
             <TextBlock Margin="10,10"
                        Foreground="{StaticResource CustomColorBrush}"
@@ -28,7 +27,6 @@
                        Text="{x:Bind GroupName, Mode=OneWay}" />
         </DataTemplate>
 
-        <!--  Item template for AddressEntry model  -->
         <DataTemplate x:Key="AddressTemplate" x:DataType="models:AddressEntry">
             <StackPanel MinWidth="300"
                         MinHeight="100"
@@ -134,7 +132,7 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="{x:Bind ViewModel.Results, Mode=OneWay}" />
+                             Text="Recent" />
 
         <GridView x:Name="AddressesGrid"
                   Grid.Row="1"
@@ -156,6 +154,10 @@
                 <GroupStyle HeaderContainerStyle="{StaticResource AddressGridViewHeaderItem}" HeaderTemplate="{StaticResource AddressGroupHeaderTemplate}" />
             </GridView.GroupStyle>
         </GridView>
+        <TextBlock Grid.Row="1"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
+                   Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibility}}"
+                   Text="No recent items to display" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"
@@ -164,3 +166,4 @@
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
     </Grid>
 </Page>
+

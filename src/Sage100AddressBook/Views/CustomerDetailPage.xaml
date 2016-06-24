@@ -21,23 +21,29 @@
         <CollectionViewSource x:Name="CvsDocuments"
                               IsSourceGrouped="True"
                               ItemsPath="DocumentEntries"
-                              Source="{x:Bind ViewModel.DocumentGroups, Mode=OneWay}" />
+                              Source="{x:Bind ViewModel.DocumentModel.DocumentGroups, Mode=OneWay}" />
         <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
-            <StackPanel MinWidth="400"
-                        MinHeight="120"
+            <StackPanel x:Name="docItem"
+                        MinWidth="400"
+                        MinHeight="84"
                         Orientation="Horizontal"
                         Padding="10,10">
-                <Image Width="100"
-                       Height="100"
+                <Image Width="64"
+                       Height="64"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Center"
                        Source="{x:Bind ImageSource, Converter={StaticResource StringToImage}, Mode=OneWay}"
                        Stretch="UniformToFill" />
                 <Grid Width="260" Margin="10,0,0,0">
-                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind Name}"
                                TextWrapping="Wrap" />
-                    <TextBlock VerticalAlignment="Bottom"
+                    <TextBlock Grid.Row="1"
                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind LastModifiedDate}"
@@ -263,7 +269,7 @@
 
                 <PivotItem Header="Documents">
                     <GridView x:Name="DocumentGrid"
-                              DoubleTapped="{x:Bind ViewModel.DocumentDoubleTapped}"
+                              DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
                               IsItemClickEnabled="True"
                               ItemContainerStyle="{StaticResource GridViewItemExpanded}"
                               ItemTemplate="{StaticResource DocumentTemplate}"
@@ -272,7 +278,7 @@
                               RelativePanel.AlignRightWithPanel="True"
                               RelativePanel.Below="pageHeader"
                               ScrollViewer.IsVerticalScrollChainingEnabled="False"
-                              SelectionChanged="{x:Bind ViewModel.DocumentSelectionChanged}"
+                              SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
                               SelectionMode="Single">
                         <GridView.GroupStyle>
                             <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
@@ -291,10 +297,19 @@
                       HorizontalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <AppBarButton Command="{x:Bind ViewModel.Open}"
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           Icon="OpenFile"
                           Label="Open"
-                          Visibility="{x:Bind ViewModel.OpenVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
+                          Icon="Upload"
+                          Label="Upload"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
+                          Icon="Delete"
+                          Label="Delete"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+
         </CommandBar>
     </Grid>
 </Page>
