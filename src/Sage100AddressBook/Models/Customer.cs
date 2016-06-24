@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using System;
 
 namespace Sage100AddressBook.Models
 {

@@ -1,23 +1,26 @@
-﻿/*
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+/*
  *  Copyright © 2016, Sage Software, Inc.
  */
 
-using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.Views
 {
     /// <summary>
-    /// Code behind for the SearchResultsPage.
+    /// Code behind for RecentPage.
     /// </summary>
-    public sealed partial class SearchResultsPage : Page
+    public sealed partial class RecentPage : Page
     {
         #region Constructor
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SearchResultsPage()
+        public RecentPage()
         {
             InitializeComponent();
             NavigationCacheMode = NavigationCacheMode.Disabled;

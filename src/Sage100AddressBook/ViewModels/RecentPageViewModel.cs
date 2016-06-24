@@ -2,14 +2,10 @@
  *  Copyright © 2016, Sage Software, Inc.
  */
 
-using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
-using Sage100AddressBook.Services.CustomerSearchServices;
 using Sage100AddressBook.Views;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
@@ -20,18 +16,14 @@ using Windows.UI.Xaml.Navigation;
 namespace Sage100AddressBook.ViewModels
 {
     /// <summary>
-    /// View model for the search results page.
+    /// View model for the recent page.
     /// </summary>
-    public class SearchResultsPageViewModel : ViewModelBase
+    public class RecentPageViewModel : ViewModelBase
     {
         #region Private fields
 
-        private ObservableCollectionEx<AddressGroup> _addressGroups = new ObservableCollectionEx<AddressGroup>();
-        private ObservableCollectionEx<AddressEntry> _addresses = new ObservableCollectionEx<AddressEntry>();
-        private CustomerSearchService _searchService;
-        private AddressEntry _currentAddress;
+        private RecentAddress _recentAddress = RecentAddress.Instance;
         private bool _loading;
-        private string _search = "Default";
 
         #endregion
 
@@ -41,9 +33,8 @@ namespace Sage100AddressBook.ViewModels
         /// Gets the navigation event arguments.
         /// </summary>
         /// <param name="entry">The address entry.</param>
-        /// <param name="removePage">True if the receiver should remove this page from the back stack.</param>
         /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry, bool removePage)
+        private NavigationArgs GetNavArgs(AddressEntry entry)
         {
             if (entry == null) throw new ArgumentNullException("entry");
 
@@ -51,18 +42,8 @@ namespace Sage100AddressBook.ViewModels
             {
                 Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
                 CompanyCode = "ABC",
-                RemovePage = removePage ? typeof(SearchResultsPage) : null
+                RemovePage = null
             };
-        }
-
-        /// <summary>
-        /// Build the address group data.
-        /// </summary>
-        private void BuildAddressGroups()
-        {
-            var grouped = from address in _addresses group address by address.Type into grp orderby grp.Key descending select new AddressGroup(grp.Key + "s", grp.ToList());
-
-            _addressGroups.Set(new ObservableCollection<AddressGroup>(grouped.ToList()));
         }
 
         #endregion
@@ -72,11 +53,8 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SearchResultsPageViewModel()
+        public RecentPageViewModel()
         {
-            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled) { }
-
-            _searchService = new CustomerSearchService();
         }
 
         #endregion
@@ -92,22 +70,11 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
-            Search = (suspensionState.ContainsKey(nameof(Search))) ? suspensionState[nameof(Search)]?.ToString() : parameter?.ToString();
-
             Loading = true;
 
             try
             {
-                _addresses.Set(await _searchService.ExecuteSearchAsync(Search), Dispatcher);
 
-                if (_addresses.Count == 1)  
-                {
-                    NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault(), true), new SuppressNavigationTransitionInfo());
-
-                    return;
-                }
-
-                BuildAddressGroups();
             }
             finally
             {
@@ -127,7 +94,7 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                if (suspending) suspensionState[nameof(Search)] = Search;
+
             }
             finally
             {
@@ -159,13 +126,13 @@ namespace Sage100AddressBook.ViewModels
         /// <param name="args">The item click event argument.</param>
         public void AddressClicked(object sender, ItemClickEventArgs args)
         {
-            _currentAddress = args.ClickedItem as AddressEntry;
+            var address = args.ClickedItem as AddressEntry;
 
-            if (_currentAddress == null) return;
+            if (address == null) return;
 
-            RecentAddress.Instance.AddRecent(_currentAddress);
+            _recentAddress.AddRecent(address);
 
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress, false), new SuppressNavigationTransitionInfo());
+            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(address), new SuppressNavigationTransitionInfo());
         }
 
         #endregion
@@ -173,50 +140,19 @@ namespace Sage100AddressBook.ViewModels
         #region Public properties
 
         /// <summary>
-        /// Search value.
-        /// </summary>
-        public string Search
-        {
-            get { return _search; }
-            set
-            {
-                Set(ref _search, value);
-
-                RaisePropertyChanged("Results");
-            }
-        }
-        
-        /// <summary>
         /// Collection of address groups.
         /// </summary>
-        public ObservableCollection<AddressGroup> AddressGroups
+        public RecentAddress Recent
         {
-            get { return _addressGroups; }
+            get { return _recentAddress; }
         }
 
         /// <summary>
-        /// Collection of addresses.
+        /// Determines if the recent list is empty.
         /// </summary>
-        public ObservableCollection<AddressEntry> Addresses
+        public bool IsEmpty
         {
-            get { return _addresses; }
-        }
-
-        /// <summary>
-        /// Current address.
-        /// </summary>
-        public AddressEntry CurrentAddress
-        {
-            get { return _currentAddress; }
-            set { Set(ref _currentAddress, value); }
-        }
-
-        /// <summary>
-        /// The results message.
-        /// </summary>
-        public string Results
-        {
-            get { return string.IsNullOrEmpty(_search)? "Search results" : string.Format("Search results for \"{0}\"", _search); }
+            get { return (_recentAddress.Groups.Count == 0); }
         }
 
         /// <summary>
