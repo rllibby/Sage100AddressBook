@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
@@ -10,8 +9,6 @@ using Sage100AddressBook.Services.Sage100Services;
 using Sage100AddressBook.Services.DocumentViewerServices;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
-using Sage100AddressBook.Views;
-using Windows.UI.Xaml.Media.Animation;
 using Sage100AddressBook.Helpers;
 using Windows.UI.Xaml.Input;
 
@@ -120,11 +117,14 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void BuildDocumentGroups()
         {
-            var grouped = from document in Documents group document by document.Folder into grp orderby grp.Key descending select new DocumentGroup
-                        {
-                            GroupName = grp.Key,
-                            DocumentEntries = grp.ToList()
-                        };
+            var grouped = from document in Documents
+                          group document by document.Folder into grp
+                          orderby grp.Key descending
+                          select new DocumentGroup
+                          {
+                              GroupName = grp.Key,
+                              DocumentEntries = grp.ToList()
+                          };
 
             _documentGroups.Set(grouped.ToList());
         }
