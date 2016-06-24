@@ -6,7 +6,6 @@ using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Services.DocumentViewerServices
@@ -18,7 +17,16 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
     {
         #region Private fields
 
-        private static DocumentViewerService _documentViewer = DocumentViewerService.Instance;
+        private static DocumentRetrievalService _instance = new DocumentRetrievalService();
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        private DocumentRetrievalService() { }
 
         #endregion
 
@@ -53,6 +61,7 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                         var entry = new DocumentEntry()
                         {
                             Folder = folder.Name,
+                            FolderId = folder.Id,
                             Id = doc.Id,
                             Name = doc.Name,
                             LastModifiedDate = doc.LastModifiedDateTime?.DateTime.ToLocalTime()
@@ -77,11 +86,11 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
         #region Public properties
 
         /// <summary>
-        /// Returns the document viewer service.
+        /// Returns the singleton instance.
         /// </summary>
-        public DocumentViewerService DocumentViewer
+        public static DocumentRetrievalService Instance
         {
-            get { return _documentViewer; }
+            get { return _instance; }
         }
 
         #endregion

@@ -36,11 +36,21 @@ namespace Sage100AddressBook.Models
         public string Folder { get; set; }
 
         /// <summary>
-        /// 
+        /// The folder id.
+        /// </summary>
+        public string FolderId { get; set; }
+
+        /// <summary>
+        /// The images source to display.
         /// </summary>
         public string ImageSource
         {
-            get { return Path.GetExtension(Name).Remove(0, 1); }
+            get
+            {
+                var ext = Path.GetExtension(Name).ToLower();
+
+                return (ext.StartsWith(".")) ? ext.Remove(0, 1) : ext;
+            }
         } 
 
         /// <summary>
@@ -49,15 +59,48 @@ namespace Sage100AddressBook.Models
         public DateTime? LastModifiedDate { get; set; }
     }
 
+    /// <summary>
+    /// Model for the document group.
+    /// </summary>
     public class DocumentGroup
     {
+        #region Public methods
+
+        /// <summary>
+        /// Returns the string version of this object.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return GroupName;
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// The id for the group.
+        /// </summary>
+        public string GroupId { get; set; }
+
+        /// <summary>
+        /// The group folder name.
+        /// </summary>
         public string GroupName { get; set; }
+
+        /// <summary>
+        /// The collection of documents in the group folder.
+        /// </summary>
         public List<DocumentEntry> DocumentEntries { get; set; }
+
+        #endregion
     }
 
     public class DocumentFolder
     {
         public string Id { get; set; }
+
         public string Name { get; set; }
     }
 }
