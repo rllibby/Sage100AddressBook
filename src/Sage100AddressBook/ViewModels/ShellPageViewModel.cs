@@ -30,9 +30,11 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private async void SignInOut()
         {
+            if (await Dialogs.ShowOkCancel("Accounts", "Are you sure you wish to sign out?") == false) return;
+
             if (AuthenticationHelper.Instance.SignedIn)
             {
-                await AuthenticationHelper.Instance.SignOut();
+                AuthenticationHelper.Instance.SignOut();
                 return;
             }
 

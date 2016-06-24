@@ -1,52 +1,210 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using Sage100AddressBook.Helpers;
+using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.DocumentViewerServices;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Template10.Mvvm;
-using Template10.Services.NavigationService;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml.Media;
 
 namespace Sage100AddressBook.ViewModels
 {
+    /// <summary>
+    /// ViewModel for the document viewer page.
+    /// </summary>
     public class DocumentViewerPageViewModel : ViewModelBase
     {
+        #region Private fields
 
         private DocumentViewerService _documentViewerService;
+        private ImageSource _documentImage;
+        private DocumentEntry _document;
+        private DelegateCommand _open;
+        private string _documentName = "Document";
+        private bool _loading;
 
-        public DocumentViewerPageViewModel()
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// Opens the current document in the associated application.
+        /// </summary>
+        /// <returns></returns>
+        private async Task OpenDocument()
         {
+            if (_document == null) return;
 
-            _documentViewerService = new DocumentViewerService();
+            Loading = true;
+
+            var fileName = string.Empty;
+
+            try
+            {
+                using (var stream = await _documentViewerService.GetFileStream(_document.Id))
+                {
+                    fileName = await _documentViewerService.SaveToFile(stream, _document.Name);
+                    await _documentViewerService.LaunchFileAssociation(fileName);
+                }
+            }
+            catch (Exception exception)
+            {
+                await Dialogs.ShowException(string.Format("Failed to launch the file '{0}'.", fileName), exception, false);
+            }
+            finally
+            {
+                Loading = false;
+            }
         }
 
-        private ImageSource _documentImage;
+        /// <summary>
+        /// Command for Open, which allows the routine to be shared by both await Task and await void.
+        /// </summary>
+        private async void DoOpen()
+        {
+            await OpenDocument();
+        }
 
+        /// <summary>
+        /// Determines if the document can be opened.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanOpenDocument()
+        {
+            return (!string.IsNullOrEmpty(_documentName));
+        }
 
-        public ImageSource DocumentImage { get { return _documentImage; } set { Set(ref _documentImage, value); } }
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public DocumentViewerPageViewModel()
+        {
+            _documentViewerService = DocumentViewerService.Instance;
+            _open = new DelegateCommand(new Action(DoOpen), CanOpenDocument);
+        }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Called when the page is being naviagted to.
+        /// </summary>
+        /// <param name="parameter">The parameter passed during navigation.</param>
+        /// <param name="mode">The navigation mode.</param>
+        /// <param name="suspensionState">The saved state.</param>
+        /// <returns>The async task to wait on.</returns>
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
-            //Search = (suspensionState.ContainsKey(nameof(Search))) ? suspensionState[nameof(Search)]?.ToString() : parameter?.ToString();
+            var doc = (DocumentEntry)parameter;
 
-            //_addresses = new ObservableCollection<AddressEntry>(await _searchService.ExecuteSearchAsync(Search));
-            //Sage100AddressBook.Views.DocumentViewerPage.Browser.Navigate("http://espn.com");
+            Loading = true;
 
-            //to-do - eventually will want to obtain url from the parameter
-            var url = "https://swmsagedev-my.sharepoint.com/personal/steve_swmsagedev_onmicrosoft_com/_layouts/15/guestaccess.aspx?guestaccesstoken=5T9hTXjlxFe9qJQm1DUPHC9p%2bCUQEKHT8syowQa747E%3d&docid=0823727dd340d4ae884dbc9525a2932ed";
+            try
+            {
+                if (doc != null)
+                {
+                    _document = doc;
 
-            //get a stream for a pdf page
-            var stream = await _documentViewerService.GetPDFStreamAsync(url);
+                    DocumentName = _document.Name;
 
-            BitmapImage src = new BitmapImage();
+                    using (var stream = await _documentViewerService.GetPdfStream(_document.Id))
+                    {
+                        var image = new BitmapImage();
 
-            src.SetSource(stream);
-            DocumentImage = src;
- 
+                        image.SetSource(stream);
+                        DocumentImage = image;
+                    }
+                }
+            }
+            finally
+            {
+                Loading = false;
+            }
 
             await Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Event that is triggered when the image is tapped.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="args">The event arguments.</param>
+        public async void OnImageDoubleTapped(object sender, DoubleTappedRoutedEventArgs args)
+        {
+            var scrollViewer = VisualTree.GetParent<ScrollViewer>((DependencyObject)sender);
+            var doubleTapPoint = args.GetPosition(scrollViewer);
+
+            if (scrollViewer.ZoomFactor != 1)
+            {
+                scrollViewer.ZoomToFactor(1);
+                return;
+            }
+
+            if (scrollViewer.ZoomFactor == 1)
+            {
+                scrollViewer.ZoomToFactor(2);
+
+                await Dispatcher.DispatchAsync(() =>
+                {
+                    scrollViewer.ScrollToHorizontalOffset(doubleTapPoint.X);
+                    scrollViewer.ScrollToVerticalOffset(doubleTapPoint.Y);
+                });
+            }
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Opens the current document.
+        /// </summary>
+        public DelegateCommand Open
+        {
+            get { return _open; }
+        }
+
+        /// <summary>
+        /// The document image source.
+        /// </summary>
+        public ImageSource DocumentImage
+        {
+            get { return _documentImage; }
+            set { Set(ref _documentImage, value); }
+        }
+
+        /// <summary>
+        /// The document name
+        /// </summary>
+        public string DocumentName
+        {
+            get { return _documentName; }
+            set { Set(ref _documentName, value); }
+        }
+
+        /// <summary>
+        /// True if loading.
+        /// </summary>
+        public bool Loading
+        {
+            get { return _loading; }
+            set { Set(ref _loading, value); }
+        }
+
+        #endregion
     }
 }

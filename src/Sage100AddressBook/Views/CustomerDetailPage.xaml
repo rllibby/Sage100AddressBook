@@ -1,182 +1,300 @@
-﻿<Page xmlns:telerikChart="using:Telerik.UI.Xaml.Controls.Chart" 
-    x:Class="Sage100AddressBook.Views.CustomerDetailPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Sage100AddressBook.Views"
-    xmlns:viewModels="using:Sage100AddressBook.ViewModels"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Behaviors="using:Template10.Behaviors"
-    xmlns:controls="using:Template10.Controls"
-    xmlns:converters="using:Template10.Converters"
-    xmlns:models ="using:Sage100AddressBook.Models"
-    mc:Ignorable="d">
+﻿<Page x:Class="Sage100AddressBook.Views.CustomerDetailPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Sage100AddressBook.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:models="using:Sage100AddressBook.Models"
+      xmlns:telerikChart="using:Telerik.UI.Xaml.Controls.Chart"
+      xmlns:telerikPrimitives="using:Telerik.UI.Xaml.Controls.Primitives"
+      xmlns:viewModels="using:Sage100AddressBook.ViewModels"
+      mc:Ignorable="d">
 
     <Page.DataContext>
         <viewModels:CustomerDetailPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
     <Page.Resources>
-        <!--<DataTemplate x:Key="customerTemplate" x:DataType="models:Customer" >
-            <StackPanel MinWidth="356" MinHeight="124" Margin="10,10,0,0">
-                <TextBlock Text="{x:Bind CustomerName}"
-                               Style="{StaticResource HeaderTextBlockStyle}"
-                           
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind AddressLine1}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind AddressLine2}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind AddressLine3}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{x:Bind City}" Margin="0,0,4,0"
-                                   Style="{StaticResource SubtitleTextBlockStyle}"
-                                   TextTrimming="CharacterEllipsis"
-                                   />
-                    <TextBlock Text="{x:Bind State}" Margin="0,0,4,0"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                    <TextBlock Text="{x:Bind ZipCode}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                </StackPanel>
-                <TextBlock Text="{x:Bind Telephone}" Margin="0,10,0,0"
-                               Style="{StaticResource SubheaderTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind EmailAddress}" Margin="0,4,0,0"
-                               Style="{StaticResource SubheaderTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
+        <CollectionViewSource x:Name="CvsDocuments"
+                              IsSourceGrouped="True"
+                              ItemsPath="DocumentEntries"
+                              Source="{x:Bind ViewModel.DocumentGroups, Mode=OneWay}" />
+        <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
+            <StackPanel MinWidth="400"
+                        MinHeight="120"
+                        Orientation="Horizontal"
+                        Padding="10,10">
+                <Image Width="100"
+                       Height="100"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Source="{x:Bind ImageSource, Converter={StaticResource StringToImage}, Mode=OneWay}"
+                       Stretch="UniformToFill" />
+                <Grid Width="260" Margin="10,0,0,0">
+                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="{x:Bind Name}"
+                               TextWrapping="Wrap" />
+                    <TextBlock VerticalAlignment="Bottom"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               Text="{x:Bind LastModifiedDate}"
+                               TextTrimming="CharacterEllipsis" />
+                </Grid>
             </StackPanel>
-
-
-        </DataTemplate>-->
+            <!--</Grid>-->
+        </DataTemplate>
+        <DataTemplate x:Key="DocumentGroupHeaderTemplate" x:DataType="models:DocumentGroup">
+            <TextBlock Foreground="{StaticResource CustomColorBrush}"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="{x:Bind GroupName, Mode=OneWay}" />
+        </DataTemplate>
+        <Style x:Key="DocumentGridViewHeaderItem" TargetType="GridViewHeaderItem">
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontSize" Value="{ThemeResource GridViewHeaderItemThemeFontSize}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Padding" Value="0,0,0,4" />
+            <Setter Property="MinHeight" Value="10" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewHeaderItem">
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Margin="0"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <converters:StringFormatConverter x:Key="StringFormatConverter" />
     </Page.Resources>
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <!--  header  -->
-        <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}"
-                             RelativePanel.AlignLeftWithPanel="True"
-                             RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="Customer Detail"/>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <!--  content  -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.Below="pageHeader">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="500"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <!--<Grid.DataContext>
-                <Binding Source="{x:Bind ViewModel.CurrentCustomer, Mode=OneTime}" />
-            </Grid.DataContext>-->
+        <controls:PageHeader x:Name="pageHeader"
+                             Grid.Row="0"
+                             Frame="{x:Bind Frame}"
+                             Text="Customer Detail" />
+        <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Pivot x:Name="CustomerPivot"
+                   RelativePanel.AlignBottomWithPanel="True"
+                   RelativePanel.AlignLeftWithPanel="True"
+                   RelativePanel.AlignRightWithPanel="True"
+                   RelativePanel.AlignTopWithPanel="True"
+                   SelectionChanged="{x:Bind ViewModel.PivotChanged}">
 
-            <StackPanel MinWidth="356" MinHeight="124" Margin="10,10,0,0">
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
-                               Style="{StaticResource HeaderTextBlockStyle}"
-                           
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.City}" Margin="0,0,4,0"
-                                   Style="{StaticResource SubtitleTextBlockStyle}"
-                                   TextTrimming="CharacterEllipsis"
-                                   />
-                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.State}" Margin="0,0,4,0"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                    <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                </StackPanel>
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.Telephone}" Margin="0,10,0,0"
-                               Style="{StaticResource SubheaderTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.EmailAddress}" Margin="0,4,0,0"
-                               Style="{StaticResource SubheaderTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis"
-                               />
+                <PivotItem DataContext="{Binding CustomerDetailPageViewModei}" Header="At a Glance">
+                    <ScrollViewer>
+                        <RelativePanel HorizontalAlignment="Left">
+                            <StackPanel x:Name="customerInfo"
+                                        MinWidth="300"
+                                        MinHeight="124"
+                                        Margin="10,10,0,0"
+                                        BorderBrush="{StaticResource CustomColorBrush}"
+                                        BorderThickness="1,1,1,1"
+                                        Padding="10,10"
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignTopWithPanel="True">
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine2, Converter={StaticResource StringToVisibility}}" />
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="0,0,4,0"
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.City}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.City, Converter={StaticResource StringToVisibility}}" />
+                                    <TextBlock Margin="0,0,4,0"
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.State}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.State, Converter={StaticResource StringToVisibility}}" />
+                                    <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
+                                </StackPanel>
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.Telephone}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.Telephone, Converter={StaticResource StringToVisibility}}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.EmailAddress}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.EmailAddress, Converter={StaticResource StringToVisibility}}" />
 
-                <TextBlock Text="Date Established" />
-                <TextBlock Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" ></TextBlock>
-            </StackPanel>
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="Date Established"
+                                           Visibility="{x:Bind ViewModel.Loading, Converter={StaticResource ReverseBooleanToVisibility}, Mode=OneWay}" />
 
-            <!--<telerikChart:RadPieChart  x:Name="pieChart" PaletteName="DefaultDark" Grid.Column="1" >
-                <telerikChart:PieSeries ItemsSource="{x:Bind ViewModel.AgingChartData}" ShowLabels="True" RadiusFactor=".50">
-                    <telerikChart:PieSeries.ValueBinding>
-                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value"/>
-                    </telerikChart:PieSeries.ValueBinding>
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
+                            </StackPanel>
+                            <StackPanel x:Name="accountBalance">
+                                <StackPanel Orientation="Horizontal">
+                                    <telerikChart:RadPieChart x:Name="pieChart"
+                                                              MinWidth="300"
+                                                              MinHeight="300"
+                                                              PaletteName="DefaultDark">
+                                        <telerikChart:DoughnutSeries ItemsSource="{x:Bind ViewModel.AgingChartData}"
+                                                                     RadiusFactor=".75"
+                                                                     ShowLabels="True">
+                                            <telerikChart:DoughnutSeries.ValueBinding>
+                                                <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
+                                            </telerikChart:DoughnutSeries.ValueBinding>
+                                            <telerikChart:DoughnutSeries.LabelDefinitions>
+                                                <telerikChart:ChartSeriesLabelDefinition Margin="-10">
+                                                    <telerikChart:ChartSeriesLabelDefinition.Binding>
+                                                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
+                                                    </telerikChart:ChartSeriesLabelDefinition.Binding>
+                                                </telerikChart:ChartSeriesLabelDefinition>
+                                            </telerikChart:DoughnutSeries.LabelDefinitions>
+                                            <telerikChart:DoughnutSeries.LegendTitleBinding>
+                                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
+                                            </telerikChart:DoughnutSeries.LegendTitleBinding>
+                                        </telerikChart:DoughnutSeries>
+                                    </telerikChart:RadPieChart>
 
-                    <telerikChart:PieSeries.LabelDefinitions>
-                        <telerikChart:ChartSeriesLabelDefinition Margin="-10">
-                            <telerikChart:ChartSeriesLabelDefinition.Binding>
-                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
-                            </telerikChart:ChartSeriesLabelDefinition.Binding>
-                        </telerikChart:ChartSeriesLabelDefinition>
-                    </telerikChart:PieSeries.LabelDefinitions>
-                    
-                </telerikChart:PieSeries>
-            </telerikChart:RadPieChart>-->
+                                    <telerikPrimitives:RadLegendControl VerticalAlignment="Bottom" LegendProvider="{Binding ElementName=pieChart}">
+                                        <telerikPrimitives:RadLegendControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical" />
+                                            </ItemsPanelTemplate>
+                                        </telerikPrimitives:RadLegendControl.ItemsPanel>
+                                        <telerikPrimitives:RadLegendControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Ellipse Width="10"
+                                                             Height="10"
+                                                             Fill="{Binding Fill}"
+                                                             Stroke="{Binding Stroke}"
+                                                             StrokeThickness="1" />
+                                                    <TextBlock Margin="10"
+                                                               FontStyle="Oblique"
+                                                               Foreground="{Binding Fill}"
+                                                               Text="{Binding Title}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </telerikPrimitives:RadLegendControl.ItemTemplate>
+                                    </telerikPrimitives:RadLegendControl>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Balance Due: " />
+                                    <TextBlock Margin="4,0,0,0" Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </RelativePanel>
+                    </ScrollViewer>
+                </PivotItem>
 
-            <telerikChart:RadPieChart  x:Name="pieChart" PaletteName="DefaultDark" Grid.Column="1" >
-                <telerikChart:DoughnutSeries ItemsSource="{x:Bind ViewModel.AgingChartData}" ShowLabels="True" RadiusFactor=".50">
-                    <telerikChart:DoughnutSeries.ValueBinding>
-                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value"/>
-                    </telerikChart:DoughnutSeries.ValueBinding>
+                <PivotItem Header="Documents">
+                    <GridView x:Name="DocumentGrid"
+                              DoubleTapped="{x:Bind ViewModel.DocumentDoubleTapped}"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource DocumentTemplate}"
+                              ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.DocumentSelectionChanged}"
+                              SelectionMode="Single">
+                        <GridView.GroupStyle>
+                            <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
+                        </GridView.GroupStyle>
+                    </GridView>
+                </PivotItem>
 
-                    <telerikChart:DoughnutSeries.LabelDefinitions>
-                        <telerikChart:ChartSeriesLabelDefinition Margin="-10">
-                            <telerikChart:ChartSeriesLabelDefinition.Binding>
-                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
-                            </telerikChart:ChartSeriesLabelDefinition.Binding>
-                        </telerikChart:ChartSeriesLabelDefinition>
-                    </telerikChart:DoughnutSeries.LabelDefinitions>
-
-                </telerikChart:DoughnutSeries>
-            </telerikChart:RadPieChart>
-
-            <!--<telerik:PieSeries ItemsSource="{Binding Data}" RadiusFactor="0.95">
-                <telerik:PieSeries.ValueBinding>
-                    <telerik:PropertyNameDataPointBinding PropertyName="Percent" />
-                </telerik:PieSeries.ValueBinding>
-
-                <telerik:PieSeries.LabelDefinitions>
-                    <telerik:ChartSeriesLabelDefinition Margin="-10">
-                        <telerik:ChartSeriesLabelDefinition.Binding>
-                            <telerik:PropertyNameDataPointBinding PropertyName="Label" />
-                        </telerik:ChartSeriesLabelDefinition.Binding>
-                    </telerik:ChartSeriesLabelDefinition>
-                </telerik:PieSeries.LabelDefinitions>
-            </telerik:PieSeries>-->
-            <!--<ContentPresenter Content="{x:Bind ViewModel.CurrentCustomer, Mode=TwoWay}" ContentTemplate="{StaticResource customerTemplate}"/>-->
-
-        </Grid>
-    </RelativePanel>
+                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes" />
+                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Orders" />
+                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items" />
+            </Pivot>
+        </RelativePanel>
+        <ProgressRing Grid.Row="1"
+                      Width="100"
+                      Height="100"
+                      HorizontalAlignment="Center"
+                      IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+        <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.Open}"
+                          Icon="OpenFile"
+                          Label="Open"
+                          Visibility="{x:Bind ViewModel.OpenVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+        </CommandBar>
+    </Grid>
 </Page>

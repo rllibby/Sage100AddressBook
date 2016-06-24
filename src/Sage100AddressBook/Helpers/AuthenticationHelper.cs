@@ -2,19 +2,18 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
-using System;
 using System.Threading.Tasks;
 using Template10.Mvvm;
-using Windows.Security.Authentication.Web;
-using Windows.Security.Authentication.Web.Core;
 using Windows.Storage;
+using Microsoft.Graph;
 using Windows.UI.Xaml;
-using Newtonsoft.Json;
-using Sage100AddressBook.Models;
 
-#if DEBUG
-using System.Diagnostics;
-#endif
+/*
+ *  Application Registration:
+ * 
+ * https://github.com/microsoftgraph/msgraph-sdk-dotnet/blob/master/README.md
+ * 
+ */
 
 namespace Sage100AddressBook.Helpers
 {
@@ -25,7 +24,8 @@ namespace Sage100AddressBook.Helpers
     {
         #region Private constants
 
-        private const string AccountId = "AccountId";
+        private const string DisplayName = "DisplayName";
+        private const string RefreshToken = "RefreshToken";
         private const string User = "User";
 
         #endregion
@@ -33,77 +33,40 @@ namespace Sage100AddressBook.Helpers
         #region Private properties
 
         private static AuthenticationHelper _instance = new AuthenticationHelper();
+        private static GraphServiceClient _graphClient;
+        private string _clientId = App.Current.Resources["ida:ClientID"].ToString();
+        private string _redirectUrl = App.Current.Resources["ida:ReturnUrl"].ToString();
         private string _userName;
-        private string _token;
 
         #endregion
 
         #region Private methods
 
         /// <summary>
-        /// This is only used to get the application redirect to use for the application registration.
+        /// Aquires a new authenticated instance of the GraphClient.
         /// </summary>
-        private void GetAppRedirect()
+        /// <returns></returns>
+        private async Task AquireGraphClient()
         {
-            var uri = string.Format("ms-appx-web://Microsoft.AAD.BrokerPlugIn/{0}", WebAuthenticationBroker.GetCurrentApplicationCallbackUri().Host.ToUpper());
+            var authenticationProvider = new OAuth2AuthenticationProvider(_clientId, _redirectUrl, new string[]
+                {
+                    "offline_access",
+                    "https://graph.microsoft.com/Files.ReadWrite",
+                    "https://graph.microsoft.com/Group.ReadWrite.All",
+                    "https://graph.microsoft.com/Directory.ReadWrite.All",
+                    "https://graph.microsoft.com/Directory.AccessAsUser.All",
+                });
 
-            Debug.WriteLine(uri);
-        }
-
-        /// <summary>
-        /// Makes the web request to authenticate.
-        /// </summary>
-        /// <param name="request">The web token request.</param>
-        /// <param name="silent">True if this should be a silent (no UI) request.</param>
-        /// <returns>The web token response.</returns>
-        private async Task<WebTokenResponse> Authenticate(WebTokenRequest request, bool silent)
-        {
-            if (request == null) throw new ArgumentNullException("request");
-
-            var requestResult = await (silent ? WebAuthenticationCoreManager.GetTokenSilentlyAsync(request) : WebAuthenticationCoreManager.RequestTokenAsync(request));
-
-            if (requestResult.ResponseStatus == WebTokenRequestStatus.Success)
+            try
             {
-                var tokenResponse = requestResult.ResponseData[0];
+                await authenticationProvider.AuthenticateAsync();
 
-                ApplicationData.Current.LocalSettings.Values.Remove(AccountId);
-                ApplicationData.Current.LocalSettings.Values[AccountId] = requestResult.ResponseData[0].WebAccount.Id;
-
-                return tokenResponse;
+                Client = new GraphServiceClient(authenticationProvider);
             }
-
-            return null;
-        }
-
-        /// <summary>
-        /// If the account id has previously been obtained, then attempts to silently get the access token. If this 
-        /// fails, or accountId is null, then a prompted login will be used to obtain the access token.
-        /// </summary>
-        /// <returns>The access token for the Graph API.</returns>
-        private async Task<string> GetAccessTokenForGraph()
-        {
-            var clientId = App.Current.Resources["ida:ClientID"].ToString();
-            var accountId = (string)ApplicationData.Current.LocalSettings.Values[AccountId];
-            var accountProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync("https://login.windows.net");
-            var tokenRequest = new WebTokenRequest(accountProvider, string.Empty, clientId, (string.IsNullOrEmpty(accountId) ? WebTokenRequestPromptType.ForceAuthentication : WebTokenRequestPromptType.Default));
-
-            tokenRequest.Properties.Add("authority", "https://login.windows.net");
-            tokenRequest.Properties.Add("resource", "https://graph.microsoft.com/");
-
-            if (tokenRequest.PromptType == WebTokenRequestPromptType.Default)
+            catch
             {
-                var silentResponse = await Authenticate(tokenRequest, true);
-
-                if (silentResponse != null) return silentResponse.Token;
+                Client = null;
             }
-
-            tokenRequest = new WebTokenRequest(accountProvider, string.Empty, clientId, WebTokenRequestPromptType.ForceAuthentication);
-            tokenRequest.Properties.Add("authority", "https://login.windows.net");
-            tokenRequest.Properties.Add("resource", "https://graph.microsoft.com/");
-
-            var response = await Authenticate(tokenRequest, false);
-
-            return (response == null) ? null : response.Token;
         }
 
         /// <summary>
@@ -128,7 +91,6 @@ namespace Sage100AddressBook.Helpers
         private AuthenticationHelper()
         {
             _userName = (string)ApplicationData.Current.LocalSettings.Values[User];
-            _token = null;
         }
 
         #endregion
@@ -145,25 +107,15 @@ namespace Sage100AddressBook.Helpers
 
             try
             {
-                var token = await GetAccessTokenForGraph();
-
-                if (!string.IsNullOrEmpty(token))
+                if (_graphClient == null) await AquireGraphClient();
+                if (_graphClient != null)
                 {
-                    var user = await EndpointHelper.GetJson("https://graph.microsoft.com/v1.0/me", token);
+                    var me = await _graphClient.Me.Request().GetAsync();
 
-                    if (user != null)
-                    {
-                        var me = JsonConvert.DeserializeObject<Me>(user);
-
-                        UserName = me.FirstName + " " + me.LastName;
-                    }
+                    UserName = me.DisplayName;
                 }
 
-                if (Token != token)
-                {
-                    Token = token;
-                    Notify();
-                }
+                Notify();
             }
             finally
             {
@@ -175,25 +127,15 @@ namespace Sage100AddressBook.Helpers
         /// Attempts to sign the user out of Microsoft Graph.
         /// </summary>
         /// <returns>The async task which can be awaited.</returns>
-        public async Task SignOut()
+        public void SignOut()
         {
             Views.Busy.SetBusy(true, "Signing out...");
 
             try
             {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey(AccountId)) return;
-
-                var account = (string)ApplicationData.Current.LocalSettings.Values[AccountId];
-
-                ApplicationData.Current.LocalSettings.Values.Remove(AccountId);
-
-                var providerToDelete = await WebAuthenticationCoreManager.FindAccountProviderAsync("https://login.windows.net");
-                var accountToDelete = await WebAuthenticationCoreManager.FindAccountAsync(providerToDelete, account);
-
-                if (accountToDelete != null) await accountToDelete.SignOutAsync(App.Current.Resources["ida:ClientID"].ToString());
-
-                UserName = null;
+                Client = null;
                 Token = null;
+                UserName = null;
 
                 Notify();
             }
@@ -201,6 +143,20 @@ namespace Sage100AddressBook.Helpers
             {
                 Views.Busy.SetBusy(false);
             }
+        }
+
+        /// <summary>
+        /// If signedin, returns the Client from the static instance, otherwise a UI based authentication is 
+        /// performed to sign the user in.
+        /// </summary>
+        /// <returns>The graph client.</returns>
+        public async static Task<GraphServiceClient> GetClient()
+        {
+            if (_graphClient != null) return _graphClient;
+
+            await Instance.SignIn();
+
+            return _graphClient;
         }
 
         #endregion
@@ -230,15 +186,29 @@ namespace Sage100AddressBook.Helpers
         }
 
         /// <summary>
-        /// The access token for Microsoft Graph.
+        /// The stored refresh token.
         /// </summary>
         public string Token
         {
-            get { return _token; }
+            get { return (string)ApplicationData.Current.LocalSettings.Values[RefreshToken]; }
             set
             {
-                _token = value;
+                ApplicationData.Current.LocalSettings.Values[RefreshToken] = value;
 
+                base.RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The Microsoft Graph service client.
+        /// </summary>
+        public GraphServiceClient Client
+        {
+            get { return _graphClient; }
+            set
+            {
+                _graphClient = value;
+                       
                 base.RaisePropertyChanged();
                 RaisePropertyChanged("SignedIn");
             }
@@ -249,7 +219,7 @@ namespace Sage100AddressBook.Helpers
         /// </summary>
         public bool SignedIn
         {
-            get { return !string.IsNullOrEmpty(_token); }
+            get { return (_graphClient != null); }
         }
 
         /// <summary>

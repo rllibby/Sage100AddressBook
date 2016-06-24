@@ -14,7 +14,7 @@ namespace Sage100AddressBook.Services.Sage100Services
     {
         public static CustomerWebService Instance { get; } = new CustomerWebService();
 
-        private string baseUrl = "https://331ef7af.ngrok.io/api/";
+        private string baseUrl = "https://4d15361fswm.ngrok.io/api/";
         public async Task<Customer> GetCustomerAsync(string custId, string companyCode)
         {
 
@@ -74,7 +74,7 @@ namespace Sage100AddressBook.Services.Sage100Services
                         OpenOrderAmt = 1908,
                         AmountDue = 23954.02,
                         CreditRemaining = -862.0200000000004,
-                        Id = "30324155544F4352"
+                        Id = "303141564E4554"
                     };
                     retVal = cust;
 

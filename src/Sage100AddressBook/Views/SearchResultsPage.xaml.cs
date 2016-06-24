@@ -8,7 +8,6 @@ namespace Sage100AddressBook.Views
         public SearchResultsPage()
         {
             InitializeComponent();
-
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }
     }

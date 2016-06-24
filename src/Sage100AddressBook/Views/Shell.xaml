@@ -23,6 +23,10 @@
             <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:MainPage" 
                                           AutomationProperties.Name="Jerry"
                                           >
+                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <SuppressNavigationTransitionInfo />
+                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48" Height="48"
                                 Symbol="Home" />

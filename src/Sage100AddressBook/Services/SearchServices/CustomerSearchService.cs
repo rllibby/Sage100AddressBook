@@ -24,7 +24,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                 var sageWeb = new HttpClient();
 
                 //to-do put base url in a config file
-                var searchURI = new Uri("https://331ef7af.ngrok.io/api/" + compCode+"/addresses?search=" + searchString);
+                var searchURI = new Uri("https://4d15361fswm.ngrok.io/api/" + compCode+"/addresses?search=" + searchString);
 
                 //client.DefaultRequestHeaders
                 //  .Accept
@@ -45,13 +45,14 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                     //fake data when offline
                     retVal.Add(new AddressEntry()
                     {
-                        Id = "123",
+                        Id = "303141564E4554",
                         Name = "Adamson Plumbing Supply",
                         Address = "123 Main Steet",
                         City = "Irvine",
                         State = "CA",
                         ZipCode = "92614",
                         Phone = "(949) 555-1323",
+                        EmailAddress = "adamson@gmail.com",
                         PhoneRaw = "9495551323",
                         Type = "Customer",
                         ParentId = null
@@ -59,7 +60,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
 
                     retVal.Add(new AddressEntry()
                     {
-                        Id = "124",
+                        Id = "303141564E4554",
                         Name = "McConaughey and Associates",
                         Address = "123 Main Steet",
                         City = "Bainbridge",
@@ -72,13 +73,14 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                     });
                     retVal.Add(new AddressEntry()
                     {
-                        Id = "123-00",
+                        Id = "303141564E4554",
                         Name = "Joe Mamma",
                         Address = "123 Main Steet",
                         City = "Irvine",
                         State = "CA",
                         ZipCode = "92614",
                         Phone = "(949) 555-1323",
+                        EmailAddress = "jmamma@hotmail.com",
                         PhoneRaw = "9495551323",
                         Type = "Contact",
                         ParentId = "123"
@@ -87,6 +89,5 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
             }
             return retVal;
         }
-
     }
 }
