@@ -6,6 +6,7 @@ using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Services.DocumentViewerServices
@@ -49,13 +50,15 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
                     foreach (var doc in docs.CurrentPage)
                     {
-                        result.Add(new DocumentEntry()
+                        var entry = new DocumentEntry()
                         {
                             Folder = folder.Name,
                             Id = doc.Id,
                             Name = doc.Name,
                             LastModifiedDate = doc.LastModifiedDateTime?.DateTime.ToLocalTime()
-                        });
+                        };
+                        
+                        result.Add(entry);
                     }
                 }
 
