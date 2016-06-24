@@ -100,6 +100,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\StringToImageConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\Device.cs" />
@@ -164,6 +165,7 @@
     <Content Include="Assets\BadgeLogo.scale-100.png" />
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
+    <Content Include="Assets\pdf.png" />
     <Content Include="Assets\sage.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\Square150x150Logo.scale-100.png" />

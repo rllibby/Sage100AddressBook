@@ -111,9 +111,9 @@ namespace Sage100AddressBook
             view.TitleBar.ButtonPressedBackgroundColor = Color.FromArgb(255, 0, 220, 0);
             view.TitleBar.ButtonPressedForegroundColor = Colors.White;
             view.TitleBar.ButtonInactiveBackgroundColor = Color.FromArgb(255, 40, 40, 40);
-            view.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+            view.TitleBar.ButtonInactiveForegroundColor = Colors.White;
             view.TitleBar.InactiveBackgroundColor = Color.FromArgb(255, 40, 40, 40);
-            view.TitleBar.InactiveForegroundColor = Colors.Gray;
+            view.TitleBar.InactiveForegroundColor = Colors.White;
 
             if (ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
             {
