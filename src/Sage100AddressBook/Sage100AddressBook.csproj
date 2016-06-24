@@ -171,7 +171,12 @@
     <Content Include="Assets\BadgeLogo.scale-100.png" />
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
+    <Content Include="Assets\doc.png" />
+    <Content Include="Assets\docx.png" />
+    <Content Include="Assets\nothumbnail.png" />
     <Content Include="Assets\pdf.png" />
+    <Content Include="Assets\ppt.png" />
+    <Content Include="Assets\pptx.png" />
     <Content Include="Assets\sage.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\Square150x150Logo.scale-100.png" />
@@ -197,6 +202,8 @@
     <Content Include="Assets\StoreLogo.scale-400.png" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\xls.png" />
+    <Content Include="Assets\xlsx.png" />
     <Content Include="Documents\Client Registration.txt" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
