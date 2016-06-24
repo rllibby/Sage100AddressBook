@@ -30,6 +30,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<AddressEntry> _addresses = new ObservableCollectionEx<AddressEntry>();
         private CustomerSearchService _searchService;
         private AddressEntry _currentAddress;
+        private bool _loading;
         private string _search = "Default";
 
         #endregion
@@ -98,6 +99,8 @@ namespace Sage100AddressBook.ViewModels
         {
             Search = (suspensionState.ContainsKey(nameof(Search))) ? suspensionState[nameof(Search)]?.ToString() : parameter?.ToString();
 
+            Loading = true;
+
             try
             {
                 _addresses.Set(await _searchService.ExecuteSearchAsync(Search), Dispatcher);
@@ -114,8 +117,10 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
-                await Task.CompletedTask;
+                Loading = false;
             }
+
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -217,7 +222,21 @@ namespace Sage100AddressBook.ViewModels
         {
             get { return string.IsNullOrEmpty(_search)? "Search results" : string.Format("Search results for \"{0}\"", _search); }
         }
-        
+
+        /// <summary>
+        /// True if loading, otherwise false.
+        /// </summary>
+        public bool Loading
+        {
+            get { return _loading; }
+            set
+            {
+                _loading = value;
+
+                base.RaisePropertyChanged();
+            }
+        }
+
         #endregion
     }
 }

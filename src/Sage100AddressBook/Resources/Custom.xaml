@@ -12,7 +12,7 @@
     <Color x:Key="ContrastColor">White</Color>
     <Color x:Key="SystemAccentColor">#00DC00</Color>
 
-    <x:String x:Key="ida:ClientID">c7e74706-9144-4cb0-8fad-7acd173f5666</x:String>
+    <x:String x:Key="ida:ClientID">2585caa5-8695-4945-9da7-6d6a73c5b172</x:String>
     <x:String x:Key="ida:ReturnUrl">urn:ietf:wg:oauth:2.0:oob</x:String>
 
     <!-- Grid item panel template when mobile -->
@@ -27,7 +27,8 @@
 
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
-    
+    <converters:StringToImageConverter x:Key="StringToImage" />
+
     <ResourceDictionary.ThemeDictionaries>
 
         <ResourceDictionary x:Key="Light">

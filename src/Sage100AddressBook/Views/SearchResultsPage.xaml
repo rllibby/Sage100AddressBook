@@ -95,8 +95,11 @@
 
     </Page.Resources>
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
                 <VisualState x:Name="VisualStateNarrow">
@@ -127,11 +130,9 @@
         </VisualStateManager.VisualStateGroups>
 
         <controls:PageHeader x:Name="pageHeader" Frame="{x:Bind Frame}"
-                             RelativePanel.AlignLeftWithPanel="True"
-                             RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="{x:Bind ViewModel.Results, Mode=OneWay}"/>
+                             Grid.Row="0" Text="{x:Bind ViewModel.Results, Mode=OneWay}"/>
 
-        <GridView x:Name="AddressesGrid"
+        <GridView x:Name="AddressesGrid" Grid.Row="1"
             ItemsSource="{x:Bind CvsAddresses.View, Mode=OneWay}"
             ScrollViewer.IsVerticalScrollChainingEnabled="False"
             RelativePanel.AlignLeftWithPanel="True"
@@ -152,5 +153,9 @@
                 />
             </GridView.GroupStyle>
         </GridView>
-    </RelativePanel>
+        <ProgressRing Grid.Row="1" Width="100" Height="100" HorizontalAlignment="Center" 
+            VerticalAlignment="Center"
+            IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}"
+        />
+    </Grid>
 </Page>
