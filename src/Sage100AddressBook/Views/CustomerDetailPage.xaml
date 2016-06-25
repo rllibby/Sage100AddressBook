@@ -131,7 +131,9 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="Customer Detail" />
+                             Text="Customer Detail">
+            <AppBarButton Icon="Find" />
+        </controls:PageHeader>
         <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Pivot x:Name="CustomerPivot"
                    RelativePanel.AlignBottomWithPanel="True"
@@ -296,6 +298,13 @@
                       Height="100"
                       HorizontalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+        <StackPanel Grid.Row="1"
+                    Height="50"
+                    VerticalAlignment="Top"
+                    LayoutUpdated="StackPanel_LayoutUpdated"
+                    Padding="4,4">
+            <TextBox Margin="4,4,4,4" />
+        </StackPanel>
         <CommandBar x:Name="bottomBar" Grid.Row="2">
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           Icon="OpenFile"
@@ -311,5 +320,6 @@
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
 
         </CommandBar>
+
     </Grid>
 </Page>
