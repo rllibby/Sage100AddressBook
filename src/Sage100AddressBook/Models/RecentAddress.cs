@@ -55,7 +55,7 @@ namespace Sage100AddressBook.Models
                         }
                     }
 
-                    group.AddressEntries.Add(entry);
+                    group.AddressEntries.Insert(0, entry);
 
                     return;
                 }

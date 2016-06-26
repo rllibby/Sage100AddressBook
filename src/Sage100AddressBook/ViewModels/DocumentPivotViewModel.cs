@@ -181,6 +181,8 @@ namespace Sage100AddressBook.ViewModels
                 openPicker.FileTypeFilter.Add(".docx");
                 openPicker.FileTypeFilter.Add(".xls");
                 openPicker.FileTypeFilter.Add(".xlsx");
+                openPicker.FileTypeFilter.Add(".ppt");
+                openPicker.FileTypeFilter.Add(".pptx");
 
                 var file = await openPicker.PickSingleFileAsync();
 

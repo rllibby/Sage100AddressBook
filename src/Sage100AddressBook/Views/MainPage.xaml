@@ -9,8 +9,7 @@
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="using:Sage100AddressBook.ViewModels"
-      mc:Ignorable="d"
-      >
+      mc:Ignorable="d">
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
@@ -50,9 +49,11 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <controls:PageHeader x:Name="pageHeader" RelativePanel.AlignLeftWithPanel="True"
+        <controls:PageHeader x:Name="pageHeader"
+                             RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.AlignTopWithPanel="True" Text="Main Page">
+                             RelativePanel.AlignTopWithPanel="True"
+                             Text="Main Page">
 
             <!--  secondary commands  -->
             <controls:PageHeader.SecondaryCommands>
@@ -63,14 +64,19 @@
 
         </controls:PageHeader>
 
-        <controls:Resizer x:Name="parameterResizer" Margin="16,16,16,0"
+        <controls:Resizer x:Name="parameterResizer"
+                          Margin="16,16,16,0"
                           RelativePanel.AlignLeftWithPanel="True"
                           RelativePanel.Below="pageHeader">
 
-            <TextBox MinWidth="150" MinHeight="62"
+            <TextBox MinWidth="150"
+                     MinHeight="62"
                      Header=""
-                     Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     TextWrapping="Wrap" PlaceholderText="(enter search sting - e.g. partial name, phone number or city)">
+                     PlaceholderText="(enter search sting - e.g. partial name, phone number or city)"
+                     Text="{Binding Search,
+                                    Mode=TwoWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                     TextWrapping="Wrap">
                 <Interactivity:Interaction.Behaviors>
                     <!--  enable submit on enter key  -->
                     <Behaviors:KeyBehavior Key="Enter">
@@ -86,24 +92,36 @@
         </controls:Resizer>
 
         <Button x:Name="submitButton"
-                Click="{x:Bind ViewModel.GotoSearchResultsPage}" Content="Submit"
+                Click="{x:Bind ViewModel.GotoSearchResultsPage}"
+                Content="Submit"
                 RelativePanel.AlignBottomWith="parameterResizer"
                 RelativePanel.RightOf="parameterResizer" />
 
-        <TextBlock x:Name="stateTextBox" Margin="16,16,0,0"
+        <TextBlock x:Name="stateTextBox"
+                   Margin="16,16,0,0"
                    RelativePanel.AlignLeftWith="parameterResizer"
                    RelativePanel.Below="parameterResizer"
                    Text="Current Visual State" />
 
-        <Button x:Name="GetUsers" Margin="16,20,-60,0" Content="Get Users" HorizontalAlignment="Left"
-                Height="32" VerticalAlignment="Top" Command="{x:Bind ViewModel.Users}"
-                Width="129"  RelativePanel.AlignLeftWithPanel="True"
-                          RelativePanel.Below="stateTextBox"/>
+        <Button x:Name="GetUsers"
+                Width="129"
+                Height="32"
+                Margin="16,20,-60,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Command="{x:Bind ViewModel.Users}"
+                Content="Get Users"
+                RelativePanel.AlignLeftWithPanel="True"
+                RelativePanel.Below="stateTextBox" />
 
-        <ListView x:Name="listView" Margin="16,20" Height="300"
-                  VerticalAlignment="Top" RelativePanel.AlignRightWithPanel="True"
-                  RelativePanel.AlignLeftWithPanel="True" ItemsSource="{x:Bind ViewModel.UserList, Mode=OneWay}"
-                          RelativePanel.Below="GetUsers"/>
+        <ListView x:Name="listView"
+                  Height="300"
+                  Margin="16,20"
+                  VerticalAlignment="Top"
+                  ItemsSource="{x:Bind ViewModel.UserList, Mode=OneWay}"
+                  RelativePanel.AlignLeftWithPanel="True"
+                  RelativePanel.AlignRightWithPanel="True"
+                  RelativePanel.Below="GetUsers" />
         <!--<GridView x:Name="gridView" HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="0"/>-->
 
     </RelativePanel>

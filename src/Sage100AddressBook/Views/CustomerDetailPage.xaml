@@ -4,6 +4,7 @@
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:controls="using:Template10.Controls"
       xmlns:converters="using:Template10.Converters"
+      xmlns:custom="using:Sage100AddressBook.CustomControls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -134,7 +135,13 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="Customer Detail" />
+                             Text="Customer Detail">
+            <AppBarButton Command="{x:Bind ViewModel.Search}"
+                          CommandParameter="{x:Bind Find}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Find"
+                          Label="Find" />
+        </controls:PageHeader>
         <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Pivot x:Name="CustomerPivot"
                    RelativePanel.AlignBottomWithPanel="True"
@@ -160,38 +167,38 @@
                                            TextTrimming="CharacterEllipsis" />
 
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                            Style="{StaticResource BodyTextBlockStyle}"
-                                            Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
-                                            TextTrimming="CharacterEllipsis" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
+                                           TextTrimming="CharacterEllipsis" />
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                            Style="{StaticResource BodyTextBlockStyle}"
-                                            Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
-                                            TextTrimming="CharacterEllipsis"
-                                            Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine2, Converter={StaticResource StringToVisibility}}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine2, Converter={StaticResource StringToVisibility}}" />
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                            Style="{StaticResource BodyTextBlockStyle}"
-                                            Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
-                                            TextTrimming="CharacterEllipsis"
-                                            Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
 
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Margin="0,0,4,0"
-                                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                                Style="{StaticResource BodyTextBlockStyle}"
-                                                Text="{x:Bind ViewModel.CurrentCustomer.City}"
-                                                TextTrimming="CharacterEllipsis"
-                                                Visibility="{x:Bind ViewModel.CurrentCustomer.City, Converter={StaticResource StringToVisibility}}" />
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.City}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.City, Converter={StaticResource StringToVisibility}}" />
                                     <TextBlock Margin="0,0,4,0"
-                                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                                Style="{StaticResource BodyTextBlockStyle}"
-                                                Text="{x:Bind ViewModel.CurrentCustomer.State}"
-                                                TextTrimming="CharacterEllipsis"
-                                                Visibility="{x:Bind ViewModel.CurrentCustomer.State, Converter={StaticResource StringToVisibility}}" />
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.State}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.State, Converter={StaticResource StringToVisibility}}" />
                                     <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                                Style="{StaticResource BodyTextBlockStyle}"
-                                                Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
-                                                TextTrimming="CharacterEllipsis"
-                                                Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
                                 </StackPanel>
 
                                 <TextBlock Margin="0,10,0,0"
@@ -228,7 +235,7 @@
                                             <telerikChart:DoughnutSeries.ValueBinding>
                                                 <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
                                             </telerikChart:DoughnutSeries.ValueBinding>
-                                            
+
                                             <telerikChart:DoughnutSeries.LabelDefinitions>
                                                 <telerikChart:ChartSeriesLabelDefinition Margin="-10">
                                                     <telerikChart:ChartSeriesLabelDefinition.Binding>
@@ -265,7 +272,7 @@
                                         </telerikPrimitives:RadLegendControl.ItemTemplate>
                                     </telerikPrimitives:RadLegendControl>
                                 </RelativePanel>
-                               
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Balance Due: " />
                                     <TextBlock Margin="4,0,0,0" Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
@@ -304,6 +311,10 @@
                       Height="100"
                       HorizontalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+
+        <custom:SearchControl x:Name="Find"
+                              Grid.Row="1"
+                              Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           Icon="OpenFile"
@@ -319,5 +330,6 @@
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
 
         </CommandBar>
+
     </Grid>
 </Page>

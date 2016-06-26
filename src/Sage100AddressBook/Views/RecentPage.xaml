@@ -28,7 +28,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="AddressTemplate" x:DataType="models:AddressEntry">
-            <StackPanel MinWidth="300"
+            <StackPanel MinWidth="400"
                         MinHeight="100"
                         Padding="10,10">
                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
@@ -155,9 +155,11 @@
             </GridView.GroupStyle>
         </GridView>
         <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
                    Style="{StaticResource SubtitleTextBlockStyle}"
-                   Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibility}}"
-                   Text="No recent items to display" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                   Text="No recent items to display"
+                   Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibility}}" />
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"

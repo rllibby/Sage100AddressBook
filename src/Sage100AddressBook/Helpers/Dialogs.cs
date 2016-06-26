@@ -4,13 +4,10 @@
 
 using Sage100AddressBook.CustomControls;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -60,8 +57,8 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = header,
-                MaxWidth = Window.Current.Content.RenderSize.Width - 100,
-                MaxHeight = Window.Current.Content.RenderSize.Height - 100
+                MaxWidth = Math.Min(300, Window.Current.Content.RenderSize.Width - 100),
+                MaxHeight = Math.Min(400, Window.Current.Content.RenderSize.Height - 100)
             };
 
             var control = new ListControl
