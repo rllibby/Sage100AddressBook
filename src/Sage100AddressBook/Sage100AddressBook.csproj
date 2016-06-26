@@ -106,6 +106,9 @@
     <Compile Include="CustomControls\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\SearchControl.xaml.cs">
+      <DependentUpon>SearchControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\Device.cs" />
     <Compile Include="Helpers\Dialogs.cs" />
@@ -220,6 +223,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="CustomControls\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\SearchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,4 +1,7 @@
-﻿
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using System;
 using Windows.UI.Xaml.Controls;
 
