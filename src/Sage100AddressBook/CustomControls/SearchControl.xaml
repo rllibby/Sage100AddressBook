@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="Sage100AddressBook.CustomControls.SearchControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Sage100AddressBook.CustomControls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="40"
+             d:DesignWidth="400"
+             mc:Ignorable="d">
+
+    <Grid x:Name="Search"
+          Height="40"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Top"
+          Background="{StaticResource CustomColorBrush}">
+        <TextBox x:Name="SearchBox"
+                 Margin="4,4,4,4"
+                 InputScope="Default"
+                 KeyDown="OnSearchKey"
+                 LostFocus="OnDismissSearch" />
+    </Grid>
+</UserControl>

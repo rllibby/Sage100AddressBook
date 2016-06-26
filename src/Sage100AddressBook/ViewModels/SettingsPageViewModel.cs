@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -62,7 +63,7 @@ namespace Sage100AddressBook.ViewModels
 
     public class AboutPartViewModel : ViewModelBase
     {
-        public Uri Logo => Windows.ApplicationModel.Package.Current.Logo;
+        public Uri Logo => new Uri("ms-appx:///Assets/Square44x44Logo.png");
 
         public string DisplayName => Windows.ApplicationModel.Package.Current.DisplayName;
 

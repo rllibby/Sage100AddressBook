@@ -103,6 +103,12 @@
     <Compile Include="Converters\ReverseBooleanToVisbilityConverter.cs" />
     <Compile Include="Converters\StringToImageConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
+    <Compile Include="CustomControls\ListControl.xaml.cs">
+      <DependentUpon>ListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\SearchControl.xaml.cs">
+      <DependentUpon>SearchControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\Device.cs" />
     <Compile Include="Helpers\Dialogs.cs" />
@@ -115,6 +121,7 @@
     <Compile Include="Models\DocumentEntry.cs" />
     <Compile Include="Models\NavigationArgs.cs" />
     <Compile Include="Models\PieChartData.cs" />
+    <Compile Include="Models\RecentAddress.cs" />
     <Compile Include="Models\Sage100BaseEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DocumentViewerServices\DocumentRetrievalService.cs" />
@@ -123,9 +130,10 @@
     <Compile Include="Services\DocumentViewerServices\DocumentViewerService.cs" />
     <Compile Include="Services\SettingsServices\SettingsService.cs" />
     <Compile Include="ViewModels\CustomerDetailPageViewModel.cs" />
-    <Compile Include="ViewModels\DocumentViewerPageViewModel.cs" />
+    <Compile Include="ViewModels\DocumentPivotViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\DetailPageViewModel.cs" />
+    <Compile Include="ViewModels\RecentPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultsPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\ShellPageViewModel.cs" />
@@ -138,11 +146,11 @@
     <Compile Include="Views\DetailPage.xaml.cs">
       <DependentUpon>DetailPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\DocumentViewerPage.xaml.cs">
-      <DependentUpon>DocumentViewerPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecentPage.xaml.cs">
+      <DependentUpon>RecentPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultsPage.xaml.cs">
       <DependentUpon>SearchResultsPage.xaml</DependentUpon>
@@ -166,7 +174,12 @@
     <Content Include="Assets\BadgeLogo.scale-100.png" />
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
+    <Content Include="Assets\doc.png" />
+    <Content Include="Assets\docx.png" />
+    <Content Include="Assets\nothumbnail.png" />
     <Content Include="Assets\pdf.png" />
+    <Content Include="Assets\ppt.png" />
+    <Content Include="Assets\pptx.png" />
     <Content Include="Assets\sage.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\Square150x150Logo.scale-100.png" />
@@ -192,6 +205,8 @@
     <Content Include="Assets\StoreLogo.scale-400.png" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\xls.png" />
+    <Content Include="Assets\xlsx.png" />
     <Content Include="Documents\Client Registration.txt" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -207,6 +222,14 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CustomControls\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\SearchControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Custom.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -224,13 +247,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DocumentViewerPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RecentPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchResultsPage.xaml">
       <SubType>Designer</SubType>

@@ -1,5 +1,4 @@
-﻿using System;
-/*
+﻿/*
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
