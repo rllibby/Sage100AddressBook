@@ -4,6 +4,7 @@
 
 using System;
 using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -11,13 +12,52 @@ using Windows.UI.Xaml.Input;
 namespace Sage100AddressBook.CustomControls
 {
     /// <summary>
+    /// Subclass for passing search result.
+    /// </summary>
+    public class SearchEventArgs : EventArgs
+    {
+        #region Private fields
+
+        private readonly string _searchText;
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="searchText">The search text results.</param>
+        public SearchEventArgs(string searchText)
+        {
+            if (string.IsNullOrEmpty(searchText)) throw new ArgumentNullException("searchText");
+
+            _searchText = searchText;
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// The search text.
+        /// </summary>
+        public string SearchText
+        {
+            get { return _searchText; }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
     /// User control for displaying a search input box.
     /// </summary>
     public sealed partial class SearchControl : UserControl
     {
         #region Private fields
 
-        private EventHandler _onSearch;
+        private EventHandler<SearchEventArgs> _onSearch;
         private string _searchText;
         private bool _showing;
 
@@ -30,13 +70,18 @@ namespace Sage100AddressBook.CustomControls
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnSearchKey(object sender, KeyRoutedEventArgs e)
+        private async void OnSearchKey(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Enter)
             {
                 e.Handled = true;
-                _searchText = SearchBox.Text;
-                _onSearch?.Invoke(this, new EventArgs());
+
+                await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    _searchText = SearchBox.Text;
+                    Visibility = Visibility.Collapsed;
+                    _onSearch?.Invoke(this, new SearchEventArgs(_searchText));
+                });
 
                 return;
             }
@@ -49,20 +94,23 @@ namespace Sage100AddressBook.CustomControls
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnDismissSearch(object sender, RoutedEventArgs e)
+        private async void OnDismissSearch(object sender, RoutedEventArgs e)
         {
-            if (_showing && (Visibility == Visibility.Visible))
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                try
+                if (_showing && (Visibility == Visibility.Visible))
                 {
-                    Visibility = Visibility.Collapsed;
-                    _showing = false;
+                    try
+                    {
+                        Visibility = Visibility.Collapsed;
+                        _showing = false;
+                    }
+                    finally
+                    {
+                        _onSearch = null;
+                    }
                 }
-                finally
-                {
-                    _onSearch = null;
-                }
-            }
+            });
         }
 
         #endregion
@@ -99,7 +147,7 @@ namespace Sage100AddressBook.CustomControls
         /// Sets focus to the search box
         /// </summary>
         /// <param name="onSearchCallback">The event handler to call when a search is executed.</param>
-        public void ShowSearch(EventHandler onSearchCallback)
+        public void ShowSearch(EventHandler<SearchEventArgs> onSearchCallback)
         {
             _onSearch = onSearchCallback;
 

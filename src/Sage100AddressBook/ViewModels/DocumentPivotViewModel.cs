@@ -38,6 +38,8 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand _delete;
         private DelegateCommand _upload;
         private DelegateCommand _open;
+        private string _companyCode;
+        private string _rootId;
         private int _index = (-1);
 
         #endregion
@@ -262,6 +264,8 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
+                _rootId = id;
+                _companyCode = companyCode;
                 _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode));
             }
             finally
@@ -359,7 +363,10 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool DocumentCommandsVisible
         {
-            get { return (_index == PivotIndex); }
+            get
+            {
+                return (_index == PivotIndex);
+            }
         }
 
         /// <summary>

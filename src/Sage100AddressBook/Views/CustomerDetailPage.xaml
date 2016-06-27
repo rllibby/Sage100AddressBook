@@ -140,7 +140,14 @@
                           CommandParameter="{x:Bind Find}"
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Find"
-                          Label="Find" />
+                          Label="Find"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.Search}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Clear"
+                          Label="Close Find"
+                          />
+
         </controls:PageHeader>
         <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Pivot x:Name="CustomerPivot"

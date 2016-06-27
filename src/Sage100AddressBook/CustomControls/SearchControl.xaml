@@ -15,8 +15,8 @@
           Background="{StaticResource CustomColorBrush}">
         <TextBox x:Name="SearchBox"
                  Margin="4,4,4,4"
-                 InputScope="Default"
+                 InputScope="Search"
                  KeyDown="OnSearchKey"
-                 LostFocus="OnDismissSearch" />
+                 LostFocus="OnDismissSearch" PlaceholderText="Enter search text..." />
     </Grid>
 </UserControl>

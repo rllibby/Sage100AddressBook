@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
-using Sage100AddressBook.Services.DocumentViewerServices;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using System;
@@ -64,15 +63,12 @@ namespace Sage100AddressBook.ViewModels
         /// Callback for search execution.
         /// </summary>
         /// <param name="sender">The sender of the event, which is the search control.</param>
-        /// <param name="arg">The event arguments.</param>
-        private async void OnSearchResults(object sender, EventArgs arg)
+        /// <param name="arg">The search event arguments.</param>
+        private async void OnSearchResults(object sender, SearchEventArgs arg)
         {
             await Dispatcher.DispatchAsync(async () =>
             {
-                var search = sender as SearchControl;
-
-                search.Visibility = Visibility.Collapsed;
-                await Dialogs.Show(search.SearchText);
+                await Dialogs.Show(arg.SearchText);
             });
         }
 
@@ -81,9 +77,7 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void ShowSearch(SearchControl arg)
         {
-            if (arg == null) return;
-
-            arg.ShowSearch(OnSearchResults);
+            arg?.ShowSearch(OnSearchResults);
         }
 
         #endregion
