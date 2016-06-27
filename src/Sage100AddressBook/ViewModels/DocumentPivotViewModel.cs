@@ -80,7 +80,7 @@ namespace Sage100AddressBook.ViewModels
                         var source = new ObservableCollectionEx<DocumentEntry>();
                         var dest = new ObservableCollectionEx<DocumentEntry>();
 
-                        source.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode));
+                        source.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
                         var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, search);
 
@@ -139,9 +139,8 @@ namespace Sage100AddressBook.ViewModels
                     arg.CloseSearch();
 
                     _documentGroups.Clear();
-                    _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode));
+                    _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
-                    BuildDocumentFolders();
                     BuildDocumentGroups();
                 }
                 finally
@@ -149,35 +148,6 @@ namespace Sage100AddressBook.ViewModels
                     Loading = false;
                 }
             });
-        }
-
-        /// <summary>
-        /// Ensure the app is not snapped.
-        /// </summary>
-        /// <returns>True if application is unsnapped.</returns>
-        private async Task<bool> EnsureUnsnapped()
-        {
-            bool unsnapped = ((ApplicationView.Value != ApplicationViewState.Snapped) || ApplicationView.TryUnsnap());
-
-            if (!unsnapped)
-            {
-                await Dialogs.Show("Cannot unsnap the application.");
-            }
-
-            return unsnapped;
-        }
-
-        /// <summary>
-        /// Builds the list of document folders for upload use.
-        /// </summary>
-        private void BuildDocumentFolders()
-        {
-            var folders = from document in _documents
-                          group document by new { document.Folder, document.FolderId } into grp
-                          orderby grp.Key.Folder descending
-                          select new DocumentFolder(grp.Key.FolderId, grp.Key.Folder);
-
-            _folders.Set(folders);
         }
 
         /// <summary>
@@ -251,7 +221,7 @@ namespace Sage100AddressBook.ViewModels
                     if ((client == null) || (_document == null)) return;
 
                     var list = new List<string> { "View only link", "Edit link" };
-                    var index = await Dialogs.ShowSelection("Select a link type.", list.ToList<object>());
+                    var index = await Dialogs.SelectLink();
 
                     if (index < 0) return;
 
@@ -260,7 +230,7 @@ namespace Sage100AddressBook.ViewModels
                     _shareData = new DataPackage();
                     _shareData.Properties.Title = _document.Name;
                     _shareData.Properties.Description = string.Format("{0} link for document '{1}',", (index == 0) ? "View only" : "Edit", _document.Name);
-                    _shareData.SetUri(new Uri(link.Link.WebUrl));
+                    _shareData.SetWebLink(new Uri(link.Link.WebUrl));
 
                     DataTransferManager.ShowShareUI();
                 }
@@ -328,8 +298,6 @@ namespace Sage100AddressBook.ViewModels
 
                 var folder = _folders[index];
 
-                if (!(await EnsureUnsnapped())) return;
-
                 var openPicker = new FileOpenPicker();
 
                 openPicker.ViewMode = PickerViewMode.Thumbnail;
@@ -354,6 +322,12 @@ namespace Sage100AddressBook.ViewModels
 
                     using (var stream = await file.OpenReadAsync())
                     {
+                        if (stream.Size > 4096000)
+                        {
+                            await Dialogs.Show("Upload content must be less than 4 MB in size!");
+                            return;
+                        }
+
                         using (var upload = stream.AsStreamForRead())
                         {
                             var driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
@@ -428,11 +402,10 @@ namespace Sage100AddressBook.ViewModels
             {
                 _rootId = id;
                 _companyCode = companyCode;
-                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode));
+                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode, _folders));
             }
             finally
             {
-                BuildDocumentFolders();
                 BuildDocumentGroups();
             }
         }

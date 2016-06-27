@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
 
@@ -14,7 +15,8 @@ namespace Sage100AddressBook.Services.Sage100Services
     {
         public static CustomerWebService Instance { get; } = new CustomerWebService();
 
-        private string baseUrl = "https://4d15361fswm.ngrok.io/api/";
+        private string baseUrl = Application.Current.Resources["ngrok"].ToString();
+
         public async Task<Customer> GetCustomerAsync(string custId, string companyCode)
         {
 
@@ -22,22 +24,26 @@ namespace Sage100AddressBook.Services.Sage100Services
             if (custId != null)
             {
 
-                var sageWeb = new HttpClient();
+                HttpResponseMessage response = null;
 
-                //to-do put base url in a config file
-                var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId);
+                using (var sageWeb = new HttpClient())
+                {
+                    //to-do put base url in a config file
+                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId);
 
-                //client.DefaultRequestHeaders
-                //  .Accept
-                //  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //client.DefaultRequestHeaders
+                    //  .Accept
+                    //  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                var response = await sageWeb.GetAsync(requestURI);
-
+#if (NGROK)
+                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
+                    var response = await sageWeb.GetAsync(requestURI);
+#endif
+                }
 
                 //Customer obj = JsonConvert.DeserializeObject<Customer>(response.Content.ReadAsStringAsync
 
-                if (response.IsSuccessStatusCode == true)
+                if ((response != null) && (response.IsSuccessStatusCode == true))
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     retVal = JsonConvert.DeserializeObject<Customer>(content);

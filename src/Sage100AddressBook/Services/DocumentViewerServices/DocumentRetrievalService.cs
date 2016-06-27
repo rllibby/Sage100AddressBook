@@ -152,8 +152,9 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
         /// </summary>
         /// <param name="id">The id of the base Graph folder for the user.</param>
         /// <param name="companyCode">The company code.</param>
+        /// <param name="folders">Optional folders collection to pass.</param>
         /// <returns>The enumerable collection of document entries</returns>
-        public async Task<IEnumerable<DocumentEntry>> RetrieveDocumentsAsync(string id, string companyCode)
+        public async Task<IEnumerable<DocumentEntry>> RetrieveDocumentsAsync(string id, string companyCode, ICollection<DocumentFolder> folders = null)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
@@ -168,9 +169,12 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                 var driveFolders = await client?.Me.Drive.Root.ItemWithPath(id).Children.Request().GetAsync();
 
                 if (driveFolders.Count == 0) return result;
+                if (folders != null) folders.Clear();
 
                 foreach (var folder in driveFolders.CurrentPage)
                 {
+                    if (folder != null) folders.Add(new DocumentFolder(folder.Id, folder.Name));
+
                     var docs = await client.Me.Drive.Items[folder.Id].Children.Request().GetAsync();
 
                     foreach (var doc in docs.CurrentPage)

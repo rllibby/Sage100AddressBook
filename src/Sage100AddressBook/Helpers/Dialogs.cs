@@ -46,6 +46,41 @@ namespace Sage100AddressBook.Helpers
         #region Public methods
 
         /// <summary>
+        /// Show a selection dialog for share link types.
+        /// </summary>
+        public static async Task<int> SelectLink()
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxHeight = 260,
+            };
+
+            var control = new LinkTypeControl()
+            {
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.Content = control;
+
+            var result = (-1);
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.SecondaryButtonClick += delegate { result = (-1); };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+        /// <summary>
         /// Show a selection list dialog.
         /// </summary>
         /// <param name="items">The collection of items to show in list.</param>
@@ -58,7 +93,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 100),
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
@@ -164,7 +199,7 @@ namespace Sage100AddressBook.Helpers
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 MaxHeight = 400,
-                MaxWidth = Window.Current.Content.RenderSize.Width - 80,
+                MaxWidth = Window.Current.Bounds.Width - 80,
             };
 
             var text = new TextBlock

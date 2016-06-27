@@ -120,6 +120,7 @@ namespace Sage100AddressBook.CustomControls
             if (string.IsNullOrEmpty(rootId)) throw new ArgumentException("rootId");
 
             Items.ItemsSource = source;
+            Add.IsEnabled = false;
 
             _dialog = dialog;
             _source = source;

@@ -15,7 +15,7 @@
           Background="{StaticResource CustomColorBrush}">
         <TextBox x:Name="SearchBox"
                  Margin="4,4,4,4"
-                 InputScope="Search"
+                 InputScope="Text"
                  KeyDown="OnSearchKey"
                  LostFocus="OnDismissSearch"
                  PlaceholderText="Enter search text..." />

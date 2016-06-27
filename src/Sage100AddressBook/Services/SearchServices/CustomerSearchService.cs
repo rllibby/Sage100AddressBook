@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
 
@@ -21,22 +22,26 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
             var retVal = new List<AddressEntry>();
             if (searchString != null) {
 
-                var sageWeb = new HttpClient();
+                HttpResponseMessage response = null;
 
-                //to-do put base url in a config file
-                var searchURI = new Uri("https://sage100poc.ngrok.io/api/" + compCode+"/addresses?search=" + searchString);
+                using (var sageWeb = new HttpClient())
+                {
+                    var searchURI = new Uri(Application.Current.Resources["ngrok"].ToString() + compCode + "/addresses?search=" + searchString);
 
-                //client.DefaultRequestHeaders
-                //  .Accept
-                //  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //client.DefaultRequestHeaders
+                    //  .Accept
+                    //  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                var response = await sageWeb.GetAsync(searchURI);
+#if (NGROK)
+                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
 
+                    response = await sageWeb.GetAsync(searchURI);
+#endif
+                }
 
                 //Customer obj = JsonConvert.DeserializeObject<Customer>(response.Content.ReadAsStringAsync
                 
-                if (response.IsSuccessStatusCode == true)
+                if ((response != null) && (response.IsSuccessStatusCode == true))
                 { 
                     var content = await response.Content.ReadAsStringAsync();
                     retVal = JsonConvert.DeserializeObject<List<AddressEntry>>(content);
