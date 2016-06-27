@@ -3,6 +3,7 @@
  */
 
 using Microsoft.Graph;
+using Sage100AddressBook.CustomControls;
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.DocumentViewerServices;
@@ -12,7 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.Storage.Pickers;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
@@ -33,7 +36,10 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
+        private ObservableCollectionEx<DocumentFolder> _folders = new ObservableCollectionEx<DocumentFolder>();
         private CustomerDetailPageViewModel _owner;
+        private DelegateCommand<SearchControl> _search;
+        private DelegateCommand _closeSearch;
         private DocumentEntry _document;
         private DelegateCommand _delete;
         private DelegateCommand _upload;
@@ -41,10 +47,82 @@ namespace Sage100AddressBook.ViewModels
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
+        private bool _isSearch;
 
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        /// Callback for search execution.
+        /// </summary>
+        /// <param name="sender">The sender of the event, which is the search control.</param>
+        /// <param name="arg">The search event arguments.</param>
+        private async void OnSearchResults(object sender, SearchEventArgs arg)
+        {
+            if (string.IsNullOrEmpty(arg.SearchText)) return;
+
+            var source = new ObservableCollectionEx<DocumentEntry>();
+            var dest = new ObservableCollectionEx<DocumentEntry>();
+
+            source.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode));
+
+            var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, arg.SearchText);
+
+            foreach (var item in found)
+            {
+                var match = source.FirstOrDefault(e => e.Id.Equals(item.Id));
+
+                if (match != null) dest.Add(match);
+            }
+
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                try
+                {
+                    _documents.Set(dest);
+                    BuildDocumentGroups();
+                }
+                finally
+                {
+                    _isSearch = true;
+                }
+
+                RaisePropertyChanged("DocumentCloseSearchVisible");
+            });
+        }
+
+        /// <summary>
+        /// Show the search control.
+        /// </summary>
+        private void ShowSearch(SearchControl arg)
+        {
+            arg?.ShowSearch(OnSearchResults);
+        }
+
+        /// <summary>
+        /// Closes the search results and displays all documents.
+        /// </summary>
+        private async void CloseSearchResults()
+        {
+            _isSearch = false;
+
+            Loading = true;
+
+            try
+            {
+                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode));
+            }
+            finally
+            {
+                BuildDocumentFolders();
+                BuildDocumentGroups();
+
+                Loading = false;
+            }
+
+            RaisePropertyChanged("DocumentCloseSearchVisible");
+        }
 
         /// <summary>
         /// Ensure the app is not snapped.
@@ -63,6 +141,19 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Builds the list of document folders for upload use.
+        /// </summary>
+        private void BuildDocumentFolders()
+        {
+            var folders = from document in _documents
+                          group document by new { document.Folder, document.FolderId } into grp
+                          orderby grp.Key.Folder descending
+                          select new DocumentFolder(grp.Key.FolderId, grp.Key.Folder);
+
+            _folders.Set(folders);
+        }
+
+        /// <summary>
         /// Builds the document groups from the list of documents.
         /// </summary>
         private void BuildDocumentGroups()
@@ -77,6 +168,8 @@ namespace Sage100AddressBook.ViewModels
                           };
 
             _documentGroups.Set(grouped.ToList());
+
+            RaisePropertyChanged("IsEmpty");
         }
 
         /// <summary>
@@ -166,11 +259,11 @@ namespace Sage100AddressBook.ViewModels
 
                 if (client == null) return;
 
-                var index = await Dialogs.ShowSelection("Select a group to upload to.", _documentGroups.ToList<object>());
+                var index = await Dialogs.ShowSelection("Select a group to upload to.", _folders.ToList<object>());
 
                 if (index < 0) return;
 
-                var group = _documentGroups[index];
+                var folder = _folders[index];
 
                 if (!(await EnsureUnsnapped())) return;
 
@@ -200,12 +293,12 @@ namespace Sage100AddressBook.ViewModels
                     {
                         using (var upload = stream.AsStreamForRead())
                         {
-                            var driveItem = await client.Me.Drive.Items[group.GroupId].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
+                            var driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
 
                             var entry = new DocumentEntry()
                             {
-                                Folder = group.GroupName,
-                                FolderId = group.GroupId,
+                                Folder = folder.Name,
+                                FolderId = folder.Id,
                                 Id = driveItem.Id,
                                 Name = driveItem.Name,
                                 LastModifiedDate = driveItem.LastModifiedDateTime?.DateTime.ToLocalTime()
@@ -245,6 +338,8 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
+            _closeSearch = new DelegateCommand(new Action(CloseSearchResults));
             _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
             _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
@@ -270,6 +365,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                BuildDocumentFolders();
                 BuildDocumentGroups();
             }
         }
@@ -287,6 +383,7 @@ namespace Sage100AddressBook.ViewModels
             finally
             {
                 RaisePropertyChanged("DocumentCommandsVisible");
+                RaisePropertyChanged("DocumentCloseSearchVisible");
             }
         }
 
@@ -335,6 +432,22 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// The command handler for invoking search.
+        /// </summary>
+        public DelegateCommand<SearchControl> Search
+        {
+            get { return _search; }
+        }
+
+        /// <summary>
+        /// Closes the search results and reloads all documents.
+        /// </summary>
+        public DelegateCommand CloseSearch
+        {
+            get { return _closeSearch; }
+        }
+
+        /// <summary>
         /// Opens the current document.
         /// </summary>
         public DelegateCommand Open
@@ -359,14 +472,27 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Determines if the view is empty.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get { return (_documents.Count == 0); }
+        }
+
+        /// <summary>
+        /// Determine if the close search command is visible.
+        /// </summary>
+        public bool DocumentCloseSearchVisible
+        {
+            get { return (DocumentCommandsVisible && _isSearch); }
+        }
+
+        /// <summary>
         /// Determines if the document commands are available.
         /// </summary>
         public bool DocumentCommandsVisible
         {
-            get
-            {
-                return (_index == PivotIndex);
-            }
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>

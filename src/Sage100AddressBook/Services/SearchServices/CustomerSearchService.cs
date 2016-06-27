@@ -24,7 +24,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                 var sageWeb = new HttpClient();
 
                 //to-do put base url in a config file
-                var searchURI = new Uri("https://4d15361fswm.ngrok.io/api/" + compCode+"/addresses?search=" + searchString);
+                var searchURI = new Uri("https://sage100poc.ngrok.io/api/" + compCode+"/addresses?search=" + searchString);
 
                 //client.DefaultRequestHeaders
                 //  .Accept
@@ -45,7 +45,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
                     //fake data when offline
                     retVal.Add(new AddressEntry()
                     {
-                        Id = "303141564E4554",
+                        Id = "303141564E4550",
                         Name = "Adamson Plumbing Supply",
                         Address = "123 Main Steet",
                         City = "Irvine",

@@ -136,17 +136,17 @@
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
                              Text="Customer Detail">
-            <AppBarButton Command="{x:Bind ViewModel.Search}"
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Search}"
                           CommandParameter="{x:Bind Find}"
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Find"
                           Label="Find"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-            <AppBarButton Command="{x:Bind ViewModel.Search}"
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.CloseSearch}"
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Clear"
                           Label="Close Find"
-                          />
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
 
         </controls:PageHeader>
         <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -290,22 +290,33 @@
                 </PivotItem>
 
                 <PivotItem Header="Documents">
-                    <GridView x:Name="DocumentGrid"
-                              DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
-                              IsItemClickEnabled="True"
-                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
-                              ItemTemplate="{StaticResource DocumentTemplate}"
-                              ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
-                              RelativePanel.AlignLeftWithPanel="True"
-                              RelativePanel.AlignRightWithPanel="True"
-                              RelativePanel.Below="pageHeader"
-                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
-                              SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
-                              SelectionMode="Single">
-                        <GridView.GroupStyle>
-                            <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
-                        </GridView.GroupStyle>
-                    </GridView>
+                    <Grid RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.AlignRightWithPanel="True"
+                          RelativePanel.Below="pageHeader">
+                        <GridView x:Name="DocumentGrid"
+                                  Grid.Row="0"
+                                  DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
+                                  IsItemClickEnabled="True"
+                                  ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                                  ItemTemplate="{StaticResource DocumentTemplate}"
+                                  ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
+                                  RelativePanel.AlignLeftWithPanel="True"
+                                  RelativePanel.AlignRightWithPanel="True"
+                                  RelativePanel.Below="pageHeader"
+                                  ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                                  SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
+                                  SelectionMode="Single">
+                            <GridView.GroupStyle>
+                                <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
+                            </GridView.GroupStyle>
+                        </GridView>
+                        <TextBlock Grid.Row="0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Text="No documents to display"
+                                   Visibility="{x:Bind ViewModel.DocumentModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                    </Grid>
                 </PivotItem>
 
                 <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes" />
@@ -323,6 +334,11 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="Camera"
+                              Label="Capture"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            </CommandBar.SecondaryCommands>
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           Icon="OpenFile"
                           Label="Open"
@@ -335,6 +351,11 @@
                           Icon="Delete"
                           Label="Delete"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Label="Share" Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72D;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
 
         </CommandBar>
 

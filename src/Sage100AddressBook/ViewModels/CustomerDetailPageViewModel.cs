@@ -1,4 +1,7 @@
-﻿
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -7,10 +10,6 @@ using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
-using System;
-using Sage100AddressBook.CustomControls;
-using Windows.UI.Xaml;
-using Sage100AddressBook.Helpers;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -21,7 +20,6 @@ namespace Sage100AddressBook.ViewModels
         private DocumentPivotViewModel _documentModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
-        private DelegateCommand<SearchControl> _search;
         private int _pivotIndex;
         private bool _loading;
 
@@ -59,27 +57,6 @@ namespace Sage100AddressBook.ViewModels
             }
         }
 
-        /// <summary>
-        /// Callback for search execution.
-        /// </summary>
-        /// <param name="sender">The sender of the event, which is the search control.</param>
-        /// <param name="arg">The search event arguments.</param>
-        private async void OnSearchResults(object sender, SearchEventArgs arg)
-        {
-            await Dispatcher.DispatchAsync(async () =>
-            {
-                await Dialogs.Show(arg.SearchText);
-            });
-        }
-
-        /// <summary>
-        /// Show the search control.
-        /// </summary>
-        private void ShowSearch(SearchControl arg)
-        {
-            arg?.ShowSearch(OnSearchResults);
-        }
-
         #endregion
 
         #region Constructor
@@ -92,7 +69,6 @@ namespace Sage100AddressBook.ViewModels
             _webService = new CustomerWebService();
             _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
-            _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
         }
 
         #endregion
@@ -153,14 +129,6 @@ namespace Sage100AddressBook.ViewModels
         public DocumentPivotViewModel DocumentModel
         {
             get { return _documentModel; }
-        }
-
-        /// <summary>
-        /// The command handler for invoking search.
-        /// </summary>
-        public DelegateCommand<SearchControl> Search
-        {
-            get { return _search; }      
         }
 
         /// <summary>

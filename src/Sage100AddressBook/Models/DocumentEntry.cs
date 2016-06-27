@@ -97,10 +97,65 @@ namespace Sage100AddressBook.Models
         #endregion
     }
 
+    /// <summary>
+    /// Model for the document folder, which is a light version of DocumentGroup
+    /// </summary>
     public class DocumentFolder
     {
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public DocumentFolder() { }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="id">The id of the folder.</param>
+        public DocumentFolder(string id)
+        {
+            Id = id;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="id">The id of the folder.</param>
+        /// <param name="name">The name of the folder.</param>
+        public DocumentFolder(string id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Returns the string version of this object.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Name ?? base.ToString();
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// The id for the folder.
+        /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The name of the folder.
+        /// </summary>
         public string Name { get; set; }
+
+        #endregion
     }
 }
