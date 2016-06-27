@@ -59,6 +59,7 @@ namespace Sage100AddressBook.CustomControls
 
         private EventHandler<SearchEventArgs> _onSearch;
         private string _searchText;
+        private bool _active;
         private bool _showing;
 
         #endregion
@@ -78,8 +79,8 @@ namespace Sage100AddressBook.CustomControls
 
                 await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
+                    _active = true;
                     _searchText = SearchBox.Text;
-                    Visibility = Visibility.Collapsed;
                     _onSearch?.Invoke(this, new SearchEventArgs(_searchText));
                 });
 
@@ -98,7 +99,7 @@ namespace Sage100AddressBook.CustomControls
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (_showing && (Visibility == Visibility.Visible))
+                if (_showing && (Visibility == Visibility.Visible) && !_active)
                 {
                     try
                     {
@@ -161,6 +162,25 @@ namespace Sage100AddressBook.CustomControls
             {
                 _showing = true;
             }
+        }
+        
+        /// <summary>
+        /// Close the search window.
+        /// </summary>
+        public async void CloseSearch()
+        {
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                try
+                {
+                    Visibility = Visibility.Collapsed;
+                }
+                finally
+                {
+                    _active = false;
+                }
+
+            });
         }
 
         #endregion

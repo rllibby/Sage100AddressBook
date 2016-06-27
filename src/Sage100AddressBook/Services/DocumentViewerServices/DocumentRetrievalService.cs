@@ -110,11 +110,7 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
             try
             {
-                var folder = await client?.Me.Drive.Root.ItemWithPath(id).Children.Request().GetAsync();
-
-                if (folder.Count == 0) return result;
-
-                var docs = await client.Me.Drive.Items[folder[0].Id].Search(search).Request().GetAsync();
+                var docs = await client?.Me.Drive.Root.ItemWithPath(id).Search(search).Request().GetAsync();
 
                 while (true)
                 {

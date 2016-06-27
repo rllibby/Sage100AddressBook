@@ -17,6 +17,7 @@
                  Margin="4,4,4,4"
                  InputScope="Search"
                  KeyDown="OnSearchKey"
-                 LostFocus="OnDismissSearch" PlaceholderText="Enter search text..." />
+                 LostFocus="OnDismissSearch"
+                 PlaceholderText="Enter search text..." />
     </Grid>
 </UserControl>

@@ -140,12 +140,13 @@
                           CommandParameter="{x:Bind Find}"
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Find"
-                          Label="Find"
+                          Label="Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.CloseSearch}"
+                          CommandParameter="{x:Bind Find}"
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Clear"
-                          Label="Close Find"
+                          Label="Close Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
 
         </controls:PageHeader>
@@ -293,6 +294,9 @@
                     <Grid RelativePanel.AlignLeftWithPanel="True"
                           RelativePanel.AlignRightWithPanel="True"
                           RelativePanel.Below="pageHeader">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
                         <GridView x:Name="DocumentGrid"
                                   Grid.Row="0"
                                   DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
@@ -351,7 +355,9 @@
                           Icon="Delete"
                           Label="Delete"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-            <AppBarButton Label="Share" Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
+                          Label="Share"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE72D;" />
                 </AppBarButton.Icon>
