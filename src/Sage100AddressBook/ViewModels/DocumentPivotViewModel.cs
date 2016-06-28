@@ -15,8 +15,10 @@ using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
-using Windows.UI.ViewManagement;
+using Windows.UI.Input;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 
 namespace Sage100AddressBook.ViewModels
@@ -38,6 +40,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
         private ObservableCollectionEx<DocumentFolder> _folders = new ObservableCollectionEx<DocumentFolder>();
         private CustomerDetailPageViewModel _owner;
+        private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
         private DelegateCommand<SearchControl> _closeSearch;
@@ -45,7 +48,7 @@ namespace Sage100AddressBook.ViewModels
         private DataPackage _shareData;
         private DelegateCommand _share;
         private DelegateCommand _delete;
-        private DelegateCommand _copy;
+        private DelegateCommand _rename;
         private DelegateCommand _move;
         private DelegateCommand _upload;
         private DelegateCommand _open;
@@ -123,13 +126,23 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void ShowSearch(SearchControl arg)
         {
-            arg?.ShowSearch(OnSearchResults);
+            _searchControl = arg;
+            _searchControl?.ShowSearch(OnSearchResults);
+        }
+
+        /// <summary>
+        /// Action to close search results.
+        /// </summary>
+        /// <param name="arg"></param>
+        private async void CloseSearchAction(SearchControl arg)
+        {
+            await CloseSearchResults(arg);
         }
 
         /// <summary>
         /// Closes the search results and displays all documents.
         /// </summary>
-        private async void CloseSearchResults(SearchControl arg)
+        private async Task CloseSearchResults(SearchControl arg)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
@@ -138,8 +151,9 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    arg.CloseSearch();
+                    arg?.CloseSearch();
 
+                    _searchControl = null;
                     _documentGroups.Clear();
                     _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
@@ -252,19 +266,103 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Copies the document to a new folder.
+        /// Renames the document.
         /// </summary>
-        private async void CopyDocument()
+        private async void RenameDocument()
         {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                try
+                {
+                    var client = await AuthenticationHelper.GetClient();
 
-        }
+                    if ((client == null) || (_document == null)) return;
+
+                    var rename = await Dialogs.Rename(_document.Name);
+
+                    if (string.IsNullOrEmpty(rename)) return;
+                    if (Path.GetExtension(rename) == null) rename += Path.GetExtension(_document.Name) ?? string.Empty;
+
+                    Loading = true;
+
+                    try
+                    {
+                        var driveItem = new DriveItem()
+                        {
+                            Id = _document.Id,
+                            Name = rename,
+                            ParentReference = new ItemReference { Id = _document.FolderId }
+                        };
+
+                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+
+                        _document.Id = driveItem.Id;
+                        _document.Name = driveItem.Name;
+
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to rename the document '{0}'.", _document.Name), exception, false);
+                }
+            });
+        }               
 
         /// <summary>
         /// Moves the document to a new folder.
         /// </summary>
         private async void MoveDocument()
         {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                try
+                {
+                    var client = await AuthenticationHelper.GetClient();
 
+                    if ((client == null) || (_document == null)) return;
+
+                    var index = await Dialogs.SelectGroup(GroupOperation.Move, _folders, _rootId);
+
+                    Loading = true;
+
+                    try
+                    {
+                        if (index < 0) return;
+
+                        var folder = _folders[index];
+
+                        if (folder.Id.Equals(_document.FolderId)) return;
+
+                        var driveItem = new DriveItem()
+                        {
+                            Id = _document.Id,
+                            Name = _document.Name,
+                            ParentReference = new ItemReference { Id = folder.Id }
+                        };
+
+                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+
+                        _document.Id = driveItem.Id;
+                        _document.Folder = folder.Name;
+                        _document.FolderId = folder.Id;
+
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to move the document '{0}'.", _document.Name), exception, false);
+                }
+            });
         }
 
         /// <summary>
@@ -310,7 +408,7 @@ namespace Sage100AddressBook.ViewModels
 
                 if (client == null) return;
 
-                var index = await Dialogs.SelectGroup(_folders, _rootId);
+                var index = await Dialogs.SelectGroup(GroupOperation.Upload, _folders, _rootId);
 
                 if (index < 0) return;
 
@@ -399,13 +497,13 @@ namespace Sage100AddressBook.ViewModels
             _dataTransferManager = DataTransferManager.GetForCurrentView();
             _dataTransferManager.DataRequested += OnDataRequested;
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
-            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchResults));
+            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
             _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
-            _copy = new DelegateCommand(new Action(CopyDocument), HasDocument);
             _move = new DelegateCommand(new Action(MoveDocument), HasDocument);
             _share = new DelegateCommand(new Action(ShareDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
             _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
+            _rename = new DelegateCommand(new Action(RenameDocument), HasDocument);
         }
 
         #endregion
@@ -465,6 +563,8 @@ namespace Sage100AddressBook.ViewModels
                 _share.RaiseCanExecuteChanged();
                 _open.RaiseCanExecuteChanged();
                 _delete.RaiseCanExecuteChanged();
+                _move.RaiseCanExecuteChanged();
+                _rename.RaiseCanExecuteChanged();
             }
         }
 
@@ -527,19 +627,19 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Copies the current document.
-        /// </summary>
-        public DelegateCommand Copy
-        {
-            get { return _copy; }
-        }
-
-        /// <summary>
         /// Moves the current document.
         /// </summary>
         public DelegateCommand Move
         {
             get { return _move; }
+        }
+
+        /// <summary>
+        /// Renames the current document.
+        /// </summary>
+        public DelegateCommand Rename
+        {
+            get { return _rename; }
         }
 
         /// <summary>

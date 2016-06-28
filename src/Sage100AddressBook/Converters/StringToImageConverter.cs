@@ -25,11 +25,11 @@ namespace Sage100AddressBook.Converters
         {
             try
             {
-                return new BitmapImage(new Uri(String.Format("ms-appx:///Assets/{0}.png", value.ToString().ToLower())));
+                return new BitmapImage(new Uri(string.Format("ms-appx:///Assets/{0}.png", string.IsNullOrEmpty(value.ToString()) ? "nothumbnail" : value.ToString().ToLower())));
             }
             catch
             {
-                return null;
+                return new BitmapImage(new Uri("ms-appx:///Assets/nothumbnail.png"));
             }
         }
 

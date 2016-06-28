@@ -18,7 +18,8 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0"
+        <TextBlock x:Name="Display"
+                   Grid.Row="0"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    Margin="4,4"
