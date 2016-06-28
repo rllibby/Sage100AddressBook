@@ -27,5 +27,5 @@ namespace Sage100AddressBook.Views
             InitializeComponent();
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }
-    }
+     }
 }
