@@ -103,6 +103,12 @@
     <Compile Include="Converters\ReverseBooleanToVisbilityConverter.cs" />
     <Compile Include="Converters\StringToImageConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
+    <Compile Include="CustomControls\GroupControl.xaml.cs">
+      <DependentUpon>GroupControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\LinkTypeControl.xaml.cs">
+      <DependentUpon>LinkTypeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
     </Compile>
@@ -222,6 +228,14 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CustomControls\GroupControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\LinkTypeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\ListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

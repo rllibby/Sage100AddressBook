@@ -3,14 +3,17 @@
  */
 
 using Microsoft.Graph;
+using Sage100AddressBook.CustomControls;
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.DocumentViewerServices;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
@@ -33,31 +36,118 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
+        private ObservableCollectionEx<DocumentFolder> _folders = new ObservableCollectionEx<DocumentFolder>();
         private CustomerDetailPageViewModel _owner;
+        private DataTransferManager _dataTransferManager;
+        private DelegateCommand<SearchControl> _search;
+        private DelegateCommand<SearchControl> _closeSearch;
         private DocumentEntry _document;
+        private DataPackage _shareData;
+        private DelegateCommand _share;
         private DelegateCommand _delete;
         private DelegateCommand _upload;
         private DelegateCommand _open;
+        private string _searchText;
+        private string _companyCode;
+        private string _rootId;
         private int _index = (-1);
+        private bool _isSearch;
 
         #endregion
 
         #region Private methods
 
         /// <summary>
-        /// Ensure the app is not snapped.
+        /// Callback for search execution.
         /// </summary>
-        /// <returns>True if application is unsnapped.</returns>
-        private async Task<bool> EnsureUnsnapped()
+        /// <param name="sender">The sender of the event, which is the search control.</param>
+        /// <param name="arg">The search event arguments.</param>
+        private async void OnSearchResults(object sender, SearchEventArgs arg)
         {
-            bool unsnapped = ((ApplicationView.Value != ApplicationViewState.Snapped) || ApplicationView.TryUnsnap());
+            if (string.IsNullOrEmpty(arg.SearchText)) return;
 
-            if (!unsnapped)
+            var search = arg.SearchText;
+
+            await _owner.Dispatcher.DispatchAsync(async() =>
             {
-                await Dialogs.Show("Cannot unsnap the application.");
-            }
+                try
+                {
+                    Loading = true;
+                    SearchText = search;
 
-            return unsnapped;
+                    try
+                    {
+                        var source = new ObservableCollectionEx<DocumentEntry>();
+                        var dest = new ObservableCollectionEx<DocumentEntry>();
+
+                        source.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
+
+                        var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, search);
+
+                        foreach (var item in found)
+                        {
+                            var match = source.FirstOrDefault(e => e.Id.Equals(item.Id));
+
+                            if (match != null) dest.Add(match);
+                        }
+
+                        _documents.Set(dest);
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", search), exception, false);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Event that is called when data is going to be shared.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="args">The event arguments.</param>
+        private void OnDataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            args.Request.Data = _shareData;
+        }
+
+        /// <summary>
+        /// Show the search control.
+        /// </summary>
+        private void ShowSearch(SearchControl arg)
+        {
+            arg?.ShowSearch(OnSearchResults);
+        }
+
+        /// <summary>
+        /// Closes the search results and displays all documents.
+        /// </summary>
+        private async void CloseSearchResults(SearchControl arg)
+        {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                Loading = true;
+                SearchText = string.Empty;
+
+                try
+                {
+                    arg.CloseSearch();
+
+                    _documentGroups.Clear();
+                    _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
+
+                    BuildDocumentGroups();
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
         }
 
         /// <summary>
@@ -75,6 +165,8 @@ namespace Sage100AddressBook.ViewModels
                           };
 
             _documentGroups.Set(grouped.ToList());
+
+            RaisePropertyChanged("IsEmpty");
         }
 
         /// <summary>
@@ -111,6 +203,42 @@ namespace Sage100AddressBook.ViewModels
             {
                 Loading = false;
             }
+        }
+
+        /// <summary>
+        /// Shares the current document.
+        /// </summary>
+        private async void ShareDocument()
+        {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                Loading = true;
+
+                try
+                {
+                    var client = await AuthenticationHelper.GetClient();
+
+                    if ((client == null) || (_document == null)) return;
+
+                    var list = new List<string> { "View only link", "Edit link" };
+                    var index = await Dialogs.SelectLink();
+
+                    if (index < 0) return;
+
+                    var link = await client.Me.Drive.Items[_document.Id].CreateLink((index == 0) ? "view" : "edit").Request().PostAsync();
+
+                    _shareData = new DataPackage();
+                    _shareData.Properties.Title = _document.Name;
+                    _shareData.Properties.Description = string.Format("{0} link for document '{1}',", (index == 0) ? "View only" : "Edit", _document.Name);
+                    _shareData.SetWebLink(new Uri(link.Link.WebUrl));
+
+                    DataTransferManager.ShowShareUI();
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
         }
 
         /// <summary>
@@ -164,13 +292,11 @@ namespace Sage100AddressBook.ViewModels
 
                 if (client == null) return;
 
-                var index = await Dialogs.ShowSelection("Select a group to upload to.", _documentGroups.ToList<object>());
+                var index = await Dialogs.SelectGroup(_folders, _rootId);
 
                 if (index < 0) return;
 
-                var group = _documentGroups[index];
-
-                if (!(await EnsureUnsnapped())) return;
+                var folder = _folders[index];
 
                 var openPicker = new FileOpenPicker();
 
@@ -196,14 +322,20 @@ namespace Sage100AddressBook.ViewModels
 
                     using (var stream = await file.OpenReadAsync())
                     {
+                        if (stream.Size > 4096000)
+                        {
+                            await Dialogs.Show("Upload content must be less than 4 MB in size!");
+                            return;
+                        }
+
                         using (var upload = stream.AsStreamForRead())
                         {
-                            var driveItem = await client.Me.Drive.Items[group.GroupId].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
+                            var driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
 
                             var entry = new DocumentEntry()
                             {
-                                Folder = group.GroupName,
-                                FolderId = group.GroupId,
+                                Folder = folder.Name,
+                                FolderId = folder.Id,
                                 Id = driveItem.Id,
                                 Name = driveItem.Name,
                                 LastModifiedDate = driveItem.LastModifiedDateTime?.DateTime.ToLocalTime()
@@ -243,7 +375,13 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+
+            _dataTransferManager = DataTransferManager.GetForCurrentView();
+            _dataTransferManager.DataRequested += OnDataRequested;
+            _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
+            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchResults));
             _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
+            _share = new DelegateCommand(new Action(ShareDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
             _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
         }
@@ -262,7 +400,9 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode));
+                _rootId = id;
+                _companyCode = companyCode;
+                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode, _folders));
             }
             finally
             {
@@ -283,6 +423,7 @@ namespace Sage100AddressBook.ViewModels
             finally
             {
                 RaisePropertyChanged("DocumentCommandsVisible");
+                RaisePropertyChanged("DocumentCloseSearchVisible");
             }
         }
 
@@ -299,6 +440,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                _share.RaiseCanExecuteChanged();
                 _open.RaiseCanExecuteChanged();
                 _delete.RaiseCanExecuteChanged();
             }
@@ -331,6 +473,30 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// The command handler for invoking search.
+        /// </summary>
+        public DelegateCommand<SearchControl> Search
+        {
+            get { return _search; }
+        }
+
+        /// <summary>
+        /// Closes the search results and reloads all documents.
+        /// </summary>
+        public DelegateCommand<SearchControl> CloseSearch
+        {
+            get { return _closeSearch; }
+        }
+
+        /// <summary>
+        /// Shares the current document.
+        /// </summary>
+        public DelegateCommand Share
+        {
+            get { return _share; }
+        }
+
+        /// <summary>
         /// Opens the current document.
         /// </summary>
         public DelegateCommand Open
@@ -352,6 +518,48 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand Delete
         {
             get { return _delete; }
+        }
+
+        /// <summary>
+        /// Determines if the view is empty.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get { return (_documents.Count == 0); }
+        }
+
+        /// <summary>
+        /// Determines if search is active.
+        /// </summary>
+        public bool IsSearch
+        {
+            get { return _isSearch; }
+            set { Set(ref _isSearch, value); }
+        }
+
+        /// <summary>
+        /// The currently active search text.
+        /// </summary>
+        public string SearchText
+        {
+            get { return _searchText; }
+            set
+            {
+                _searchText = value;
+                IsSearch = !string.IsNullOrEmpty(_searchText);
+                if (IsSearch) _searchText = string.Format("Search: '{0}'", _searchText);
+                RaisePropertyChanged("DocumentCloseSearchVisible");
+
+                base.RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Determine if the close search command is visible.
+        /// </summary>
+        public bool DocumentCloseSearchVisible
+        {
+            get { return (DocumentCommandsVisible && _isSearch); }
         }
 
         /// <summary>

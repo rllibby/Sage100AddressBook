@@ -3,6 +3,7 @@
  */
 
 using Sage100AddressBook.CustomControls;
+using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,6 +46,82 @@ namespace Sage100AddressBook.Helpers
         #region Public methods
 
         /// <summary>
+        /// Show a selection dialog for share link types.
+        /// </summary>
+        public static async Task<int> SelectLink()
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxHeight = 260,
+            };
+
+            var control = new LinkTypeControl()
+            {
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.Content = control;
+
+            var result = (-1);
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.SecondaryButtonClick += delegate { result = (-1); };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Show a selection list dialog.
+        /// </summary>
+        /// <param name="items">The collection of items to show in list.</param>
+        /// <param name="rootId">The base level folder name<param>
+        /// <returns>The index of the selected item.</returns>
+        public static async Task<int> SelectGroup(ICollection<DocumentFolder> items, string rootId)
+        {
+            if ((items == null) || (items.Count == 0) || string.IsNullOrEmpty(rootId)) return (-1);
+
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
+            };
+
+            var control = new GroupControl(dialog, items, rootId)
+            {
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.Content = control;
+
+            var result = (-1);
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = false;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.SecondaryButtonClick += delegate { result = (-1); };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+
+        /// <summary>
         /// Show a selection list dialog.
         /// </summary>
         /// <param name="header">The title for the dialog.</param>
@@ -57,22 +134,26 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = header,
-                MaxWidth = Math.Min(300, Window.Current.Content.RenderSize.Width - 100),
-                MaxHeight = Math.Min(400, Window.Current.Content.RenderSize.Height - 100)
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 100),
+                MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
-            var control = new ListControl
+            var listBox = new ListControl
             {
                 ItemsSource = items,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Width = dialog.MaxWidth - 20,
+                Height = dialog.MaxHeight - 120,
                 Margin = new Thickness(10, 10, 10, 10) 
             };
 
-            control.SelectionChanged += delegate (object sender, EventArgs e)
+            listBox.SelectionChanged += delegate (object sender, EventArgs e)
             {
-                dialog.IsPrimaryButtonEnabled = (control.Selected >= 0);
+                dialog.IsPrimaryButtonEnabled = (listBox.Selected >= 0);
             };
 
-            dialog.Content = control;
+            dialog.Content = listBox;
 
             var result = (-1);
 
@@ -80,7 +161,7 @@ namespace Sage100AddressBook.Helpers
             dialog.SecondaryButtonText = Cancel;
             dialog.IsPrimaryButtonEnabled = false;
             dialog.IsSecondaryButtonEnabled = true;
-            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.PrimaryButtonClick += delegate { result = listBox.Selected; };
             dialog.SecondaryButtonClick += delegate { result = (-1); };
 
             await dialog.ShowAsync();
@@ -102,8 +183,8 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = Title,
-                MaxWidth = Window.Current.Content.RenderSize.Width - 40,
-                MaxHeight = Window.Current.Content.RenderSize.Height - 40
+                MaxWidth = Window.Current.Bounds.Width - 40,
+                MaxHeight = Window.Current.Bounds.Height - 40
             };
 
             var temp = new StringBuilder();
@@ -118,7 +199,7 @@ namespace Sage100AddressBook.Helpers
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 MaxHeight = 400,
-                MaxWidth = Window.Current.Content.RenderSize.Width - 80,
+                MaxWidth = Window.Current.Bounds.Width - 80,
             };
 
             var text = new TextBlock
