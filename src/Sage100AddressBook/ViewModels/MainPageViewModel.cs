@@ -17,58 +17,12 @@ namespace Sage100AddressBook.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
-        private ObservableCollectionEx<object> _userList = new ObservableCollectionEx<object>();
-        private DelegateCommand _users;
-
-        private async void GetUsers()
-        {
-            await Dispatcher.DispatchAsync(async () =>
-            {
-                var client = await AuthenticationHelper.GetClient();
-
-                if (client == null) return;
-
-                var users = await client.Users.Request().GetAsync();
-                var steve = users[users.Count - 1];
-
-                if (steve == null) return;
-
-                // await client.Groups[group.Id].Owners.References.Request().AddAsync(me);
-                // await client.Groups[group.Id].Members.References.Request().AddAsync(me);
-
-                //var drive = await client.Me.Drive.Root.ItemWithPath("303141564E4554").Children.Request().GetAsync();
-                //var drive = await client.Me.Drive.Root.Children.Request().GetAsync();
-
-                // 01TOWMY6NRLXLIHDGJGJEYARBZ2IAJFBOG
-
-                //var response = await client.Me.Drive.Items["01TOWMY6NRLXLIHDGJGJEYARBZ2IAJFBOG"].Content.Request().GetAsync();
-
-                _userList.BeginUpdate();
-
-                try
-                {
-                    _userList.Clear();
-                    foreach (var user in users)
-                    {
-                        _userList.Add(user.DisplayName);
-                    }
-                }
-                finally
-                {
-                    _userList.EndUpdate(Dispatcher);
-                }
-                
-            });
-        }
-
         public MainPageViewModel()
         {
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
                 Search = "Designtime value";
             }
-
-            _users = new DelegateCommand(new Action(GetUsers));
         }
 
         string _Value = "";
@@ -113,16 +67,6 @@ namespace Sage100AddressBook.ViewModels
 
         public void GotoAbout() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 2, new SuppressNavigationTransitionInfo());
-
-        public DelegateCommand Users
-        {
-            get { return _users; }
-        }
-
-        public ObservableCollection<object> UserList
-        {
-            get { return _userList; }
-        }
 
     }
 }

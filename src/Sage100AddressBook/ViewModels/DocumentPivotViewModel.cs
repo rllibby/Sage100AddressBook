@@ -3,6 +3,7 @@
  */
 
 using Microsoft.Graph;
+using Newtonsoft.Json;
 using Sage100AddressBook.CustomControls;
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
@@ -11,13 +12,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Graphics.Imaging;
+using Windows.Media.Ocr;
+using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -28,6 +33,7 @@ namespace Sage100AddressBook.ViewModels
     {
         #region Private constants
 
+        private const string MetadataExtension = ".json.txt";
         private const int PivotIndex = 1;
 
         #endregion
@@ -38,6 +44,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
         private ObservableCollectionEx<DocumentFolder> _folders = new ObservableCollectionEx<DocumentFolder>();
         private CustomerDetailPageViewModel _owner;
+        private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
         private DelegateCommand<SearchControl> _closeSearch;
@@ -45,7 +52,7 @@ namespace Sage100AddressBook.ViewModels
         private DataPackage _shareData;
         private DelegateCommand _share;
         private DelegateCommand _delete;
-        private DelegateCommand _copy;
+        private DelegateCommand _rename;
         private DelegateCommand _move;
         private DelegateCommand _upload;
         private DelegateCommand _open;
@@ -58,6 +65,79 @@ namespace Sage100AddressBook.ViewModels
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        /// Extracts the text from the image to use for metadata.
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns>The text that was extracted from the image.</returns>
+        private async Task<string> ProcessBitmap(SoftwareBitmap bitmap)
+        {
+            if (bitmap == null) throw new ArgumentNullException("bitmap");
+
+            var results = new StringBuilder(4096);
+
+            if ((bitmap.PixelWidth > OcrEngine.MaxImageDimension) || (bitmap.PixelHeight > OcrEngine.MaxImageDimension)) return string.Empty;
+
+            var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+
+            if (ocrEngine == null) return string.Empty;
+
+            var ocrResult = await ocrEngine.RecognizeAsync(bitmap);
+
+            foreach (var line in ocrResult.Lines)
+            {
+                foreach (var word in line.Words)
+                {
+                    results.Append(word.Text.Trim(new[] { ' ', ',', '.', '/', '\\', ':', '-', ';', '<', '>', '(', ')', '"', '\'' }));
+                    results.Append(" ");
+                }
+            }
+
+            return results.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Performs metadata processing for .png and .jpg files.
+        /// </summary>
+        /// <param name="client">The graph client to use for uploading metadata.</param>
+        /// <param name="file">The file that was uploaded.</param>
+        /// <param name="folderId">The graph folder id where the file was uploaded.</param>
+        /// <param name="id">The graph id for the uploaded file.</param>
+        /// <returns></returns>
+        private async Task<DriveItem> ProcessMetadata(GraphServiceClient client, StorageFile file, string folderId, string id)
+        {
+            if (client == null) throw new ArgumentNullException("client");
+            if (file == null) throw new ArgumentNullException("file");
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+
+            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase) 
+                || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return null;
+
+            using (var imageStream = await file.OpenAsync(FileAccessMode.Read))
+            {
+                var decoder = await BitmapDecoder.CreateAsync(imageStream);
+                var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                var imgSource = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight);
+
+                bitmap.CopyToBuffer(imgSource.PixelBuffer);
+
+                var text = await ProcessBitmap(bitmap);
+
+                if (string.IsNullOrEmpty(text)) return null;
+
+                var metadata = new ImageMetadata()
+                {
+                    ImageId = id,
+                    Content = text
+                };
+
+                using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata))))
+                {
+                    return await client.Me.Drive.Items[folderId].Children[file.Name + MetadataExtension].Content.Request().PutAsync<DriveItem>(memoryStream);
+                }
+            }
+        }
 
         /// <summary>
         /// Callback for search execution.
@@ -123,13 +203,23 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void ShowSearch(SearchControl arg)
         {
-            arg?.ShowSearch(OnSearchResults);
+            _searchControl = arg;
+            _searchControl?.ShowSearch(OnSearchResults);
+        }
+
+        /// <summary>
+        /// Action to close search results.
+        /// </summary>
+        /// <param name="arg">The search control.</param>
+        private async void CloseSearchAction(SearchControl arg)
+        {
+            await CloseSearchResults(arg);
         }
 
         /// <summary>
         /// Closes the search results and displays all documents.
         /// </summary>
-        private async void CloseSearchResults(SearchControl arg)
+        private async Task CloseSearchResults(SearchControl arg)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
@@ -138,8 +228,9 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    arg.CloseSearch();
+                    arg?.CloseSearch();
 
+                    _searchControl = null;
                     _documentGroups.Clear();
                     _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
@@ -252,19 +343,127 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Copies the document to a new folder.
+        /// Renames the document.
         /// </summary>
-        private async void CopyDocument()
+        private async void RenameDocument()
         {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                try
+                {
+                    var client = await AuthenticationHelper.GetClient();
 
-        }
+                    if ((client == null) || (_document == null)) return;
+
+                    var rename = await Dialogs.Rename(_document.Name);
+
+                    if (string.IsNullOrEmpty(rename)) return;
+                    if (string.IsNullOrEmpty(Path.GetExtension(rename)) )rename += Path.GetExtension(_document.Name) ?? string.Empty;
+
+                    Loading = true;
+
+                    try
+                    {
+                        var driveItem = new DriveItem()
+                        {
+                            Id = _document.Id,
+                            Name = rename,
+                            ParentReference = new ItemReference { Id = _document.FolderId }
+                        };
+
+                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+
+                        _document.Id = driveItem.Id;
+                        _document.Name = driveItem.Name;
+
+                        if (!string.IsNullOrEmpty(_document.MetadataId))
+                        {
+                            var metadataItem = new DriveItem()
+                            {
+                                Id = _document.MetadataId,
+                                Name = rename + MetadataExtension,
+                                ParentReference = new ItemReference { Id = _document.FolderId }
+                            };
+
+                            await client.Me.Drive.Items[_document.MetadataId].Request().UpdateAsync(metadataItem);
+                        }
+
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to rename the document '{0}'.", _document.Name), exception, false);
+                }
+            });
+        }               
 
         /// <summary>
         /// Moves the document to a new folder.
         /// </summary>
         private async void MoveDocument()
         {
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                try
+                {
+                    var client = await AuthenticationHelper.GetClient();
 
+                    if ((client == null) || (_document == null)) return;
+
+                    var index = await Dialogs.SelectGroup(GroupOperation.Move, _folders, _rootId);
+
+                    Loading = true;
+
+                    try
+                    {
+                        if (index < 0) return;
+
+                        var folder = _folders[index];
+
+                        if (folder.Id.Equals(_document.FolderId)) return;
+
+                        var driveItem = new DriveItem()
+                        {
+                            Id = _document.Id,
+                            Name = _document.Name,
+                            ParentReference = new ItemReference { Id = folder.Id }
+                        };
+
+                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+
+                        _document.Id = driveItem.Id;
+                        _document.Folder = folder.Name;
+                        _document.FolderId = folder.Id;
+
+                        if (!string.IsNullOrEmpty(_document.MetadataId))
+                        {
+                            var metadataItem = new DriveItem()
+                            {
+                                Id = _document.MetadataId,
+                                Name = _document.Name + MetadataExtension,
+                                ParentReference = new ItemReference { Id = folder.Id }
+                            };
+
+                            await client.Me.Drive.Items[_document.MetadataId].Request().UpdateAsync(metadataItem);
+                        }
+
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException(string.Format("Failed to move the document '{0}'.", _document.Name), exception, false);
+                }
+            });
         }
 
         /// <summary>
@@ -286,7 +485,10 @@ namespace Sage100AddressBook.ViewModels
                 {
                     await client.Me.Drive.Items[_document.Id].Request().DeleteAsync();
 
-                    _documents.Remove(_document);
+                    if (!string.IsNullOrEmpty(_document.MetadataId))
+                    {
+                        await client.Me.Drive.Items[_document.MetadataId].Request().DeleteAsync();
+                    }
 
                     BuildDocumentGroups();
 
@@ -310,7 +512,7 @@ namespace Sage100AddressBook.ViewModels
 
                 if (client == null) return;
 
-                var index = await Dialogs.SelectGroup(_folders, _rootId);
+                var index = await Dialogs.SelectGroup(GroupOperation.Upload, _folders, _rootId);
 
                 if (index < 0) return;
 
@@ -329,6 +531,9 @@ namespace Sage100AddressBook.ViewModels
                 openPicker.FileTypeFilter.Add(".pptx");
                 openPicker.FileTypeFilter.Add(".jpg");
                 openPicker.FileTypeFilter.Add(".png");
+
+                DriveItem driveItem = null;
+                DocumentEntry entry = null;
 
                 var file = await openPicker.PickSingleFileAsync();
 
@@ -350,9 +555,9 @@ namespace Sage100AddressBook.ViewModels
 
                         using (var upload = stream.AsStreamForRead())
                         {
-                            var driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
+                            driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
 
-                            var entry = new DocumentEntry()
+                            entry = new DocumentEntry()
                             {
                                 Folder = folder.Name,
                                 FolderId = folder.Id,
@@ -362,10 +567,14 @@ namespace Sage100AddressBook.ViewModels
                             };
 
                             _documents.Add(entry);
-
-                            BuildDocumentGroups();
                         }
                     }
+
+                    var metadataItem = await ProcessMetadata(client, file, folder.Id, driveItem.Id);
+
+                    entry.MetadataId = (metadataItem == null) ? null : metadataItem.Id;  
+
+                    BuildDocumentGroups();
                 }
                 finally
                 {
@@ -399,13 +608,13 @@ namespace Sage100AddressBook.ViewModels
             _dataTransferManager = DataTransferManager.GetForCurrentView();
             _dataTransferManager.DataRequested += OnDataRequested;
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
-            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchResults));
+            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
             _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
-            _copy = new DelegateCommand(new Action(CopyDocument), HasDocument);
             _move = new DelegateCommand(new Action(MoveDocument), HasDocument);
             _share = new DelegateCommand(new Action(ShareDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
             _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
+            _rename = new DelegateCommand(new Action(RenameDocument), HasDocument);
         }
 
         #endregion
@@ -465,6 +674,8 @@ namespace Sage100AddressBook.ViewModels
                 _share.RaiseCanExecuteChanged();
                 _open.RaiseCanExecuteChanged();
                 _delete.RaiseCanExecuteChanged();
+                _move.RaiseCanExecuteChanged();
+                _rename.RaiseCanExecuteChanged();
             }
         }
 
@@ -527,19 +738,19 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Copies the current document.
-        /// </summary>
-        public DelegateCommand Copy
-        {
-            get { return _copy; }
-        }
-
-        /// <summary>
         /// Moves the current document.
         /// </summary>
         public DelegateCommand Move
         {
             get { return _move; }
+        }
+
+        /// <summary>
+        /// Renames the current document.
+        /// </summary>
+        public DelegateCommand Rename
+        {
+            get { return _rename; }
         }
 
         /// <summary>

@@ -175,6 +175,15 @@ namespace Sage100AddressBook.CustomControls
             get { return _selected; }
         }
 
+        /// <summary>
+        /// Gets/sets the display text.
+        /// </summary>
+        public string DisplayText
+        {
+            get { return Display.Text; }
+            set { Display.Text = value; }
+        }
+
         #endregion
     }
 }

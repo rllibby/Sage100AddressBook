@@ -75,16 +75,19 @@ namespace Sage100AddressBook.CustomControls
         {
             if (e.Key == VirtualKey.Enter)
             {
-                e.Handled = true;
-
-                await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                if (!string.IsNullOrEmpty(SearchBox.Text))
                 {
-                    _active = true;
-                    _searchText = SearchBox.Text;
-                    _onSearch?.Invoke(this, new SearchEventArgs(_searchText));
-                });
+                    e.Handled = true;
 
-                return;
+                    await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        _active = true;
+                        _searchText = SearchBox.Text;
+                        _onSearch?.Invoke(this, new SearchEventArgs(_searchText));
+                    });
+
+                    return;
+                }
             }
 
             e.Handled = false;

@@ -6,6 +6,7 @@
       xmlns:converters="using:Template10.Converters"
       xmlns:custom="using:Sage100AddressBook.CustomControls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Sage100AddressBook.Helpers"
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Sage100AddressBook.Models"
@@ -346,10 +347,6 @@
                           Icon="Upload"
                           Label="Upload"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
-                          Icon="Delete"
-                          Label="Delete"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
                           Label="Share"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
@@ -358,16 +355,19 @@
                 </AppBarButton.Icon>
             </AppBarButton>
             <CommandBar.SecondaryCommands>
-                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Copy}"
-                              Icon="Copy"
-                              Label="Copy"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
                               Icon="MoveToFolder"
-                              Label="Move"
+                              Label="Move To"
                               Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                <AppBarSeparator Height="1"/>
-
+                <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
+                              Icon="Delete"
+                              Label="Delete"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
+                              Icon="Rename"
+                              Label="Rename"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
 

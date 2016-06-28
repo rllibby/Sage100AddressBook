@@ -112,12 +112,16 @@
     <Compile Include="CustomControls\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\RenameControl.xaml.cs">
+      <DependentUpon>RenameControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\SearchControl.xaml.cs">
       <DependentUpon>SearchControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\Device.cs" />
     <Compile Include="Helpers\Dialogs.cs" />
+    <Compile Include="Helpers\MenuFlyoutService.cs" />
     <Compile Include="Helpers\Mime.cs" />
     <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="Models\AddressEntry.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\DocumentEntry.cs" />
+    <Compile Include="Models\ImageMetadata.cs" />
     <Compile Include="Models\NavigationArgs.cs" />
     <Compile Include="Models\PieChartData.cs" />
     <Compile Include="Models\RecentAddress.cs" />
@@ -240,6 +245,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\RenameControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

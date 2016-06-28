@@ -8,13 +8,33 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace Sage100AddressBook.Helpers
 {
+    /// <summary>
+    /// Enumeration of group operations.
+    /// </summary>
+    public enum GroupOperation
+    {
+        /// <summary>
+        /// Upload to group.
+        /// </summary>
+        Upload,
+
+        /// <summary>
+        /// Move to group.
+        /// </summary>
+        Move,
+
+        /// <summary>
+        /// Copy to group.
+        /// </summary>
+        Copy
+    } 
+
     /// <summary>
     /// Static class to simplify dialog handling.
     /// </summary>
@@ -45,6 +65,43 @@ namespace Sage100AddressBook.Helpers
         #endregion
 
         #region Public methods
+
+        /// <summary>
+        /// Shows a dialog that allows a rename to occur.
+        /// </summary>
+        /// <param name="original">The original string for the rename.</param>
+        /// <returns>The renamed string on success, null on cancel.</returns>
+        public static async Task<string> Rename(string original)
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxHeight = 210,
+            };
+
+            var control = new RenameControl(dialog, original)
+            {
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.Content = control;
+
+            var result = (string)null;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.RenameText; };
+            dialog.SecondaryButtonClick += delegate { result = null; };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
 
         /// <summary>
         /// Show a selection dialog for share link types.
@@ -84,10 +141,11 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection list dialog.
         /// </summary>
+        /// <param name="operation">The operation to perform, this controls the text.</param>
         /// <param name="items">The collection of items to show in list.</param>
         /// <param name="rootId">The base level folder name<param>
         /// <returns>The index of the selected item.</returns>
-        public static async Task<int> SelectGroup(ICollection<DocumentFolder> items, string rootId)
+        public static async Task<int> SelectGroup(GroupOperation operation, ICollection<DocumentFolder> items, string rootId)
         {
             if ((items == null) || (items.Count == 0) || string.IsNullOrEmpty(rootId)) return (-1);
 
@@ -100,6 +158,7 @@ namespace Sage100AddressBook.Helpers
 
             var control = new GroupControl(dialog, items, rootId)
             {
+                DisplayText = string.Format("Select a group to {0} to.", operation.ToString().ToLower()),
                 Background = dialog.Background,
                 Width = dialog.MaxWidth - 40,
                 Height = dialog.MaxHeight - 120,
