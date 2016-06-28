@@ -183,8 +183,10 @@
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\doc.png" />
     <Content Include="Assets\docx.png" />
+    <Content Include="Assets\jpg.png" />
     <Content Include="Assets\nothumbnail.png" />
     <Content Include="Assets\pdf.png" />
+    <Content Include="Assets\png.png" />
     <Content Include="Assets\ppt.png" />
     <Content Include="Assets\pptx.png" />
     <Content Include="Assets\sage.png" />

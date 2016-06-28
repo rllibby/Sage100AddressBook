@@ -338,11 +338,6 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Camera"
-                              Label="Capture"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-            </CommandBar.SecondaryCommands>
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           Icon="OpenFile"
                           Label="Open"

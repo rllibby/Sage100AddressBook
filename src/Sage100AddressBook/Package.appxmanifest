@@ -3,7 +3,7 @@
   <Identity Name="0f962f31-55dd-476a-b4f1-fded0ea6c8c2" Publisher="CN=rllibby" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="0f962f31-55dd-476a-b4f1-fded0ea6c8c2" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Sage100AddressBook</DisplayName>
+    <DisplayName>Sage 100 Address Book</DisplayName>
     <PublisherDisplayName>Russell Libby</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
