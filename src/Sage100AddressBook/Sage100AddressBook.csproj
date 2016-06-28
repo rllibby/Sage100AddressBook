@@ -118,6 +118,7 @@
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\Device.cs" />
     <Compile Include="Helpers\Dialogs.cs" />
+    <Compile Include="Helpers\Mime.cs" />
     <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\ObservableCollectionEx.cs" />
@@ -182,8 +183,10 @@
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\doc.png" />
     <Content Include="Assets\docx.png" />
+    <Content Include="Assets\jpg.png" />
     <Content Include="Assets\nothumbnail.png" />
     <Content Include="Assets\pdf.png" />
+    <Content Include="Assets\png.png" />
     <Content Include="Assets\ppt.png" />
     <Content Include="Assets\pptx.png" />
     <Content Include="Assets\sage.png" />

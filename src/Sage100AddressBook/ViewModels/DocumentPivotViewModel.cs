@@ -45,6 +45,8 @@ namespace Sage100AddressBook.ViewModels
         private DataPackage _shareData;
         private DelegateCommand _share;
         private DelegateCommand _delete;
+        private DelegateCommand _copy;
+        private DelegateCommand _move;
         private DelegateCommand _upload;
         private DelegateCommand _open;
         private string _searchText;
@@ -250,6 +252,22 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Copies the document to a new folder.
+        /// </summary>
+        private async void CopyDocument()
+        {
+
+        }
+
+        /// <summary>
+        /// Moves the document to a new folder.
+        /// </summary>
+        private async void MoveDocument()
+        {
+
+        }
+
+        /// <summary>
         /// Deletes the document from one drive.
         /// </summary>
         private async void DeleteDocument()
@@ -309,6 +327,8 @@ namespace Sage100AddressBook.ViewModels
                 openPicker.FileTypeFilter.Add(".xlsx");
                 openPicker.FileTypeFilter.Add(".ppt");
                 openPicker.FileTypeFilter.Add(".pptx");
+                openPicker.FileTypeFilter.Add(".jpg");
+                openPicker.FileTypeFilter.Add(".png");
 
                 var file = await openPicker.PickSingleFileAsync();
 
@@ -381,6 +401,8 @@ namespace Sage100AddressBook.ViewModels
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
             _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchResults));
             _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
+            _copy = new DelegateCommand(new Action(CopyDocument), HasDocument);
+            _move = new DelegateCommand(new Action(MoveDocument), HasDocument);
             _share = new DelegateCommand(new Action(ShareDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
             _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
@@ -502,6 +524,22 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand Open
         {
             get { return _open; }
+        }
+
+        /// <summary>
+        /// Copies the current document.
+        /// </summary>
+        public DelegateCommand Copy
+        {
+            get { return _copy; }
+        }
+
+        /// <summary>
+        /// Moves the current document.
+        /// </summary>
+        public DelegateCommand Move
+        {
+            get { return _move; }
         }
 
         /// <summary>

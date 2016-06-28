@@ -9,6 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+#if DEBUG
+using System.Diagnostics;
+#endif
+
 namespace Sage100AddressBook.Services.DocumentViewerServices
 {
     /// <summary>
@@ -171,6 +175,11 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                 if (driveFolders.Count == 0) return result;
                 if (folders != null) folders.Clear();
 
+#if DEBUG
+                var sw = new Stopwatch();
+
+                sw.Start();
+#endif
                 foreach (var folder in driveFolders.CurrentPage)
                 {
                     if (folder != null) folders.Add(new DocumentFolder(folder.Id, folder.Name));
@@ -194,6 +203,9 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                     }
                 }
 
+#if DEBUG
+                Debug.WriteLine(sw.ElapsedMilliseconds);
+#endif
                 return result;
             }
             catch (Exception exception)

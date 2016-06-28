@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -93,7 +94,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
