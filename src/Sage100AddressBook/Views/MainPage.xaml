@@ -25,7 +25,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for narrow view  -->
-                        <Setter Target="stateTextBox.Text" Value="Narrow Visual State" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateNormal">
@@ -34,7 +33,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for normal view  -->
-                        <Setter Target="stateTextBox.Text" Value="Normal Visual State" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateWide">
@@ -43,7 +41,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for wide view  -->
-                        <Setter Target="stateTextBox.Text" Value="Wide Visual State" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -96,32 +93,6 @@
                 Content="Submit"
                 RelativePanel.AlignBottomWith="parameterResizer"
                 RelativePanel.RightOf="parameterResizer" />
-
-        <TextBlock x:Name="stateTextBox"
-                   Margin="16,16,0,0"
-                   RelativePanel.AlignLeftWith="parameterResizer"
-                   RelativePanel.Below="parameterResizer"
-                   Text="Current Visual State" />
-
-        <Button x:Name="GetUsers"
-                Width="129"
-                Height="32"
-                Margin="16,20,-60,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Command="{x:Bind ViewModel.Users}"
-                Content="Get Users"
-                RelativePanel.AlignLeftWithPanel="True"
-                RelativePanel.Below="stateTextBox" />
-
-        <ListView x:Name="listView"
-                  Height="300"
-                  Margin="16,20"
-                  VerticalAlignment="Top"
-                  ItemsSource="{x:Bind ViewModel.UserList, Mode=OneWay}"
-                  RelativePanel.AlignLeftWithPanel="True"
-                  RelativePanel.AlignRightWithPanel="True"
-                  RelativePanel.Below="GetUsers" />
         <!--<GridView x:Name="gridView" HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="0"/>-->
 
     </RelativePanel>

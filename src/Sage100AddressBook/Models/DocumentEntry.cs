@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -24,6 +21,11 @@ namespace Sage100AddressBook.Models
         /// The id of the file object.
         /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Optional id for the associated metadata file.
+        /// </summary>
+        public string MetadataId { get; set; }
 
         /// <summary>
         /// The name of the file object.

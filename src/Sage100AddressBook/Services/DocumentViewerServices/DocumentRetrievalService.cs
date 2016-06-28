@@ -8,6 +8,8 @@ using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text;
+using Newtonsoft.Json;
 
 #if DEBUG
 using System.Diagnostics;
@@ -122,7 +124,29 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                     {
                         if (IsMetadataFile(doc.Name))
                         {
-                            /// todo = Get the matching image file after processing the metadata document.
+                            try
+                            {
+
+                                using (var stream = await DocumentViewerService.Instance.GetFileStream(doc.Id))
+                                {
+                                    var buffer = new byte[stream.Length];
+
+                                    stream.Read(buffer, 0, (int)stream.Length);
+
+                                    var metadata = JsonConvert.DeserializeObject<ImageMetadata>(Encoding.ASCII.GetString(buffer));
+                                    var linkedItem = await client.Me.Drive.Items[metadata.ImageId].Request().GetAsync();
+                                    var linkedEntry = new DocumentEntry()
+                                    {
+                                        Id = linkedItem.Id,
+                                        Name = linkedItem.Name,
+                                        LastModifiedDate = linkedItem.LastModifiedDateTime?.DateTime.ToLocalTime()
+                                    };
+
+                                    result.Add(linkedEntry);
+                                }
+                            }
+                            catch { }
+
                             continue;
                         }
 
@@ -165,6 +189,7 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
             var client = await AuthenticationHelper.GetClient();
             var result = new List<DocumentEntry>();
+            var metadata = new Dictionary<string, string>();
 
             try
             {
@@ -188,7 +213,14 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
                     foreach (var doc in docs.CurrentPage)
                     {
-                        if (IsMetadataFile(doc.Name)) continue;
+                        if (IsMetadataFile(doc.Name))
+                        {
+                            var names = doc.Name.ToLower().Split(new[] { MetadataExtension }, StringSplitOptions.RemoveEmptyEntries);
+
+                            metadata.Add(names[0], doc.Id);
+                            continue;
+                        }
+
 
                         var entry = new DocumentEntry()
                         {
@@ -201,6 +233,11 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                         
                         result.Add(entry);
                     }
+                }
+
+                foreach (var item in result)
+                {
+                    if (metadata.ContainsKey(item.Name.ToLower())) item.MetadataId = metadata[item.Name.ToLower()];
                 }
 
 #if DEBUG
