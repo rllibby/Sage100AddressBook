@@ -6,6 +6,7 @@ using Sage100AddressBook.Helpers;
 using System;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Pdf;
 using Windows.Storage;
@@ -74,24 +75,15 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
             try
             {
-                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                var folder = ApplicationData.Current.TemporaryFolder;
+                var file = await folder.CreateFileAsync(fileName, CreationCollisionOption.GenerateUniqueName);
+
+                using (var stream = await file.OpenStreamForWriteAsync())
                 {
-                    var startingFileName = fileName;
-                    var count = 1;
-
-                    while (store.FileExists(fileName))
-                    {
-                        fileName = string.Format("{0}-Copy({1}){2}", Path.GetFileNameWithoutExtension(startingFileName), count++, Path.GetExtension(startingFileName));
-                    }
-
-                    using (var dest = new IsolatedStorageFileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, store))
-                    {
-                        await source.CopyToAsync(dest);
-                        await dest.FlushAsync();
-                    }
+                    await source.CopyToAsync(stream);
                 }
 
-                return fileName;
+                return file.Name;
             }
             catch (Exception exception)
             {
@@ -116,10 +108,14 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
             {
                 try
                 {
-                    var folder = ApplicationData.Current.LocalFolder;
+                    var folder = ApplicationData.Current.TemporaryFolder;
                     var file = await folder.GetFileAsync(fileName);
+                    var options = new LauncherOptions()
+                    {
+                        DisplayApplicationPicker = true,
+                    };
 
-                    result = await Launcher.LaunchFileAsync(file);
+                    result = await Launcher.LaunchFileAsync(file, options);
                 }
                 catch (Exception exception)
                 {

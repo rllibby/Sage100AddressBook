@@ -57,9 +57,19 @@ namespace Sage100AddressBook.CustomControls
                         _source.Add(new DocumentFolder(folder.Id, folder.Name));
                     }
                 }
-                catch (Exception exception)
+                catch (ServiceException exception)
                 {
-                    await Dialogs.ShowException(string.Format("Failed to create the group '{0}'.", groupName), exception, false);
+                    _dialog.Hide();
+
+                    try
+                    {
+                        await Dialogs.ShowException(string.Format("Failed to create the group '{0}'.", groupName), exception, false);
+                        Group.Text = string.Empty;
+                    }
+                    finally
+                    {
+                        await _dialog.ShowAsync();
+                    }
                 }
                 finally
                 {
