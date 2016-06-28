@@ -357,7 +357,18 @@
                     <FontIcon Glyph="&#xE72D;" />
                 </AppBarButton.Icon>
             </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Copy}"
+                              Icon="Copy"
+                              Label="Copy"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
+                              Icon="MoveToFolder"
+                              Label="Move"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarSeparator Height="1"/>
 
+            </CommandBar.SecondaryCommands>
         </CommandBar>
 
     </Grid>

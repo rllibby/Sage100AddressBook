@@ -94,7 +94,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 

@@ -37,6 +37,12 @@
                 Click="GroupAddClick">
             <SymbolIcon Symbol="Add" />
         </Button>
+        <ProgressRing x:Name="Progress"
+                      Grid.Row="2"
+                      Grid.ColumnSpan="2"
+                      Width="100"
+                      Height="100"
+                      IsActive="False" />
         <ListBox x:Name="Items"
                  Grid.Row="2"
                  Grid.Column="0"

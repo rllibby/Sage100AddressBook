@@ -31,6 +31,28 @@ namespace Sage100AddressBook.CustomControls
         #region Private methods
 
         /// <summary>
+        /// Sets or clears the busy state for the dialog.
+        /// </summary>
+        /// <param name="busy">True if busy, otherwise false.</param>
+        private void SetBusy(bool busy)
+        {
+            if (busy)
+            {
+                Add.IsEnabled = false;
+                Group.IsEnabled = false;
+                Items.Visibility = Visibility.Collapsed;
+                Progress.IsActive = true; 
+
+                return;
+            }
+
+            Group.IsEnabled = true;
+            Group.Text = string.Empty;
+            Progress.IsActive = false;
+            Items.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
         /// Event that is triggered when a new group should be added.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
@@ -40,6 +62,8 @@ namespace Sage100AddressBook.CustomControls
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 var groupName = Group.Text;
+
+                SetBusy(true);
 
                 try
                 {
@@ -68,12 +92,14 @@ namespace Sage100AddressBook.CustomControls
                     }
                     finally
                     {
-                        await _dialog.ShowAsync();
+                        #pragma warning disable 4014
+                        _dialog.ShowAsync();
+                        #pragma warning restore 4014
                     }
                 }
                 finally
                 {
-                    Group.Text = string.Empty;
+                    SetBusy(false);
                 }
             });
         }
