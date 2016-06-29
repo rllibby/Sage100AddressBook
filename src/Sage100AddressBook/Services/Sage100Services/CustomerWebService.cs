@@ -37,7 +37,8 @@ namespace Sage100AddressBook.Services.Sage100Services
 
 #if (NGROK)
                     sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                    var response = await sageWeb.GetAsync(requestURI);
+
+                    response = await sageWeb.GetAsync(requestURI);
 #endif
                 }
 

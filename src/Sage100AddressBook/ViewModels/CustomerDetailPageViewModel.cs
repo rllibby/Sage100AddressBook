@@ -92,7 +92,7 @@ namespace Sage100AddressBook.ViewModels
 
                 _documentModel.SetPivotIndex(0);
 
-                await _documentModel.Load(navArgs.Id, navArgs.CompanyCode);
+                _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);

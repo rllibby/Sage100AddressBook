@@ -14,6 +14,15 @@ namespace Sage100AddressBook.Models
     /// </summary>
     public class AddressEntry : BindableBase
     {
+        #region Private fields
+
+        private string _type;
+        private string _address;
+
+        #endregion
+
+        #region Public properties
+
         /// <summary>
         /// The id of the entry.
         /// </summary>
@@ -27,7 +36,16 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Entity address
         /// </summary>
-        public string Address { get; set; }
+        public string Address
+        {
+            get { return _address; }
+            set
+            {
+                _address = (string.IsNullOrEmpty(value) ? value : value.Replace("\n", ", "));
+
+                base.RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Entity city.
@@ -62,12 +80,23 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Entity type.
         /// </summary>
-        public string Type { get; set; }
+        public string Type
+        {
+            get { return _type; }
+            set
+            {
+                _type = value.ProperCase();
+
+                base.RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Entity parent id.
         /// </summary>
         public string ParentId { get; set; }
+
+        #endregion
     }
 
     /// <summary>
@@ -122,7 +151,12 @@ namespace Sage100AddressBook.Models
         public string GroupName
         {
             get { return _groupName; }
-            set { Set(ref _groupName, value); }
+            set
+            {
+                _groupName = value.ProperCase();
+
+                base.RaisePropertyChanged();
+            }
         }
 
         /// <summary>
