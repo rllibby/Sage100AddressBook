@@ -713,10 +713,15 @@ namespace Sage100AddressBook.ViewModels
         /// Sets the current pivot index.
         /// </summary>
         /// <param name="index">The new pivot index being maintained by the page.</param>
-        public void SetPivotIndex(int index)
+        public async void SetPivotIndex(int index)
         {
             try
             {
+                if ((_index == PivotIndex) && (index != PivotIndex) && (_searchControl != null))
+                {
+                    await CloseSearchResults(_searchControl);
+                }
+
                 _index = index;
             }
             finally
