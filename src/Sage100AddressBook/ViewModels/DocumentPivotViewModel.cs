@@ -109,15 +109,13 @@ namespace Sage100AddressBook.ViewModels
 
                     await encoder.FlushAsync();
 
-                    var pixels = writeable.PixelBuffer;
-
-                    await encoderStream.ReadAsync(pixels, (uint)pixels.Length, InputStreamOptions.None);
+                    writeable.SetSource(encoderStream);
                 }
             }
 
             var newFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(Path.ChangeExtension(file.Name, "png"), CreationCollisionOption.ReplaceExisting);
 
-            using (var encoderStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            using (var encoderStream = await newFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoderStream);
                 var pixelStream = writeable.PixelBuffer.AsStream();
