@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
@@ -20,6 +21,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
@@ -65,6 +67,65 @@ namespace Sage100AddressBook.ViewModels
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        /// Used to pre-process image files so that they are scaled down to a reasonable size.
+        /// </summary>
+        /// <param name="file">The file to process.</param>
+        /// <returns>The existing or new storage file.</returns>
+        private async Task<StorageFile> PreProcessFile(StorageFile file)
+        {
+            if (file == null) throw new ArgumentNullException("file");
+
+            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return file;
+
+            using (var stream = await file.OpenReadAsync())
+            {
+                var decoder = await BitmapDecoder.CreateAsync(stream);
+
+                var origHeight = decoder.PixelHeight;
+                var origWidth = decoder.PixelWidth;
+
+                var ratioX = 1000 / (double)origWidth;
+                var ratioY = 1000 / (double)origHeight;
+                var ratio = Math.Min(ratioX, ratioY);
+
+                var newHeight = (uint)(origHeight * ratio);
+                var newWidth = (uint)(origWidth * ratio);
+
+                using (var encoderStream = new InMemoryRandomAccessStream())
+                {
+                    var encoder = await BitmapEncoder.CreateForTranscodingAsync(encoderStream, decoder);
+                    encoder.BitmapTransform.ScaledHeight = newHeight;
+                    encoder.BitmapTransform.ScaledWidth = newWidth;
+
+                    await encoder.FlushAsync();
+
+                    var pixels = new byte[newWidth * newHeight * 4];
+
+                    await encoderStream.ReadAsync(pixels.AsBuffer(), (uint)pixels.Length, InputStreamOptions.None);
+
+                    var writeable = new 
+                    using (var memstream = new MemoryStream())
+                    {
+                        await memstream.WriteAsync(pixels, 0, pixels.Length);
+
+                        var folder = ApplicationData.Current.TemporaryFolder;
+                        var newFile = await folder.CreateFileAsync(file.Name, CreationCollisionOption.GenerateUniqueName);
+
+                        using (var filestream = await file.OpenStreamForWriteAsync())
+                        {
+                            await memstream.CopyToAsync(filestream);
+                        }
+
+                        file = newFile;
+                    }
+                }
+            }
+
+            return file;
+        }
 
         /// <summary>
         /// Extracts the text from the image to use for metadata.
@@ -118,10 +179,6 @@ namespace Sage100AddressBook.ViewModels
             {
                 var decoder = await BitmapDecoder.CreateAsync(imageStream);
                 var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                var imgSource = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight);
-
-                bitmap.CopyToBuffer(imgSource.PixelBuffer);
-
                 var text = await ProcessBitmap(bitmap);
 
                 if (string.IsNullOrEmpty(text)) return null;
@@ -490,9 +547,10 @@ namespace Sage100AddressBook.ViewModels
                         await client.Me.Drive.Items[_document.MetadataId].Request().DeleteAsync();
                     }
 
-                    BuildDocumentGroups();
-
+                    _documents.Remove(_document);
                     _document = null;
+
+                    BuildDocumentGroups();
                 }
                 finally
                 {
@@ -543,6 +601,8 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
+                    file = await PreProcessFile(file);
+
                     var fileName = file.Name;
 
                     using (var stream = await file.OpenReadAsync())
@@ -572,9 +632,13 @@ namespace Sage100AddressBook.ViewModels
 
                     var metadataItem = await ProcessMetadata(client, file, folder.Id, driveItem.Id);
 
-                    entry.MetadataId = (metadataItem == null) ? null : metadataItem.Id;  
+                    entry.MetadataId = (metadataItem == null) ? null : metadataItem.Id;
 
                     BuildDocumentGroups();
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException("Failed to upload file", exception, false);
                 }
                 finally
                 {
