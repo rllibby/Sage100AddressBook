@@ -163,6 +163,7 @@ namespace Sage100AddressBook.CustomControls
             try
             {
                 SearchBox.Text = string.Empty;
+                SearchBox.PlaceholderText = "Search for...";
                 Visibility = Visibility.Visible;
                 Focus(FocusState.Programmatic);
             }

@@ -28,6 +28,8 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
+#pragma warning disable 4014
+
 namespace Sage100AddressBook.ViewModels
 {
     /// <summary>
@@ -199,15 +201,19 @@ namespace Sage100AddressBook.ViewModels
             if (string.IsNullOrEmpty(arg.SearchText)) return;
 
             var search = arg.SearchText;
+            var dispatcher = _owner.Dispatcher;
 
-            await _owner.Dispatcher.DispatchAsync(async() =>
+            await dispatcher.DispatchAsync(async() =>
             {
                 try
                 {
                     Loading = true;
                     SearchText = search;
 
-                    try
+                    _documents.Clear();
+                    BuildDocumentGroups();
+
+                    Task.Run<IEnumerable<DocumentEntry>>(async () =>
                     {
                         var source = new List<DocumentEntry>();
 
@@ -222,13 +228,27 @@ namespace Sage100AddressBook.ViewModels
 
                             if (match != null) _documents.Add(match);
                         }
-                    
-                        BuildDocumentGroups();
-                    }
-                    finally
+
+                        return _documents;
+
+                    }).ContinueWith(async (t) =>
                     {
-                        Loading = false;
-                    }
+                        await dispatcher.DispatchAsync(async () =>
+                        {
+                            try
+                            {
+                                if (t.IsFaulted)
+                                {
+                                    if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", search), t.Exception, false);
+                                }
+                                if (t.IsCompleted) BuildDocumentGroups();
+                            }
+                            finally
+                            {
+                                Loading = false;
+                            }
+                        });
+                    });
                 }
                 catch (Exception exception)
                 {
@@ -270,22 +290,20 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private async Task CloseSearchResults(SearchControl arg)
         {
-            await _owner.Dispatcher.DispatchAsync(async () =>
+            var dispatcher = _owner.Dispatcher;
+
+            await dispatcher.DispatchAsync(() =>
             {
+                arg?.CloseSearch();
+
                 SearchText = string.Empty;
+               
+                _searchControl = null;
+                _documents.Clear();
 
-                try
-                {
-                    arg?.CloseSearch();
+                BuildDocumentGroups();
 
-                    _searchControl = null;
-
-                    if (_index == PivotIndex) await Load();
-                }
-                finally
-                {
-                    Loading = false;
-                }
+                if (_index == PivotIndex) Load();
             });
         }
 
@@ -692,13 +710,18 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public async Task Load()
         {
-            #pragma warning disable 4014
-
             if (_index != PivotIndex) return;
 
             var dispatcher = Window.Current.Dispatcher;
 
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = true; });
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                Loading = true;
+
+                _documents.Clear();
+
+                BuildDocumentGroups();
+            });
 
             Task.Run<IEnumerable<DocumentEntry>>(async () =>
             {
@@ -709,7 +732,6 @@ namespace Sage100AddressBook.ViewModels
                 {
                     try
                     {
-                        _documents.Clear();
                         if (t.IsCompleted) _documents.AddRange(t.Result);
                         BuildDocumentGroups();
                     }
@@ -719,8 +741,6 @@ namespace Sage100AddressBook.ViewModels
                     }
                 });
             });
-
-            #pragma warning restore 4014
         }
 
         /// <summary>
@@ -731,12 +751,20 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                var load = ((_index != PivotIndex) && (index == PivotIndex));
+                var active = ((_index != PivotIndex) && (index == PivotIndex));
                 var closeSearch = ((_index == PivotIndex) && (index != PivotIndex) && (_searchControl != null));
 
                 _index = index;
 
-                if (load) await Load();
+                if (active)
+                {
+                    await Load();
+                }
+                else
+                {
+                    await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = false; });
+                }
+
                 if (closeSearch) await CloseSearchResults(_searchControl);
             }
             finally
