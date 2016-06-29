@@ -77,54 +77,60 @@ namespace Sage100AddressBook.ViewModels
         {
             if (file == null) throw new ArgumentNullException("file");
 
-            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return file;
+            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return file;
+
+            WriteableBitmap writeable = null;
+            var origHeight = (uint)0;
+            var origWidth = (uint)0;
 
             using (var stream = await file.OpenReadAsync())
             {
                 var decoder = await BitmapDecoder.CreateAsync(stream);
 
-                var origHeight = decoder.PixelHeight;
-                var origWidth = decoder.PixelWidth;
+                origHeight = decoder.PixelHeight;
+                origWidth = decoder.PixelWidth;
+
+                if ((origWidth < 1000) && (origHeight < 1000)) return file;
 
                 var ratioX = 1000 / (double)origWidth;
                 var ratioY = 1000 / (double)origHeight;
                 var ratio = Math.Min(ratioX, ratioY);
-
                 var newHeight = (uint)(origHeight * ratio);
                 var newWidth = (uint)(origWidth * ratio);
+
+                writeable = new WriteableBitmap((int)newWidth, (int)newHeight);
 
                 using (var encoderStream = new InMemoryRandomAccessStream())
                 {
                     var encoder = await BitmapEncoder.CreateForTranscodingAsync(encoderStream, decoder);
+
                     encoder.BitmapTransform.ScaledHeight = newHeight;
                     encoder.BitmapTransform.ScaledWidth = newWidth;
 
                     await encoder.FlushAsync();
 
-                    var pixels = new byte[newWidth * newHeight * 4];
+                    var pixels = writeable.PixelBuffer;
 
-                    await encoderStream.ReadAsync(pixels.AsBuffer(), (uint)pixels.Length, InputStreamOptions.None);
-
-                    var writeable = new 
-                    using (var memstream = new MemoryStream())
-                    {
-                        await memstream.WriteAsync(pixels, 0, pixels.Length);
-
-                        var folder = ApplicationData.Current.TemporaryFolder;
-                        var newFile = await folder.CreateFileAsync(file.Name, CreationCollisionOption.GenerateUniqueName);
-
-                        using (var filestream = await file.OpenStreamForWriteAsync())
-                        {
-                            await memstream.CopyToAsync(filestream);
-                        }
-
-                        file = newFile;
-                    }
+                    await encoderStream.ReadAsync(pixels, (uint)pixels.Length, InputStreamOptions.None);
                 }
             }
 
-            return file;
+            var newFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(Path.ChangeExtension(file.Name, "png"), CreationCollisionOption.ReplaceExisting);
+
+            using (var encoderStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoderStream);
+                var pixelStream = writeable.PixelBuffer.AsStream();
+                var pixels = new byte[pixelStream.Length];
+
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)writeable.PixelWidth, (uint)writeable.PixelHeight, 96.0, 96.0, pixels);
+
+                await encoder.FlushAsync();
+            }
+
+            return newFile;
         }
 
         /// <summary>
