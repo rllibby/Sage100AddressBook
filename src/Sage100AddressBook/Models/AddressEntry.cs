@@ -16,6 +16,7 @@ namespace Sage100AddressBook.Models
     {
         #region Private fields
 
+        private DelegateCommand<AddressEntry> _delete;
         private string _type;
         private string _address;
 
@@ -95,6 +96,15 @@ namespace Sage100AddressBook.Models
         /// Entity parent id.
         /// </summary>
         public string ParentId { get; set; }
+
+        /// <summary>
+        /// Delegate command for delete action.
+        /// </summary>
+        public DelegateCommand<AddressEntry> Delete
+        {
+            get { return _delete; }
+            set { Set(ref _delete, value); }
+        }
 
         #endregion
     }

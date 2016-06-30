@@ -3,6 +3,8 @@
  */
 
 using Sage100AddressBook.Helpers;
+using System;
+using Template10.Mvvm;
 
 namespace Sage100AddressBook.Models
 {
@@ -14,7 +16,21 @@ namespace Sage100AddressBook.Models
         #region Private fields
 
         private ObservableCollectionEx<AddressGroup> _groups = new ObservableCollectionEx<AddressGroup>();
+        private static DelegateCommand<AddressEntry> _delete;
         private static RecentAddress _instance = new RecentAddress();
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// Removes the address entry from the collection.
+        /// </summary>
+        /// <param name="entry">The address entry to remove.</param>
+        private void DeleteEntry(AddressEntry entry)
+        {
+            if (entry == null) return;
+        }
 
         #endregion
 
@@ -23,7 +39,10 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Constructor.
         /// </summary>
-        private RecentAddress() { }
+        private RecentAddress()
+        {
+            _delete = new DelegateCommand<AddressEntry>(new Action<AddressEntry>(DeleteEntry));
+        }
 
         #endregion
 
@@ -37,15 +56,19 @@ namespace Sage100AddressBook.Models
         {
             if (entry == null) return;
 
+            var copy = entry.Copy();
+
+            copy.Delete = _delete;
+
             foreach (var group in _groups)
             {
-                if (group.GroupName.Equals(entry.Type))
+                if (group.GroupName.Equals(copy.Type))
                 {
                     for (var i = 0; i < group.AddressEntries.Count; i++)
                     {
                         var compare = group.AddressEntries[i];
 
-                        if (string.Equals(compare.Id, entry.Id) && string.Equals(compare.Name, entry.Name) && string.Equals(compare.ParentId, entry.ParentId))
+                        if (string.Equals(compare.Id, copy.Id) && string.Equals(compare.Name, copy.Name) && string.Equals(compare.ParentId, copy.ParentId))
                         {
                             if (i == 0) return;
 
@@ -55,13 +78,13 @@ namespace Sage100AddressBook.Models
                         }
                     }
 
-                    group.AddressEntries.Insert(0, entry);
+                    group.AddressEntries.Insert(0, copy);
 
                     return;
                 }
             }
 
-            _groups.Add(new AddressGroup(entry.Type, new[] { entry }));
+            _groups.Add(new AddressGroup(copy.Type, new[] { copy }));
         }
 
         #endregion

@@ -20,6 +20,20 @@ namespace Sage100AddressBook.Helpers
         #region Private methods
 
         /// <summary>
+        /// The right tapped event.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnElementRightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+
+            if (element == null) return;
+
+            FlyoutBase.ShowAttachedFlyout(element);
+        }
+
+        /// <summary>
         /// The holding event.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
@@ -81,7 +95,8 @@ namespace Sage100AddressBook.Helpers
 
             if (null != element)
             {
-                element.Holding -= OnElementHolding; 
+                element.Holding -= OnElementHolding;
+                element.RightTapped -= OnElementRightTapped;
 
                 var oldMenuFlyout = e.OldValue as MenuFlyout;
 
@@ -93,6 +108,7 @@ namespace Sage100AddressBook.Helpers
                 {
                     element.SetValue(FlyoutBase.AttachedFlyoutProperty, newMenuFlyout);
                     element.Holding += OnElementHolding;
+                    element.RightTapped += OnElementRightTapped;
                 }
             }
         }
