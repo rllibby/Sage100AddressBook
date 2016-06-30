@@ -47,7 +47,6 @@ namespace Sage100AddressBook.ViewModels
         {
             if (entry == null) throw new ArgumentNullException("entry");
 
-            /// TODO need to add company code to the model so it's there
             return new NavigationArgs()
             {
                 Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
@@ -61,13 +60,11 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void BuildAddressGroups()
         {
-            var grouped = from address in Addresses group address by address.Type into grp orderby grp.Key descending select new AddressGroup
-                            {
-                                GroupName = grp.Key + "s",
-                                AddressEntries = grp.ToList()
-                            };
+            var grouped = from address in _addresses group address by address.Type into grp orderby grp.Key descending select new AddressGroup(grp.Key, grp.ToList());
 
             _addressGroups.Set(new ObservableCollection<AddressGroup>(grouped.ToList()));
+
+            RaisePropertyChanged("IsEmpty");
         }
 
         #endregion
@@ -105,7 +102,6 @@ namespace Sage100AddressBook.ViewModels
             {
                 _addresses.Set(await _searchService.ExecuteSearchAsync(Search), Dispatcher);
 
-                /// TODO - this works just need to figure out how to handle back button to return to search (this should be == 1)
                 if (_addresses.Count == 1)  
                 {
                     NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault(), true), new SuppressNavigationTransitionInfo());
@@ -169,6 +165,8 @@ namespace Sage100AddressBook.ViewModels
 
             if (_currentAddress == null) return;
 
+            RecentAddress.Instance.AddRecent(_currentAddress);
+
             NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress, false), new SuppressNavigationTransitionInfo());
         }
 
@@ -221,6 +219,14 @@ namespace Sage100AddressBook.ViewModels
         public string Results
         {
             get { return string.IsNullOrEmpty(_search)? "Search results" : string.Format("Search results for \"{0}\"", _search); }
+        }
+
+        /// <summary>
+        /// Determines if the search list is empty.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get { return (_addresses.Count == 0); }
         }
 
         /// <summary>

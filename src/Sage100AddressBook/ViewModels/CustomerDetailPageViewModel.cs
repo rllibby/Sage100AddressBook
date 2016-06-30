@@ -1,85 +1,61 @@
-﻿using System;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
-using Sage100AddressBook.Services.DocumentViewerServices;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
-using Windows.UI.Xaml.Input;
 
 namespace Sage100AddressBook.ViewModels
 {
     public class CustomerDetailPageViewModel : ViewModelBase
     {
+        #region Private constants
+
+        private const int PivotIndex = 0;
+
+        #endregion
+
         #region Private fields
 
-        private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
-        private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
-        private Customer _currentCustomer;
+        private DocumentPivotViewModel _documentModel;
         private CustomerWebService _webService;
-        private DocumentEntry _currentDocument;
-        private DocumentRetrievalService _docRetrievalService;
-        private DelegateCommand _open;
-        private int _pivotIndex;
-        private bool _loading;
+        private Customer _currentCustomer;
+        private AddressEntry _customerAddress;
+        private DelegateCommand _toggleFavorites;
+        private string _id = string.Empty;
+        private int _index;
+        private int _loading;
+
+        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
 
         #endregion
 
         #region Private methods
 
         /// <summary>
-        /// Opens the document.
+        /// Fired when the pivot index changes.SetPivotIndex(_index);
         /// </summary>
-        /// <returns>The async task to wait on.</returns>
-        private async Task DoDocumentOpen()
+        /// <param name="index"></param>
+        private void SetPivotIndex(int index)
         {
-            var document = CurrentDocument;
-            var service = DocumentViewerService.Instance;
-
-            if (document == null) return;
-
-            Loading = true;
-
-            var fileName = string.Empty;
-
             try
             {
-                using (var stream = await service.GetFileStream(document.Id))
-                {
-                    fileName = await service.SaveToFile(stream, document.Name);
-                    await service.LaunchFileAssociation(fileName);
-                }
-            }
-            catch (Exception exception)
-            {
-                await Dialogs.ShowException(string.Format("Failed to launch the file '{0}'.", fileName), exception, false);
+
             }
             finally
             {
-                Loading = false;
+                RaisePropertyChanged("GlanceCommandsVisible");
             }
-        }
-
-        /// <summary>
-        /// Routes to the document open task.
-        /// </summary>
-        private async void OpenDocument()
-        {
-            await DoDocumentOpen();
-        }
-
-        /// <summary>
-        /// Determines if we can open the document.
-        /// </summary>
-        /// <returns></returns>
-        private bool CanOpenDocument()
-        {
-            return (CurrentDocument != null);
         }
 
         /// <summary>
@@ -113,20 +89,20 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Builds the document groups.
+        /// Toggles the favorites for the current customer.
         /// </summary>
-        private void BuildDocumentGroups()
+        private void ToggleFavoritesAction()
         {
-            var grouped = from document in Documents
-                          group document by document.Folder into grp
-                          orderby grp.Key descending
-                          select new DocumentGroup
-                          {
-                              GroupName = grp.Key,
-                              DocumentEntries = grp.ToList()
-                          };
+            if (_customerAddress == null) return;
 
-            _documentGroups.Set(grouped.ToList());
+            try
+            {
+                FavoriteAddress.Instance.ToggleFavorite(_customerAddress);
+            }
+            finally
+            {
+                RaisePropertyChanged("FavoriteSymbol");
+            }
         }
 
         #endregion
@@ -140,8 +116,8 @@ namespace Sage100AddressBook.ViewModels
         {
             _webService = new CustomerWebService();
             _currentCustomer = new Customer();
-            _docRetrievalService = new DocumentRetrievalService();
-            _open = new DelegateCommand(new Action(OpenDocument), CanOpenDocument);
+            _documentModel = new DocumentPivotViewModel(this);
+            _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
         }
 
         #endregion
@@ -164,9 +140,17 @@ namespace Sage100AddressBook.ViewModels
                 var navArgs = (NavigationArgs)parameter;
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
+
+                _id = CurrentCustomer.Id;
+                _documentModel.SetPivotIndex(0);
+                _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _customerAddress = CurrentCustomer.GetAddressEntry();
+
                 BuildChartData(CurrentCustomer);
-                _documents.Set(await _docRetrievalService.RetrieveDocumentsAsync(navArgs.Id, navArgs.CompanyCode));
-                BuildDocumentGroups();
+
+                _quotes.Set(await _webService.GetQuotesSummaryAsync(navArgs.Id, navArgs.CompanyCode),Dispatcher);
+                _orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
+                _recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
             }
             finally
             {
@@ -175,6 +159,7 @@ namespace Sage100AddressBook.ViewModels
 
             await Task.CompletedTask;
         }
+
 
         /// <summary>
         /// Maintains the currently selected pivot item.
@@ -185,43 +170,23 @@ namespace Sage100AddressBook.ViewModels
         {
             var pivot = sender as Pivot;
 
-            if (pivot != null) _pivotIndex = pivot.SelectedIndex;
+            if (pivot != null) _index = pivot.SelectedIndex;
 
-            RaisePropertyChanged("OpenVisible");
-        }
-
-        /// <summary>
-        /// Event that is triggered when the selected document changes.
-        /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The event arguments.</param>
-        public void DocumentSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            try
-            {
-                CurrentDocument = (sender as GridView)?.SelectedItem as DocumentEntry;
-            }
-            finally
-            {
-                _open.RaiseCanExecuteChanged();
-            }
-        }
-
-        /// <summary>
-        /// Event that is triggered when the document is double tapped.
-        /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The event arguments.</param>
-        public async void DocumentDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            if (CurrentDocument == null) return;
-
-            await DoDocumentOpen();
+            SetPivotIndex(_index);
+            _documentModel.SetPivotIndex(_index);
         }
 
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// The model handling the document pivot page.
+        /// </summary>
+        public DocumentPivotViewModel DocumentModel
+        {
+            get { return _documentModel; }
+        }
 
         /// <summary>
         /// The current customer.
@@ -238,44 +203,27 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollection<PieChartData> AgingChartData { get; private set; }
 
         /// <summary>
-        /// The collection of document groups.
+        /// Determines if glance commands should be visible.
         /// </summary>
-        public ObservableCollection<DocumentGroup> DocumentGroups
+        public bool GlanceCommandsVisible
         {
-            get { return _documentGroups; }
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>
-        /// The collection of documents.
+        /// Returns the favorite symbol based on favorite state.
         /// </summary>
-        public ObservableCollection<DocumentEntry> Documents
+        public string FavoriteSymbol
         {
-            get { return _documents; }
+            get { return FavoriteAddress.Instance.IsFavorite(_id) ? "SolidStar" : "OutlineStar"; }
         }
 
         /// <summary>
-        /// The command handler for the open button.
+        /// Command for toggling the favorite state.
         /// </summary>
-        public DelegateCommand Open
+        public DelegateCommand ToggleFavorite
         {
-            get { return _open; }
-        }
-
-        /// <summary>
-        /// Determines if the open command is visible.
-        /// </summary>
-        public bool OpenVisible
-        {
-            get { return (_pivotIndex == 1); }
-        }
-
-        /// <summary>
-        /// The currently selected document.
-        /// </summary>
-        public DocumentEntry CurrentDocument
-        {
-            get { return _currentDocument; }
-            set { Set(ref _currentDocument, value); }
+            get { return _toggleFavorites; }
         }
 
         /// <summary>
@@ -283,11 +231,12 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool Loading
         {
-            get { return _loading; }
+            get { return (_loading > 0); }
             set
             {
-                _loading = value;
-
+                _loading += (value ? 1 : (-1));
+                _loading = Math.Max(0, _loading);
+                 
                 base.RaisePropertyChanged();
             }
         }

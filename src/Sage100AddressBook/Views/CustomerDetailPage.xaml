@@ -4,7 +4,9 @@
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:controls="using:Template10.Controls"
       xmlns:converters="using:Template10.Converters"
+      xmlns:custom="using:Sage100AddressBook.CustomControls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Sage100AddressBook.Helpers"
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Sage100AddressBook.Models"
@@ -21,23 +23,53 @@
         <CollectionViewSource x:Name="CvsDocuments"
                               IsSourceGrouped="True"
                               ItemsPath="DocumentEntries"
-                              Source="{x:Bind ViewModel.DocumentGroups, Mode=OneWay}" />
+                              Source="{x:Bind ViewModel.DocumentModel.DocumentGroups, Mode=OneWay}" />
         <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
-            <StackPanel MinWidth="400"
-                        MinHeight="120"
+            <StackPanel x:Name="docItem"
+                        MinWidth="400"
+                        MinHeight="84"
                         Orientation="Horizontal"
                         Padding="10,10">
-                <Image Width="100"
-                       Height="100"
+                <helpers:MenuFlyoutService.MenuFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Open}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Open" />
+                        <MenuFlyoutItem Command="{x:Bind Share}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Share" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind MoveTo}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Move To" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind Delete}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Delete" />
+                        <MenuFlyoutItem Command="{x:Bind Rename}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Rename" />
+                    </MenuFlyout>
+                </helpers:MenuFlyoutService.MenuFlyout>
+                <Image Width="48"
+                       Height="48"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Center"
                        Source="{x:Bind ImageSource, Converter={StaticResource StringToImage}, Mode=OneWay}"
                        Stretch="UniformToFill" />
-                <Grid Width="260" Margin="10,0,0,0">
-                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                <Grid Width="260"
+                      Margin="10,0,0,0"
+                      VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               MaxLines="2"
+                               Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind Name}"
                                TextWrapping="Wrap" />
-                    <TextBlock VerticalAlignment="Bottom"
+                    <TextBlock Grid.Row="1"
                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind LastModifiedDate}"
@@ -99,6 +131,7 @@
                         <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
                         <Setter Target="accountBalance.Width" Value="Auto" />
                         <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="pieChart" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateNormal">
@@ -108,6 +141,7 @@
                     <VisualState.Setters>
                         <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
                         <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateWide">
@@ -117,6 +151,7 @@
                     <VisualState.Setters>
                         <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
                         <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -125,7 +160,21 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="Customer Detail" />
+                             Text="Customer Detail">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Search}"
+                          CommandParameter="{x:Bind Find}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Find"
+                          Label="Search"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.CloseSearch}"
+                          CommandParameter="{x:Bind Find}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Clear"
+                          Label="Close Search"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+
+        </controls:PageHeader>
         <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Pivot x:Name="CustomerPivot"
                    RelativePanel.AlignBottomWithPanel="True"
@@ -149,6 +198,7 @@
                                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
                                            TextTrimming="CharacterEllipsis" />
+
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
@@ -163,6 +213,7 @@
                                            Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
                                            TextTrimming="CharacterEllipsis"
                                            Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Margin="0,0,4,0"
                                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
@@ -182,6 +233,7 @@
                                                TextTrimming="CharacterEllipsis"
                                                Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
                                 </StackPanel>
+
                                 <TextBlock Margin="0,10,0,0"
                                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
@@ -205,10 +257,10 @@
                                            Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
                             </StackPanel>
                             <StackPanel x:Name="accountBalance">
-                                <StackPanel Orientation="Horizontal">
+                                <RelativePanel>
                                     <telerikChart:RadPieChart x:Name="pieChart"
-                                                              MinWidth="300"
-                                                              MinHeight="300"
+                                                              MaxWidth="400"
+                                                              MaxHeight="400"
                                                               PaletteName="DefaultDark">
                                         <telerikChart:DoughnutSeries ItemsSource="{x:Bind ViewModel.AgingChartData}"
                                                                      RadiusFactor=".75"
@@ -216,6 +268,7 @@
                                             <telerikChart:DoughnutSeries.ValueBinding>
                                                 <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
                                             </telerikChart:DoughnutSeries.ValueBinding>
+
                                             <telerikChart:DoughnutSeries.LabelDefinitions>
                                                 <telerikChart:ChartSeriesLabelDefinition Margin="-10">
                                                     <telerikChart:ChartSeriesLabelDefinition.Binding>
@@ -229,7 +282,7 @@
                                         </telerikChart:DoughnutSeries>
                                     </telerikChart:RadPieChart>
 
-                                    <telerikPrimitives:RadLegendControl VerticalAlignment="Bottom" LegendProvider="{Binding ElementName=pieChart}">
+                                    <telerikPrimitives:RadLegendControl x:Name="agedInvoiceLegend" LegendProvider="{Binding ElementName=pieChart}">
                                         <telerikPrimitives:RadLegendControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <StackPanel Orientation="Vertical" />
@@ -244,14 +297,15 @@
                                                              Stroke="{Binding Stroke}"
                                                              StrokeThickness="1" />
                                                     <TextBlock Margin="10"
-                                                               FontStyle="Oblique"
+                                                               FontStyle="Normal"
                                                                Foreground="{Binding Fill}"
                                                                Text="{Binding Title}" />
                                                 </StackPanel>
                                             </DataTemplate>
                                         </telerikPrimitives:RadLegendControl.ItemTemplate>
                                     </telerikPrimitives:RadLegendControl>
-                                </StackPanel>
+                                </RelativePanel>
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Balance Due: " />
                                     <TextBlock Margin="4,0,0,0" Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
@@ -262,22 +316,37 @@
                 </PivotItem>
 
                 <PivotItem Header="Documents">
-                    <GridView x:Name="DocumentGrid"
-                              DoubleTapped="{x:Bind ViewModel.DocumentDoubleTapped}"
-                              IsItemClickEnabled="True"
-                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
-                              ItemTemplate="{StaticResource DocumentTemplate}"
-                              ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
-                              RelativePanel.AlignLeftWithPanel="True"
-                              RelativePanel.AlignRightWithPanel="True"
-                              RelativePanel.Below="pageHeader"
-                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
-                              SelectionChanged="{x:Bind ViewModel.DocumentSelectionChanged}"
-                              SelectionMode="Single">
-                        <GridView.GroupStyle>
-                            <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
-                        </GridView.GroupStyle>
-                    </GridView>
+                    <Grid RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.AlignRightWithPanel="True"
+                          RelativePanel.Below="pageHeader">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <GridView x:Name="DocumentGrid"
+                                  Grid.Row="0"
+                                  DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
+                                  IsItemClickEnabled="True"
+                                  ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                                  ItemTemplate="{StaticResource DocumentTemplate}"
+                                  ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
+                                  RelativePanel.AlignLeftWithPanel="True"
+                                  RelativePanel.AlignRightWithPanel="True"
+                                  RelativePanel.Below="pageHeader"
+                                  ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                                  SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
+                                  SelectionMode="Single">
+                            <GridView.GroupStyle>
+                                <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
+                            </GridView.GroupStyle>
+                        </GridView>
+                        <TextBlock Grid.Row="0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Text="No documents to display"
+                                   Visibility="{x:Bind ViewModel.DocumentModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                    </Grid>
                 </PivotItem>
 
                 <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes" />
@@ -290,11 +359,51 @@
                       Height="100"
                       HorizontalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+
+        <custom:SearchControl x:Name="Find"
+                              Grid.Row="1"
+                              Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <AppBarButton Command="{x:Bind ViewModel.Open}"
+            <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
+                          Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
+                          Label="Favorite"
+                          Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
+                          Icon="Upload"
+                          Label="Upload"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                           Icon="OpenFile"
                           Label="Open"
-                          Visibility="{x:Bind ViewModel.OpenVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                          Label="Share"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72D;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="MoveToFolder"
+                              Label="Move To"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="Delete"
+                              Label="Delete"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="Rename"
+                              Label="Rename"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            </CommandBar.SecondaryCommands>
         </CommandBar>
+
     </Grid>
 </Page>

@@ -15,48 +15,88 @@
     <Page.DataContext>
         <vm:ShellPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
-    
+
     <Controls:HamburgerMenu x:Name="MyHamburgerMenu" Loaded="MyHamburgerMenu_Loaded">
 
         <Controls:HamburgerMenu.PrimaryButtons>
             <!--  mainpage button  -->
-            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:MainPage" 
-                                          AutomationProperties.Name="Jerry"
-                                          >
+            <Controls:HamburgerButtonInfo ClearHistory="True" PageType="views:MainPage">
                 <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                     <SuppressNavigationTransitionInfo />
                 </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
 
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
+                    <SymbolIcon Width="48"
+                                Height="48"
                                 Symbol="Home" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                    <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
                                Text="Home" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
+
+            <Controls:HamburgerButtonInfo PageType="views:FavoritesPage">
+                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <SuppressNavigationTransitionInfo />
+                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48"
+                                Height="48"
+                                Symbol="OutlineStar" />
+                    <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               Text="Favorites" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+
+            <Controls:HamburgerButtonInfo PageType="views:RecentPage">
+                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <SuppressNavigationTransitionInfo />
+                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48"
+                                Height="48"
+                                Symbol="PreviewLink" />
+                    <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               Text="Recent" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+
         </Controls:HamburgerMenu.PrimaryButtons>
 
         <Controls:HamburgerMenu.SecondaryButtons>
-            <Controls:HamburgerButtonInfo x:Name="AccountsButton" Command="{x:Bind ViewModel.Accounts}" ButtonType="Command">
+            <Controls:HamburgerButtonInfo x:Name="AccountsButton"
+                                          ButtonType="Command"
+                                          Command="{x:Bind ViewModel.Accounts}">
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
-                		Symbol="People" />
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                    <SymbolIcon Width="48"
+                                Height="48"
+                                Symbol="People" />
+                    <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                         <TextBlock Margin="12,0,0,0" Text="{x:Bind ViewModel.SignInText, Mode=OneWay}" />
-                        <TextBlock Margin="12,0,0,0" Text="{x:Bind ViewModel.UserName, Mode=OneWay}" FontSize="12" Visibility="{x:Bind ViewModel.SignedIn, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"/>
+                        <TextBlock Margin="12,0,0,0"
+                                   FontSize="12"
+                                   Text="{x:Bind ViewModel.UserName, Mode=OneWay}"
+                                   Visibility="{x:Bind ViewModel.SignedIn, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
             <!--  settingspage button  -->
-            <Controls:HamburgerButtonInfo x:Name="SettingsButton" PageParameter="0"
+            <Controls:HamburgerButtonInfo x:Name="SettingsButton"
+                                          PageParameter="0"
                                           PageType="views:SettingsPage">
                 <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                     <SuppressNavigationTransitionInfo />
                 </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48" Height="48"
+                    <SymbolIcon Width="48"
+                                Height="48"
                                 Symbol="Setting" />
-                    <TextBlock Margin="12,0,0,0" VerticalAlignment="Center"
+                    <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
                                Text="Settings" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>

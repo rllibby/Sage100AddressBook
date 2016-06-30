@@ -25,28 +25,6 @@ namespace Sage100AddressBook
     [Bindable]
     sealed partial class App : BootStrapper
     {
-        #region Private methods
-
-        /// <summary>
-        /// Cleanup the temporary files in the user's isolated storage.
-        /// </summary>
-        private void CleanupIsolatedStorage()
-        {
-            using (var store = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                foreach (var file in store.GetFileNames())
-                {
-                    try
-                    {
-                        store.DeleteFile(file);
-                    }
-                    catch { }
-                }
-            }
-        }
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -87,8 +65,6 @@ namespace Sage100AddressBook
                     ModalContent = new Views.Busy(),
                 };
             }
-
-            CleanupIsolatedStorage();
 
             await Task.CompletedTask;
         }
@@ -149,9 +125,7 @@ namespace Sage100AddressBook
 
             try
             {
-                CleanupIsolatedStorage();
-
-                return base.OnSuspendingAsync(s, e, prelaunchActivated);
+                 return base.OnSuspendingAsync(s, e, prelaunchActivated);
             }
             finally
             {
