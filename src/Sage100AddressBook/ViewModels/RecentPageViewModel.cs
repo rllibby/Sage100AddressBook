@@ -46,6 +46,7 @@ namespace Sage100AddressBook.ViewModels
             };
         }
 
+
         #endregion
 
         #region Constructor
@@ -74,7 +75,6 @@ namespace Sage100AddressBook.ViewModels
 
             try
             {
-
             }
             finally
             {
@@ -145,14 +145,6 @@ namespace Sage100AddressBook.ViewModels
         public RecentAddress Recent
         {
             get { return _recentAddress; }
-        }
-
-        /// <summary>
-        /// Determines if the recent list is empty.
-        /// </summary>
-        public bool IsEmpty
-        {
-            get { return (_recentAddress.Groups.Count == 0); }
         }
 
         /// <summary>

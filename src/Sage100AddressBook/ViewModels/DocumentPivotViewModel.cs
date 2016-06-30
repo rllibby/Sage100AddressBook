@@ -54,14 +54,14 @@ namespace Sage100AddressBook.ViewModels
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
         private DelegateCommand<SearchControl> _closeSearch;
-        private DocumentEntry _document;
+        private DocumentEntry _current;
         private DataPackage _shareData;
-        private DelegateCommand _share;
-        private DelegateCommand _delete;
-        private DelegateCommand _rename;
-        private DelegateCommand _move;
+        private DelegateCommand<DocumentEntry> _open;
+        private DelegateCommand<DocumentEntry> _share;
+        private DelegateCommand<DocumentEntry> _move;
+        private DelegateCommand<DocumentEntry> _delete;
+        private DelegateCommand<DocumentEntry> _rename;
         private DelegateCommand _upload;
-        private DelegateCommand _open;
         private string _searchText;
         private string _companyCode;
         private string _rootId;
@@ -312,6 +312,15 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private void BuildDocumentGroups()
         {
+            foreach (var document in _documents)
+            {
+                document.Open = _open;
+                document.Share = _share;
+                document.MoveTo = _move;
+                document.Delete = _delete;
+                document.Rename = _rename;
+            }
+
             var grouped = from document in _documents group document by new { document.Folder, document.FolderId } into grp
                           orderby grp.Key.Folder descending
                           select new DocumentGroup
@@ -329,12 +338,13 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Opens the document.
         /// </summary>
+        /// <param name="entry">The document the action should execute on.</param>
         /// <returns>The async task to wait on.</returns>
-        private async Task DoDocumentOpen()
+        private async Task DoDocumentOpen(DocumentEntry entry)
         {
             var service = DocumentViewerService.Instance;
 
-            if (_document == null) return;
+            if (entry == null) return;
 
             Loading = true;
 
@@ -346,9 +356,10 @@ namespace Sage100AddressBook.ViewModels
 
                 if (client == null) return;
 
-                using (var stream = await service.GetFileStream(_document.Id))
+                using (var stream = await service.GetFileStream(entry.Id))
                 {
-                    fileName = await service.SaveToFile(stream, _document.Name);
+                    fileName = await service.SaveToFile(stream, entry.Name);
+
                     await service.LaunchFileAssociation(fileName);
                 }
             }
@@ -365,7 +376,8 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Shares the current document.
         /// </summary>
-        private async void ShareDocument()
+        /// <param name="entry">The document the action should execute on.</param>
+        private async void ShareDocument(DocumentEntry entry)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
@@ -375,18 +387,18 @@ namespace Sage100AddressBook.ViewModels
                 {
                     var client = await AuthenticationHelper.GetClient();
 
-                    if ((client == null) || (_document == null)) return;
+                    if ((client == null) || (entry == null)) return;
 
                     var list = new List<string> { "View only link", "Edit link" };
                     var index = await Dialogs.SelectLink();
 
                     if (index < 0) return;
 
-                    var link = await client.Me.Drive.Items[_document.Id].CreateLink((index == 0) ? "view" : "edit").Request().PostAsync();
+                    var link = await client.Me.Drive.Items[entry.Id].CreateLink((index == 0) ? "view" : "edit").Request().PostAsync();
 
                     _shareData = new DataPackage();
-                    _shareData.Properties.Title = _document.Name;
-                    _shareData.Properties.Description = string.Format("{0} link for document '{1}',", (index == 0) ? "View only" : "Edit", _document.Name);
+                    _shareData.Properties.Title = entry.Name;
+                    _shareData.Properties.Description = string.Format("{0} link for document '{1}',", (index == 0) ? "View only" : "Edit", entry.Name);
                     _shareData.SetWebLink(new Uri(link.Link.WebUrl));
 
                     DataTransferManager.ShowShareUI();
@@ -401,15 +413,17 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Routes to the document open task.
         /// </summary>
-        private async void OpenDocument()
+        /// <param name="entry">The document the action should execute on.</param>
+        private async void OpenDocument(DocumentEntry entry)
         {
-            await DoDocumentOpen();
+            await DoDocumentOpen(entry);
         }
 
         /// <summary>
         /// Renames the document.
         /// </summary>
-        private async void RenameDocument()
+        /// <param name="entry">The document the action should execute on.</param>
+        private async void RenameDocument(DocumentEntry entry)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
@@ -417,12 +431,12 @@ namespace Sage100AddressBook.ViewModels
                 {
                     var client = await AuthenticationHelper.GetClient();
 
-                    if ((client == null) || (_document == null)) return;
+                    if ((client == null) || (entry == null)) return;
 
-                    var rename = await Dialogs.Rename(_document.Name);
+                    var rename = await Dialogs.Rename(entry.Name);
 
                     if (string.IsNullOrEmpty(rename)) return;
-                    if (string.IsNullOrEmpty(Path.GetExtension(rename)) )rename += Path.GetExtension(_document.Name) ?? string.Empty;
+                    if (string.IsNullOrEmpty(Path.GetExtension(rename))) rename += Path.GetExtension(entry.Name) ?? string.Empty;
 
                     Loading = true;
 
@@ -430,26 +444,26 @@ namespace Sage100AddressBook.ViewModels
                     {
                         var driveItem = new DriveItem()
                         {
-                            Id = _document.Id,
+                            Id = entry.Id,
                             Name = rename,
-                            ParentReference = new ItemReference { Id = _document.FolderId }
+                            ParentReference = new ItemReference { Id = entry.FolderId }
                         };
 
-                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+                        driveItem = await client.Me.Drive.Items[entry.Id].Request().UpdateAsync(driveItem);
 
-                        _document.Id = driveItem.Id;
-                        _document.Name = driveItem.Name;
+                        entry.Id = driveItem.Id;
+                        entry.Name = driveItem.Name;
 
-                        if (!string.IsNullOrEmpty(_document.MetadataId))
+                        if (!string.IsNullOrEmpty(entry.MetadataId))
                         {
                             var metadataItem = new DriveItem()
                             {
-                                Id = _document.MetadataId,
+                                Id = entry.MetadataId,
                                 Name = rename + MetadataExtension,
-                                ParentReference = new ItemReference { Id = _document.FolderId }
+                                ParentReference = new ItemReference { Id = entry.FolderId }
                             };
 
-                            await client.Me.Drive.Items[_document.MetadataId].Request().UpdateAsync(metadataItem);
+                            await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
                         BuildDocumentGroups();
@@ -461,15 +475,17 @@ namespace Sage100AddressBook.ViewModels
                 }
                 catch (Exception exception)
                 {
-                    await Dialogs.ShowException(string.Format("Failed to rename the document '{0}'.", _document.Name), exception, false);
+                    await Dialogs.ShowException(string.Format("Failed to rename the document '{0}'.", entry.Name), exception, false);
                 }
             });
-        }               
+        }
+
 
         /// <summary>
         /// Moves the document to a new folder.
         /// </summary>
-        private async void MoveDocument()
+        /// <param name="entry">The document the action should execute on.</param>
+        private async void MoveDocument(DocumentEntry entry)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
@@ -477,7 +493,7 @@ namespace Sage100AddressBook.ViewModels
                 {
                     var client = await AuthenticationHelper.GetClient();
 
-                    if ((client == null) || (_document == null)) return;
+                    if ((client == null) || (entry == null)) return;
 
                     var index = await Dialogs.SelectGroup(GroupOperation.Move, _folders, _rootId);
 
@@ -489,31 +505,31 @@ namespace Sage100AddressBook.ViewModels
 
                         var folder = _folders[index];
 
-                        if (folder.Id.Equals(_document.FolderId)) return;
+                        if (folder.Id.Equals(entry.FolderId)) return;
 
                         var driveItem = new DriveItem()
                         {
-                            Id = _document.Id,
-                            Name = _document.Name,
+                            Id = entry.Id,
+                            Name = entry.Name,
                             ParentReference = new ItemReference { Id = folder.Id }
                         };
 
-                        driveItem = await client.Me.Drive.Items[_document.Id].Request().UpdateAsync(driveItem);
+                        driveItem = await client.Me.Drive.Items[entry.Id].Request().UpdateAsync(driveItem);
 
-                        _document.Id = driveItem.Id;
-                        _document.Folder = folder.Name;
-                        _document.FolderId = folder.Id;
+                        entry.Id = driveItem.Id;
+                        entry.Folder = folder.Name;
+                        entry.FolderId = folder.Id;
 
-                        if (!string.IsNullOrEmpty(_document.MetadataId))
+                        if (!string.IsNullOrEmpty(entry.MetadataId))
                         {
                             var metadataItem = new DriveItem()
                             {
-                                Id = _document.MetadataId,
-                                Name = _document.Name + MetadataExtension,
+                                Id = entry.MetadataId,
+                                Name = entry.Name + MetadataExtension,
                                 ParentReference = new ItemReference { Id = folder.Id }
                             };
 
-                            await client.Me.Drive.Items[_document.MetadataId].Request().UpdateAsync(metadataItem);
+                            await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
                         BuildDocumentGroups();
@@ -525,7 +541,7 @@ namespace Sage100AddressBook.ViewModels
                 }
                 catch (Exception exception)
                 {
-                    await Dialogs.ShowException(string.Format("Failed to move the document '{0}'.", _document.Name), exception, false);
+                    await Dialogs.ShowException(string.Format("Failed to move the document '{0}'.", entry.Name), exception, false);
                 }
             });
         }
@@ -533,29 +549,29 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Deletes the document from one drive.
         /// </summary>
-        private async void DeleteDocument()
+        /// <param name="entry">The document the action should execute on.</param>
+        private async void DeleteDocument(DocumentEntry entry)
         {
             await _owner.Dispatcher.DispatchAsync(async () =>
             {
                 var client = await AuthenticationHelper.GetClient();
 
-                if ((client == null) || (_document == null)) return;
+                if ((client == null) || (entry == null)) return;
 
-                if (!(await Dialogs.ShowOkCancel(string.Format("Delete the document \"{0}\"?", _document.Name)))) return;
+                if (!(await Dialogs.ShowOkCancel(string.Format("Delete the document \"{0}\"?", entry.Name)))) return;
 
                 Loading = true;
 
                 try
                 {
-                    await client.Me.Drive.Items[_document.Id].Request().DeleteAsync();
+                    await client.Me.Drive.Items[entry.Id].Request().DeleteAsync();
 
-                    if (!string.IsNullOrEmpty(_document.MetadataId))
+                    if (!string.IsNullOrEmpty(entry.MetadataId))
                     {
-                        await client.Me.Drive.Items[_document.MetadataId].Request().DeleteAsync();
+                        await client.Me.Drive.Items[entry.MetadataId].Request().DeleteAsync();
                     }
 
-                    _documents.Remove(_document);
-                    _document = null;
+                    _documents.Remove(entry);
 
                     BuildDocumentGroups();
                 }
@@ -658,10 +674,10 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Determines if we have a current document.
         /// </summary>
-        /// <returns></returns>
-        private bool HasDocument()
+        /// <returns>True if the document is not null.</returns>
+        private bool HasDocument(DocumentEntry entry)
         {
-            return (_document != null);
+            return ((entry != null) || (_current != null));
         }
 
         #endregion
@@ -681,12 +697,12 @@ namespace Sage100AddressBook.ViewModels
             _dataTransferManager.DataRequested += OnDataRequested;
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
             _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
-            _open = new DelegateCommand(new Action(OpenDocument), HasDocument);
-            _move = new DelegateCommand(new Action(MoveDocument), HasDocument);
-            _share = new DelegateCommand(new Action(ShareDocument), HasDocument);
             _upload = new DelegateCommand(new Action(UploadDocument));
-            _delete = new DelegateCommand(new Action(DeleteDocument), HasDocument);
-            _rename = new DelegateCommand(new Action(RenameDocument), HasDocument);
+            _open = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(OpenDocument), HasDocument);
+            _move = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(MoveDocument), HasDocument);
+            _share = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(ShareDocument), HasDocument);
+            _delete = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(DeleteDocument), HasDocument);
+            _rename = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(RenameDocument), HasDocument);
         }
 
         #endregion
@@ -723,7 +739,7 @@ namespace Sage100AddressBook.ViewModels
                 BuildDocumentGroups();
             });
 
-            Task.Run<IEnumerable<DocumentEntry>>(async () =>
+            Task.Run(async () =>
             {
                 return await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
             }).ContinueWith(async (t) =>
@@ -784,7 +800,8 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                _document = (sender as GridView)?.SelectedItem as DocumentEntry;
+                Current = (sender as GridView)?.SelectedItem as DocumentEntry;
+
             }
             finally
             {
@@ -805,14 +822,24 @@ namespace Sage100AddressBook.ViewModels
         {
             await _owner.Dispatcher.DispatchAsync(async () => 
             {
-                if (_document == null) return;
-                await DoDocumentOpen();
+                if (_current == null) return;
+
+                await DoDocumentOpen(_current);
             });
         }
 
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// Returns the current document entry.
+        /// </summary>
+        public DocumentEntry Current
+        {
+            get { return _current; }
+            set { Set(ref _current, value); }
+        }
 
         /// <summary>
         /// Collection of document groups.
@@ -841,7 +868,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Shares the current document.
         /// </summary>
-        public DelegateCommand Share
+        public DelegateCommand<DocumentEntry> Share
         {
             get { return _share; }
         }
@@ -849,7 +876,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Opens the current document.
         /// </summary>
-        public DelegateCommand Open
+        public DelegateCommand<DocumentEntry> Open
         {
             get { return _open; }
         }
@@ -857,7 +884,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Moves the current document.
         /// </summary>
-        public DelegateCommand Move
+        public DelegateCommand<DocumentEntry> Move
         {
             get { return _move; }
         }
@@ -865,7 +892,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Renames the current document.
         /// </summary>
-        public DelegateCommand Rename
+        public DelegateCommand<DocumentEntry> Rename
         {
             get { return _rename; }
         }
@@ -881,7 +908,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Deletes an existing document.
         /// </summary>
-        public DelegateCommand Delete
+        public DelegateCommand<DocumentEntry> Delete
         {
             get { return _delete; }
         }

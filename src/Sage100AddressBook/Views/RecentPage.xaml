@@ -4,11 +4,11 @@
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:controls="using:Template10.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Sage100AddressBook.Helpers"
       xmlns:local="using:Sage100AddressBook.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Sage100AddressBook.Models"
       xmlns:viewModels="using:Sage100AddressBook.ViewModels"
-      xmlns:helpers="using:Sage100AddressBook.Helpers"
       mc:Ignorable="d">
 
     <Page.DataContext>
@@ -34,7 +34,9 @@
                         Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Text="Remove Recent" Command="{x:Bind Delete}" CommandParameter="{x:Bind}"/>
+                        <MenuFlyoutItem Command="{x:Bind Delete}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Remove Recent" />
                     </MenuFlyout>
                 </helpers:MenuFlyoutService.MenuFlyout>
                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
@@ -104,6 +106,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <VisualStateManager.VisualStateGroups>
@@ -166,13 +169,18 @@
                    Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                    Style="{StaticResource SubtitleTextBlockStyle}"
                    Text="No recent items to display"
-                   Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibility}}" />
+                   Visibility="{x:Bind ViewModel.Recent.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+        <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.Recent.Clear}"
+                          Icon="Clear"
+                          Label="Clear" />
+        </CommandBar>
     </Grid>
 </Page>
 

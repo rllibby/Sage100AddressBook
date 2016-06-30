@@ -30,6 +30,27 @@
                         MinHeight="84"
                         Orientation="Horizontal"
                         Padding="10,10">
+                <helpers:MenuFlyoutService.MenuFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Open}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Open" />
+                        <MenuFlyoutItem Command="{x:Bind Share}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Share" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind MoveTo}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Move To" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind Delete}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Delete" />
+                        <MenuFlyoutItem Command="{x:Bind Rename}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Rename" />
+                    </MenuFlyout>
+                </helpers:MenuFlyoutService.MenuFlyout>
                 <Image Width="48"
                        Height="48"
                        HorizontalAlignment="Left"
@@ -343,15 +364,21 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
-                          Icon="OpenFile"
-                          Label="Open"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
+                          Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
+                          Label="Favorite"
+                          Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
                           Label="Upload"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                          Icon="OpenFile"
+                          Label="Open"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                           Label="Share"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
                 <AppBarButton.Icon>
@@ -360,15 +387,18 @@
             </AppBarButton>
             <CommandBar.SecondaryCommands>
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="MoveToFolder"
                               Label="Move To"
                               Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
                 <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Delete"
                               Label="Delete"
                               Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Rename"
                               Label="Rename"
                               Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
