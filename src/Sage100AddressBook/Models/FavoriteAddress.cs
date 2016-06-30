@@ -136,8 +136,6 @@ namespace Sage100AddressBook.Models
                     ApplicationData.Current.LocalSettings.Values[Favorite] = null;
                 }
             }
-
-            
         }
 
         #endregion
