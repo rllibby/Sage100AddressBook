@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
-using System;
+using Sage100AddressBook.Helpers;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -32,6 +33,10 @@ namespace Sage100AddressBook.ViewModels
         private string _id = string.Empty;
         private int _index;
         private int _loading;
+
+        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
 
         #endregion
 
@@ -142,6 +147,10 @@ namespace Sage100AddressBook.ViewModels
                 _customerAddress = CurrentCustomer.GetAddressEntry();
 
                 BuildChartData(CurrentCustomer);
+
+                _quotes.Set(await _webService.GetQuotesSummaryAsync(navArgs.Id, navArgs.CompanyCode),Dispatcher);
+                _orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
+                _recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
             }
             finally
             {
@@ -150,6 +159,7 @@ namespace Sage100AddressBook.ViewModels
 
             await Task.CompletedTask;
         }
+
 
         /// <summary>
         /// Maintains the currently selected pivot item.

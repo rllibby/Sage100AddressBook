@@ -37,7 +37,6 @@ namespace Sage100AddressBook.Services.Sage100Services
 
 #if (NGROK)
                     sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-
                     response = await sageWeb.GetAsync(requestURI);
 #endif
                 }
@@ -88,6 +87,90 @@ namespace Sage100AddressBook.Services.Sage100Services
                 }
             }
             return retVal;
+        }
+
+        public async Task<IEnumerable<RecentPurchasedItem>> GetRecentlyPurchasedItemsAsync(string custId, string companyCode)
+        {
+            var result = new List<RecentPurchasedItem>();
+            if (custId != null)
+            {
+
+                HttpResponseMessage response = null;
+
+                using (var sageWeb = new HttpClient())
+                {
+                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/RecentlyPurchasedItems");
+
+#if (NGROK)
+                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
+                    response = await sageWeb.GetAsync(requestURI);
+#endif
+                }
+
+
+                if ((response != null) && (response.IsSuccessStatusCode == true))
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    result = JsonConvert.DeserializeObject<List<RecentPurchasedItem>>(content);
+                }
+            }
+            return result;
+        }
+
+        public async Task<IEnumerable<OrderSummary>> GetQuotesSummaryAsync(string custId, string companyCode)
+        {
+            var result = new List<OrderSummary>();
+            if (custId != null)
+            {
+
+                HttpResponseMessage response = null;
+
+                using (var sageWeb = new HttpClient())
+                {
+                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Quotes");
+
+#if (NGROK)
+                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
+                    response = await sageWeb.GetAsync(requestURI);
+#endif
+                }
+
+
+                if ((response != null) && (response.IsSuccessStatusCode == true))
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    result = JsonConvert.DeserializeObject<List<OrderSummary>>(content);
+                }
+            }
+            return result;
+        }
+
+        public async Task<IEnumerable<OrderSummary>> GetOrdersSummaryAsync(string custId, string companyCode)
+        {
+            var result = new List<OrderSummary>();
+            if (custId != null)
+            {
+
+                HttpResponseMessage response = null;
+
+                using (var sageWeb = new HttpClient())
+                {
+                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Orders");
+
+#if (NGROK)
+                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
+                    response = await sageWeb.GetAsync(requestURI);
+#endif
+                }
+
+
+                if ((response != null) && (response.IsSuccessStatusCode == true))
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    result = JsonConvert.DeserializeObject<List<OrderSummary>>(content);
+                }
+            }
+            return result;
         }
 
     }
