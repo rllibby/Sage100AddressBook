@@ -3,33 +3,33 @@
  */
 
 using System;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace Sage100AddressBook.Converters
 {
     /// <summary>
-    /// Value converter that translates the string to an image source.
+    /// Value converter that translates the string to a SymbolIcon.Symbol
     /// </summary>
-    public class StringToImageConverter : IValueConverter
+    public class StringToSymbolConverter : IValueConverter
     {
         /// <summary>
-        /// Convert string to image source.
+        /// Convert string to symbol
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <param name="targetType">The target type (expecting Visibility).</param>
+        /// <param name="targetType">The target type (expecting Symbol).</param>
         /// <param name="parameter">The object parameter.</param>
         /// <param name="language">The language.</param>
-        /// <returns>The visibility state.</returns>
+        /// <returns>The symbol.</returns>
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             try
             {
-                return new BitmapImage(new Uri(string.Format("ms-appx:///Assets/{0}.png", string.IsNullOrEmpty(value.ToString()) ? "nothumbnail" : value.ToString().ToLower())));
+                return new SymbolIcon((Symbol)Enum.Parse(typeof(Symbol), value.ToString()));
             }
             catch
             {
-                return new BitmapImage(new Uri("ms-appx:///Assets/nothumbnail.png"));
+                return Symbol.Preview;
             }
         }
 
@@ -37,13 +37,14 @@ namespace Sage100AddressBook.Converters
         /// Not implemented.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <param name="targetType">The target type (expecting Boolean).</param>
+        /// <param name="targetType">The target type.</param>
         /// <param name="parameter">The object parameter.</param>
         /// <param name="language">The language.</param>
-        /// <returns>The visibility state.</returns>
+        /// <returns>Exception.</returns>
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
         }
     }
 }
+

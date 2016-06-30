@@ -156,6 +156,13 @@
                 <GroupStyle HeaderContainerStyle="{StaticResource AddressGridViewHeaderItem}" HeaderTemplate="{StaticResource AddressGroupHeaderTemplate}" />
             </GridView.GroupStyle>
         </GridView>
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
+                   Text="No search items found"
+                   Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"

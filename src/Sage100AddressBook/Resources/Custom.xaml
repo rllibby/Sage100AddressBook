@@ -31,6 +31,7 @@
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <converters:StringToVisibilityConverter x:Key="StringToVisibility" />
     <converters:StringToImageConverter x:Key="StringToImage" />
+    <converters:StringToSymbolConverter x:Key="StringToSymbol" />
 
     <ResourceDictionary.ThemeDictionaries>
 

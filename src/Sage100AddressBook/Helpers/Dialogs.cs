@@ -180,55 +180,6 @@ namespace Sage100AddressBook.Helpers
             return result;
         }
 
-
-        /// <summary>
-        /// Show a selection list dialog.
-        /// </summary>
-        /// <param name="header">The title for the dialog.</param>
-        /// <param name="items">The collection of items to show in list.</param>
-        /// <returns>The index of the selected item.</returns>
-        public static async Task<int> ShowSelection(string header, ICollection<object> items)
-        {
-            if ((items == null) || (items.Count == 0)) return (-1);
-
-            var dialog = new ContentDialog()
-            {
-                Title = header,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 100),
-                MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
-            };
-
-            var listBox = new ListControl
-            {
-                ItemsSource = items,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-                Width = dialog.MaxWidth - 20,
-                Height = dialog.MaxHeight - 120,
-                Margin = new Thickness(10, 10, 10, 10) 
-            };
-
-            listBox.SelectionChanged += delegate (object sender, EventArgs e)
-            {
-                dialog.IsPrimaryButtonEnabled = (listBox.Selected >= 0);
-            };
-
-            dialog.Content = listBox;
-
-            var result = (-1);
-
-            dialog.PrimaryButtonText = Ok;
-            dialog.SecondaryButtonText = Cancel;
-            dialog.IsPrimaryButtonEnabled = false;
-            dialog.IsSecondaryButtonEnabled = true;
-            dialog.PrimaryButtonClick += delegate { result = listBox.Selected; };
-            dialog.SecondaryButtonClick += delegate { result = (-1); };
-
-            await dialog.ShowAsync();
-
-            return result;
-        }
-
         /// <summary>
         /// Show exception dialog.
         /// </summary>
@@ -292,11 +243,30 @@ namespace Sage100AddressBook.Helpers
         /// <returns></returns>
         public static async Task Show(string message)
         {
-            var dialog = new MessageDialog(message, Title);
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxHeight = 200,
+            };
 
-            dialog.Commands.Add(new UICommand(Ok, CommandOk));
+            var control = new TextBlock
+            {
+                Text = message,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+                TextWrapping = TextWrapping.Wrap,
+                MaxLines = 3
+            };
 
-            await dialog.ShowAsync().AsTask();
+            dialog.Content = control;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = false;
+
+            await dialog.ShowAsync();
         }
 
         /// <summary>
@@ -306,14 +276,36 @@ namespace Sage100AddressBook.Helpers
         /// <returns></returns>
         public static async Task<bool> ShowOkCancel(string message)
         {
-            var dialog = new MessageDialog(message, Title);
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxHeight = 200,
+            };
 
-            dialog.Commands.Add(new UICommand(Ok, CommandOk, 1));
-            dialog.Commands.Add(new UICommand(Cancel, CommandCancel, 0));
+            var control = new TextBlock
+            {
+                Text = message,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+                TextWrapping = TextWrapping.Wrap,
+                MaxLines = 3
+            };
 
-            var command = await dialog.ShowAsync().AsTask();
+            dialog.Content = control;
 
-            return command.Id.Equals(1);
+            var result = false;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = true; };
+            dialog.SecondaryButtonClick += delegate { result = false; };
+
+            await dialog.ShowAsync();
+
+            return result;
         }
 
         #endregion

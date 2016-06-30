@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace Sage100AddressBook.Models
     {
         #region Private fields
 
+        private DelegateCommand<AddressEntry> _delete;
         private string _type;
         private string _address;
 
@@ -96,6 +98,16 @@ namespace Sage100AddressBook.Models
         /// </summary>
         public string ParentId { get; set; }
 
+        /// <summary>
+        /// Delegate command for delete action.
+        /// </summary>
+        [JsonIgnore]
+        public DelegateCommand<AddressEntry> Delete
+        {
+            get { return _delete; }
+            set { Set(ref _delete, value); }
+        }
+
         #endregion
     }
 
@@ -107,7 +119,7 @@ namespace Sage100AddressBook.Models
         #region Private fields
 
         private ObservableCollectionEx<AddressEntry> _addressEntries = new ObservableCollectionEx<AddressEntry>();
-        private string _groupName;
+        private string _groupType;
 
         #endregion
 
@@ -121,42 +133,48 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="groupName">The group name.</param>
-        public AddressGroup(string groupName)
+        /// <param name="groupType">The group type.</param>
+        public AddressGroup(string groupType)
         {
-            if (string.IsNullOrEmpty(groupName)) throw new ArgumentNullException("groupName");
+            if (string.IsNullOrEmpty(groupType)) throw new ArgumentNullException("groupType");
 
-            _groupName = groupName;
+            _groupType = groupType;
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="groupName">The group name.</param>
+        /// <param name="groupType">The group type.</param>
         /// <param name="collection">The collection to seed the group with.</param>
-        public AddressGroup(string groupName, IEnumerable<AddressEntry> collection)
+        public AddressGroup(string groupType, IEnumerable<AddressEntry> collection)
         {
-            if (string.IsNullOrEmpty(groupName)) throw new ArgumentNullException("groupName");
+            if (string.IsNullOrEmpty(groupType)) throw new ArgumentNullException("groupType");
             if (collection == null) throw new ArgumentNullException("collection");
 
-            _groupName = groupName;
+            _groupType = groupType;
             _addressEntries.Set(collection);
         }
 
         #endregion
+
+        public string GroupType
+        {
+            get { return _groupType; }
+            set
+            {
+                _groupType = value;
+
+                RaisePropertyChanged("GroupName");
+                base.RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// The name of the group of address entities.
         /// </summary>
         public string GroupName
         {
-            get { return _groupName; }
-            set
-            {
-                _groupName = value.ProperCase();
-
-                base.RaisePropertyChanged();
-            }
+            get { return _groupType + "s"; }
         }
 
         /// <summary>

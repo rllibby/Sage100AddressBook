@@ -1,4 +1,4 @@
-﻿<Page x:Class="Sage100AddressBook.Views.RecentPage"
+﻿<Page x:Class="Sage100AddressBook.Views.FavoritesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
@@ -12,14 +12,14 @@
       mc:Ignorable="d">
 
     <Page.DataContext>
-        <viewModels:RecentPageViewModel x:Name="ViewModel" />
+        <viewModels:FavoritesPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
     <Page.Resources>
         <CollectionViewSource x:Name="CvsAddresses"
                               IsSourceGrouped="True"
                               ItemsPath="AddressEntries"
-                              Source="{x:Bind ViewModel.Recent.Groups, Mode=OneWay}" />
+                              Source="{x:Bind ViewModel.Favorites.Groups, Mode=OneWay}" />
 
         <DataTemplate x:Key="AddressGroupHeaderTemplate" x:DataType="models:AddressGroup">
             <TextBlock Margin="10,10"
@@ -36,7 +36,7 @@
                     <MenuFlyout>
                         <MenuFlyoutItem Command="{x:Bind Delete}"
                                         CommandParameter="{x:Bind}"
-                                        Text="Remove Recent" />
+                                        Text="Remove Favorite" />
                     </MenuFlyout>
                 </helpers:MenuFlyoutService.MenuFlyout>
                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
@@ -141,7 +141,7 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="Recent" />
+                             Text="Favorites" />
 
         <GridView x:Name="AddressesGrid"
                   Grid.Row="1"
@@ -168,19 +168,14 @@
                    VerticalAlignment="Center"
                    Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                    Style="{StaticResource SubtitleTextBlockStyle}"
-                   Text="No recent items to display"
-                   Visibility="{x:Bind ViewModel.Recent.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                   Text="No favorite items to display"
+                   Visibility="{x:Bind ViewModel.Favorites.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
                       IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
-        <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <AppBarButton Command="{x:Bind ViewModel.Recent.Clear}"
-                          Icon="Clear"
-                          Label="Clear" />
-        </CommandBar>
+        <CommandBar x:Name="bottomBar" Grid.Row="2" />
     </Grid>
 </Page>
-

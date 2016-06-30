@@ -1,16 +1,31 @@
-﻿using System;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Template10.Mvvm;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace Sage100AddressBook.Models
 {
     /// <summary>
     /// Model for document object entry.
     /// </summary>
-    public class DocumentEntry
+    public class DocumentEntry : BindableBase
     {
+        #region Private properties
+
+        private DelegateCommand<DocumentEntry> _open;
+        private DelegateCommand<DocumentEntry> _share;
+        private DelegateCommand<DocumentEntry> _moveTo;
+        private DelegateCommand<DocumentEntry> _delete;
+        private DelegateCommand<DocumentEntry> _rename;
+
+        #endregion
+
+        #region Public properties
+
         /// <summary>
         /// The id of the file object.
         /// </summary>
@@ -53,6 +68,53 @@ namespace Sage100AddressBook.Models
         /// The last modified date time in local time.
         /// </summary>
         public DateTime? LastModifiedDate { get; set; }
+
+        /// <summary>
+        /// Open action.
+        /// </summary>
+        public DelegateCommand<DocumentEntry> Open
+        {
+            get { return _open; }
+            set { Set(ref _open, value); }
+        }
+
+        /// <summary>
+        /// Share action.
+        /// </summary>
+        public DelegateCommand<DocumentEntry> Share
+        {
+            get { return _share; }
+            set { Set(ref _share, value); }
+        }
+
+        /// <summary>
+        /// Move to action.
+        /// </summary>
+        public DelegateCommand<DocumentEntry> MoveTo
+        {
+            get { return _moveTo; }
+            set { Set(ref _moveTo, value); }
+        }
+
+        /// <summary>
+        /// Delete action.
+        /// </summary>
+        public DelegateCommand<DocumentEntry> Delete
+        {
+            get { return _delete; }
+            set { Set(ref _delete, value); }
+        }
+
+        /// <summary>
+        /// Rename action.
+        /// </summary>
+        public DelegateCommand<DocumentEntry> Rename
+        {
+            get { return _rename; }
+            set { Set(ref _rename, value); }
+        }
+
+        #endregion
     }
 
     /// <summary>

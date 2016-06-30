@@ -20,19 +20,39 @@ namespace Sage100AddressBook.Helpers
         #region Private methods
 
         /// <summary>
+        /// The right tapped event.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnElementRightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+
+            if (element == null) return;
+
+            var pt = e.GetPosition(element);
+            var flyOut = FlyoutBase.GetAttachedFlyout(element);
+
+            ((MenuFlyout)flyOut).ShowAt(element, pt);
+        }
+
+        /// <summary>
         /// The holding event.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
-        /// <param name="args">The event arguments.</param>
-        private static void OnElementHolding(object sender, HoldingRoutedEventArgs args)
+        /// <param name="e">The event arguments.</param>
+        private static void OnElementHolding(object sender, HoldingRoutedEventArgs e)
         {
-            if (args.HoldingState != HoldingState.Started) return;
+            if (e.HoldingState != HoldingState.Started) return;
 
             var element = sender as FrameworkElement;
 
             if (element == null) return;
 
-            FlyoutBase.ShowAttachedFlyout(element);
+            var pt = e.GetPosition(element);
+            var flyOut = FlyoutBase.GetAttachedFlyout(element);
+
+            ((MenuFlyout)flyOut).ShowAt(element, pt);
         }
 
         #endregion
@@ -64,11 +84,7 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Identifies the MenuFlyout attached property.
         /// </summary>
-        public static readonly DependencyProperty MenuFlyoutProperty = DependencyProperty.RegisterAttached(
-            "MenuFlyout",
-            typeof(MenuFlyout),
-            typeof(MenuFlyoutService),
-            new PropertyMetadata(null, OnMenuFlyoutChanged));
+        public static readonly DependencyProperty MenuFlyoutProperty = DependencyProperty.RegisterAttached("MenuFlyout", typeof(MenuFlyout), typeof(MenuFlyoutService), new PropertyMetadata(null, OnMenuFlyoutChanged));
 
         /// <summary>
         /// Handles changes to the MenuFlyout DependencyProperty.
@@ -81,7 +97,8 @@ namespace Sage100AddressBook.Helpers
 
             if (null != element)
             {
-                element.Holding -= OnElementHolding; 
+                element.Holding -= OnElementHolding;
+                element.RightTapped -= OnElementRightTapped;
 
                 var oldMenuFlyout = e.OldValue as MenuFlyout;
 
@@ -93,6 +110,7 @@ namespace Sage100AddressBook.Helpers
                 {
                     element.SetValue(FlyoutBase.AttachedFlyoutProperty, newMenuFlyout);
                     element.Holding += OnElementHolding;
+                    element.RightTapped += OnElementRightTapped;
                 }
             }
         }
