@@ -752,7 +752,8 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 var active = ((_index != PivotIndex) && (index == PivotIndex));
-                var closeSearch = ((_index == PivotIndex) && (index != PivotIndex) && (_searchControl != null));
+                var wasActive = ((_index == PivotIndex) && (index != PivotIndex));
+                var closeSearch = (wasActive && (_searchControl != null));
 
                 _index = index;
 
@@ -760,7 +761,7 @@ namespace Sage100AddressBook.ViewModels
                 {
                     await Load();
                 }
-                else
+                else if (wasActive)
                 {
                     await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = false; });
                 }
