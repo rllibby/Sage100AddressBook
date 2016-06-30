@@ -75,14 +75,19 @@ namespace Sage100AddressBook.CustomControls
         {
             if (e.Key == VirtualKey.Enter)
             {
-                if (!string.IsNullOrEmpty(SearchBox.Text))
+                var criteria = SearchBox.Text;
+
+                if (!string.IsNullOrEmpty(criteria))
                 {
                     e.Handled = true;
-
+                    
                     await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         _active = true;
-                        _searchText = SearchBox.Text;
+                        _searchText = criteria;
+
+                        SearchBox.PlaceholderText = criteria;
+
                         _onSearch?.Invoke(this, new SearchEventArgs(_searchText));
                     });
 
@@ -158,6 +163,7 @@ namespace Sage100AddressBook.CustomControls
             try
             {
                 SearchBox.Text = string.Empty;
+                SearchBox.PlaceholderText = "Search for...";
                 Visibility = Visibility.Visible;
                 Focus(FocusState.Programmatic);
             }
