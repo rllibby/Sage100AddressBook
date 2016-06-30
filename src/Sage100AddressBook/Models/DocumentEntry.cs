@@ -9,14 +9,8 @@ namespace Sage100AddressBook.Models
     /// <summary>
     /// Model for document object entry.
     /// </summary>
-    public class DocumentEntry : BindableBase
+    public class DocumentEntry
     {
-        #region Private fields
-
-        private BitmapImage _imageSource = new BitmapImage(new Uri("ms-appx:///Assets/nothumbnail.png"));
-
-        #endregion
-
         /// <summary>
         /// The id of the file object.
         /// </summary>

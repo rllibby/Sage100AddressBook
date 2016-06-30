@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
@@ -20,9 +21,14 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
+
+#pragma warning disable 4014
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -41,8 +47,8 @@ namespace Sage100AddressBook.ViewModels
         #region Private fields
 
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
-        private ObservableCollectionEx<DocumentEntry> _documents = new ObservableCollectionEx<DocumentEntry>();
-        private ObservableCollectionEx<DocumentFolder> _folders = new ObservableCollectionEx<DocumentFolder>();
+        private List<DocumentEntry> _documents = new List<DocumentEntry>();
+        private List<DocumentFolder> _folders = new List<DocumentFolder>();
         private CustomerDetailPageViewModel _owner;
         private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
@@ -67,75 +73,121 @@ namespace Sage100AddressBook.ViewModels
         #region Private methods
 
         /// <summary>
-        /// Extracts the text from the image to use for metadata.
+        /// Used to pre-process image files so that they are scaled down to a reasonable size.
         /// </summary>
-        /// <param name="bitmap"></param>
-        /// <returns>The text that was extracted from the image.</returns>
-        private async Task<string> ProcessBitmap(SoftwareBitmap bitmap)
+        /// <param name="file">The file to process.</param>
+        /// <returns>The existing or new storage file.</returns>
+        private async Task<FileContent> PreProcessFile(StorageFile file)
         {
-            if (bitmap == null) throw new ArgumentNullException("bitmap");
+            if (file == null) throw new ArgumentNullException("file");
 
-            var results = new StringBuilder(4096);
+            var results = new FileContent(file);
 
-            if ((bitmap.PixelWidth > OcrEngine.MaxImageDimension) || (bitmap.PixelHeight > OcrEngine.MaxImageDimension)) return string.Empty;
+            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return results;
 
-            var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            WriteableBitmap writeable = null;
 
-            if (ocrEngine == null) return string.Empty;
+            var origHeight = (uint)0;
+            var origWidth = (uint)0;
 
-            var ocrResult = await ocrEngine.RecognizeAsync(bitmap);
-
-            foreach (var line in ocrResult.Lines)
+            using (var stream = await file.OpenReadAsync())
             {
-                foreach (var word in line.Words)
+                var decoder = await BitmapDecoder.CreateAsync(stream);
+
+                var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+
+                if ((bitmap.PixelWidth < OcrEngine.MaxImageDimension) && (bitmap.PixelHeight < OcrEngine.MaxImageDimension))
                 {
-                    results.Append(word.Text.Trim(new[] { ' ', ',', '.', '/', '\\', ':', '-', ';', '<', '>', '(', ')', '"', '\'' }));
-                    results.Append(" ");
+                    var temp = new StringBuilder(4096);
+                    var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+
+                    if (ocrEngine != null)
+                    {
+                        var ocrResult = await ocrEngine.RecognizeAsync(bitmap);
+
+                        foreach (var line in ocrResult.Lines)
+                        {
+                            foreach (var word in line.Words)
+                            {
+                                temp.Append(word.Text.Trim(new[] { ' ', ',', '.', '/', '\\', ':', '-', ';', '<', '>', '(', ')', '"', '\'' }));
+                                temp.Append(" ");
+                            }
+                        }
+                    }
+
+                    results.Content = temp.ToString();
+                }
+
+                var newHeight = origHeight = decoder.PixelHeight;
+                var newWidth = origWidth = decoder.PixelWidth;
+
+                if ((origWidth > 1000) || (origHeight > 1000))
+                {
+                    var ratioX = 1000 / (double)origWidth;
+                    var ratioY = 1000 / (double)origHeight;
+                    var ratio = Math.Min(ratioX, ratioY);
+
+                    newHeight = (uint)(origHeight * ratio);
+                    newWidth = (uint)(origWidth * ratio);
+                }
+
+                writeable = new WriteableBitmap((int)newWidth, (int)newHeight);
+
+                using (var encoderStream = new InMemoryRandomAccessStream())
+                {
+                    var encoder = await BitmapEncoder.CreateForTranscodingAsync(encoderStream, decoder);
+
+                    encoder.BitmapTransform.ScaledHeight = newHeight;
+                    encoder.BitmapTransform.ScaledWidth = newWidth;
+
+                    await encoder.FlushAsync();
+
+                    writeable.SetSource(encoderStream);
                 }
             }
 
-            return results.ToString().Trim();
+            var newFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(Path.ChangeExtension(file.Name, "png"), CreationCollisionOption.ReplaceExisting);
+
+            using (var encoderStream = await newFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, encoderStream);
+                var pixelStream = writeable.PixelBuffer.AsStream();
+                var pixels = new byte[pixelStream.Length];
+
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)writeable.PixelWidth, (uint)writeable.PixelHeight, 96.0, 96.0, pixels);
+
+                await encoder.FlushAsync();
+            }
+
+            results.File = newFile;
+
+            return results;
         }
 
         /// <summary>
         /// Performs metadata processing for .png and .jpg files.
         /// </summary>
         /// <param name="client">The graph client to use for uploading metadata.</param>
-        /// <param name="file">The file that was uploaded.</param>
-        /// <param name="folderId">The graph folder id where the file was uploaded.</param>
-        /// <param name="id">The graph id for the uploaded file.</param>
-        /// <returns></returns>
-        private async Task<DriveItem> ProcessMetadata(GraphServiceClient client, StorageFile file, string folderId, string id)
+        /// <param name="item">The graph drive item that we will create metadata for.</param>
+        /// <param name="content">The metadata file content.</param>
+        /// <returns>The metadata drive item that was created.</returns>
+        private async Task<DriveItem> ProcessMetadata(GraphServiceClient client, DriveItem item, string content)
         {
             if (client == null) throw new ArgumentNullException("client");
-            if (file == null) throw new ArgumentNullException("file");
-            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException("id");
+            if (item == null) throw new ArgumentNullException("item");
+            if (string.IsNullOrEmpty(content)) throw new ArgumentNullException("content");
 
-            if (!(string.Equals(Path.GetExtension(file.Name), ".jpg", StringComparison.OrdinalIgnoreCase) 
-                || string.Equals(Path.GetExtension(file.Name), ".png", StringComparison.OrdinalIgnoreCase))) return null;
-
-            using (var imageStream = await file.OpenAsync(FileAccessMode.Read))
+            var metadata = new ImageMetadata()
             {
-                var decoder = await BitmapDecoder.CreateAsync(imageStream);
-                var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                var imgSource = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight);
+                ImageId = item.Id,
+                Content = content
+            };
 
-                bitmap.CopyToBuffer(imgSource.PixelBuffer);
-
-                var text = await ProcessBitmap(bitmap);
-
-                if (string.IsNullOrEmpty(text)) return null;
-
-                var metadata = new ImageMetadata()
-                {
-                    ImageId = id,
-                    Content = text
-                };
-
-                using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata))))
-                {
-                    return await client.Me.Drive.Items[folderId].Children[file.Name + MetadataExtension].Content.Request().PutAsync<DriveItem>(memoryStream);
-                }
+            using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(metadata))))
+            {
+                return await client.Me.Drive.Items[item.ParentReference.Id].Children[item.Name + MetadataExtension].Content.Request().PutAsync<DriveItem>(memoryStream);
             }
         }
 
@@ -149,20 +201,24 @@ namespace Sage100AddressBook.ViewModels
             if (string.IsNullOrEmpty(arg.SearchText)) return;
 
             var search = arg.SearchText;
+            var dispatcher = _owner.Dispatcher;
 
-            await _owner.Dispatcher.DispatchAsync(async() =>
+            await dispatcher.DispatchAsync(async() =>
             {
                 try
                 {
                     Loading = true;
                     SearchText = search;
 
-                    try
-                    {
-                        var source = new ObservableCollectionEx<DocumentEntry>();
-                        var dest = new ObservableCollectionEx<DocumentEntry>();
+                    _documents.Clear();
+                    BuildDocumentGroups();
 
-                        source.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
+                    Task.Run<IEnumerable<DocumentEntry>>(async () =>
+                    {
+                        var source = new List<DocumentEntry>();
+
+                        _documents.Clear();
+                        source.AddRange(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
                         var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, search);
 
@@ -170,16 +226,29 @@ namespace Sage100AddressBook.ViewModels
                         {
                             var match = source.FirstOrDefault(e => e.Id.Equals(item.Id));
 
-                            if (match != null) dest.Add(match);
+                            if (match != null) _documents.Add(match);
                         }
 
-                        _documents.Set(dest);
-                        BuildDocumentGroups();
-                    }
-                    finally
+                        return _documents;
+
+                    }).ContinueWith(async (t) =>
                     {
-                        Loading = false;
-                    }
+                        await dispatcher.DispatchAsync(async () =>
+                        {
+                            try
+                            {
+                                if (t.IsFaulted)
+                                {
+                                    if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", search), t.Exception, false);
+                                }
+                                if (t.IsCompleted) BuildDocumentGroups();
+                            }
+                            finally
+                            {
+                                Loading = false;
+                            }
+                        });
+                    });
                 }
                 catch (Exception exception)
                 {
@@ -221,25 +290,20 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private async Task CloseSearchResults(SearchControl arg)
         {
-            await _owner.Dispatcher.DispatchAsync(async () =>
+            var dispatcher = _owner.Dispatcher;
+
+            await dispatcher.DispatchAsync(() =>
             {
-                Loading = true;
+                arg?.CloseSearch();
+
                 SearchText = string.Empty;
+               
+                _searchControl = null;
+                _documents.Clear();
 
-                try
-                {
-                    arg?.CloseSearch();
+                BuildDocumentGroups();
 
-                    _searchControl = null;
-                    _documentGroups.Clear();
-                    _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
-
-                    BuildDocumentGroups();
-                }
-                finally
-                {
-                    Loading = false;
-                }
+                if (_index == PivotIndex) Load();
             });
         }
 
@@ -490,9 +554,10 @@ namespace Sage100AddressBook.ViewModels
                         await client.Me.Drive.Items[_document.MetadataId].Request().DeleteAsync();
                     }
 
-                    BuildDocumentGroups();
-
+                    _documents.Remove(_document);
                     _document = null;
+
+                    BuildDocumentGroups();
                 }
                 finally
                 {
@@ -543,9 +608,9 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    var fileName = file.Name;
+                    var fileContent = await PreProcessFile(file);
 
-                    using (var stream = await file.OpenReadAsync())
+                    using (var stream = await fileContent.File.OpenReadAsync())
                     {
                         if (stream.Size > 4096000)
                         {
@@ -555,7 +620,7 @@ namespace Sage100AddressBook.ViewModels
 
                         using (var upload = stream.AsStreamForRead())
                         {
-                            driveItem = await client.Me.Drive.Items[folder.Id].Children[fileName].Content.Request().PutAsync<DriveItem>(upload);
+                            driveItem = await client.Me.Drive.Items[folder.Id].Children[fileContent.File.Name].Content.Request().PutAsync<DriveItem>(upload);
 
                             entry = new DocumentEntry()
                             {
@@ -570,11 +635,18 @@ namespace Sage100AddressBook.ViewModels
                         }
                     }
 
-                    var metadataItem = await ProcessMetadata(client, file, folder.Id, driveItem.Id);
+                    if (!string.IsNullOrEmpty(fileContent.Content))
+                    {
+                        var metadataItem = await ProcessMetadata(client, driveItem, fileContent.Content);
 
-                    entry.MetadataId = (metadataItem == null) ? null : metadataItem.Id;  
+                        entry.MetadataId = metadataItem.Id;
+                    }
 
                     BuildDocumentGroups();
+                }
+                catch (Exception exception)
+                {
+                    await Dialogs.ShowException("Failed to upload file", exception, false);
                 }
                 finally
                 {
@@ -622,34 +694,79 @@ namespace Sage100AddressBook.ViewModels
         #region Public methods
 
         /// <summary>
+        /// Saves the id and company code.
+        /// </summary>
+        /// <param name="id">The id for the entity.</param>
+        /// <param name="companyCode">The company code.</param>
+        public void SetArguments(string id, string companyCode)
+        {
+            _rootId = id;
+            _companyCode = companyCode;
+        }
+
+        /// <summary>
         /// Loads the documents from the retrieval service.
         /// </summary>
-        /// <param name="id">The id of the folder to load.</param>
-        /// <param name="companyCode">The company code associated with the id.</param>
         /// <returns>The async task to wait on.</returns>
-        public async Task Load(string id, string companyCode)
+        public async Task Load()
         {
-            try
+            if (_index != PivotIndex) return;
+
+            var dispatcher = Window.Current.Dispatcher;
+
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
-                _rootId = id;
-                _companyCode = companyCode;
-                _documents.Set(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(id, companyCode, _folders));
-            }
-            finally
-            {
+                Loading = true;
+
+                _documents.Clear();
+
                 BuildDocumentGroups();
-            }
+            });
+
+            Task.Run<IEnumerable<DocumentEntry>>(async () =>
+            {
+                return await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+            }).ContinueWith(async (t) =>
+            {
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    try
+                    {
+                        if (t.IsCompleted) _documents.AddRange(t.Result);
+                        BuildDocumentGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                });
+            });
         }
 
         /// <summary>
         /// Sets the current pivot index.
         /// </summary>
         /// <param name="index">The new pivot index being maintained by the page.</param>
-        public void SetPivotIndex(int index)
+        public async void SetPivotIndex(int index)
         {
             try
             {
+                var active = ((_index != PivotIndex) && (index == PivotIndex));
+                var wasActive = ((_index == PivotIndex) && (index != PivotIndex));
+                var closeSearch = (wasActive && (_searchControl != null));
+
                 _index = index;
+
+                if (active)
+                {
+                    await Load();
+                }
+                else if (wasActive)
+                {
+                    await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = false; });
+                }
+
+                if (closeSearch) await CloseSearchResults(_searchControl);
             }
             finally
             {

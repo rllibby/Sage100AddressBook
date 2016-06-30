@@ -10,6 +10,7 @@ using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
+using System;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -21,7 +22,7 @@ namespace Sage100AddressBook.ViewModels
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private int _pivotIndex;
-        private bool _loading;
+        private int _loading;
 
         #endregion
 
@@ -91,8 +92,7 @@ namespace Sage100AddressBook.ViewModels
                 var navArgs = (NavigationArgs)parameter;
 
                 _documentModel.SetPivotIndex(0);
-
-                await _documentModel.Load(navArgs.Id, navArgs.CompanyCode);
+                _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);
@@ -150,11 +150,12 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool Loading
         {
-            get { return _loading; }
+            get { return (_loading > 0); }
             set
             {
-                _loading = value;
-
+                _loading += (value ? 1 : (-1));
+                _loading = Math.Max(0, _loading);
+                 
                 base.RaisePropertyChanged();
             }
         }
