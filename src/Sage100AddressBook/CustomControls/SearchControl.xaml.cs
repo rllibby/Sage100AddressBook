@@ -59,6 +59,7 @@ namespace Sage100AddressBook.CustomControls
 
         private EventHandler<SearchEventArgs> _onSearch;
         private string _searchText;
+        private bool _autoDismiss;
         private bool _active;
         private bool _showing;
 
@@ -107,7 +108,7 @@ namespace Sage100AddressBook.CustomControls
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (_showing && (Visibility == Visibility.Visible) && !_active)
+                if (_showing && (Visibility == Visibility.Visible) && !_active && _autoDismiss)
                 {
                     try
                     {
@@ -146,6 +147,8 @@ namespace Sage100AddressBook.CustomControls
         public SearchControl()
         {
             InitializeComponent();
+
+            _autoDismiss = true;
         }
 
         #endregion
@@ -203,6 +206,15 @@ namespace Sage100AddressBook.CustomControls
         public string SearchText
         {
             get { return _searchText; }
+        }
+
+        /// <summary>
+        /// True if the search 
+        /// </summary>
+        public bool AutoDismiss
+        {
+            get { return _autoDismiss; }
+            set { _autoDismiss = value; }
         }
 
         #endregion

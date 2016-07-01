@@ -196,80 +196,80 @@
                 <ScrollViewer VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto">
                     <RelativePanel>
                         <Grid x:Name="customerInfo"
-                                    MinWidth="300"
-                                    MinHeight="300"
-                                    BorderBrush="{StaticResource CustomColorBrush}"
-                                    BorderThickness="1,1,1,1"
-                                    Padding="10,10"
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignTopWithPanel="True">
+                              MinWidth="300"
+                              MinHeight="300"
+                              BorderBrush="{StaticResource CustomColorBrush}"
+                              BorderThickness="1,1,1,1"
+                              Padding="10,10"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignTopWithPanel="True">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0">
                                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
-                                       TextTrimming="CharacterEllipsis" />
+                                           Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
+                                           TextTrimming="CharacterEllipsis" />
 
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
-                                       TextTrimming="CharacterEllipsis" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine1}"
+                                           TextTrimming="CharacterEllipsis" />
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
-                                       TextTrimming="CharacterEllipsis"
-                                       Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine2, Converter={StaticResource StringToVisibility}}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine2}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine2, Converter={StaticResource StringToVisibility}}" />
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
-                                       TextTrimming="CharacterEllipsis"
-                                       Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AddressLine3}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.AddressLine3, Converter={StaticResource StringToVisibility}}" />
 
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Margin="0,0,4,0"
-                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                           Style="{StaticResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.CurrentCustomer.City}"
-                                           TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ViewModel.CurrentCustomer.City, Converter={StaticResource StringToVisibility}}" />
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.City}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.City, Converter={StaticResource StringToVisibility}}" />
                                     <TextBlock Margin="0,0,4,0"
-                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                           Style="{StaticResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.CurrentCustomer.State}"
-                                           TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ViewModel.CurrentCustomer.State, Converter={StaticResource StringToVisibility}}" />
+                                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.State}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.State, Converter={StaticResource StringToVisibility}}" />
                                     <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                           Style="{StaticResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
-                                           TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Text="{x:Bind ViewModel.CurrentCustomer.ZipCode}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{x:Bind ViewModel.CurrentCustomer.ZipCode, Converter={StaticResource StringToVisibility}}" />
                                 </StackPanel>
 
                                 <TextBlock Margin="0,10,0,0"
-                                       Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.Telephone}"
-                                       TextTrimming="CharacterEllipsis"
-                                       Visibility="{x:Bind ViewModel.CurrentCustomer.Telephone, Converter={StaticResource StringToVisibility}}" />
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.Telephone}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.Telephone, Converter={StaticResource StringToVisibility}}" />
                                 <TextBlock Margin="0,4,0,0"
-                                       Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.EmailAddress}"
-                                       TextTrimming="CharacterEllipsis"
-                                       Visibility="{x:Bind ViewModel.CurrentCustomer.EmailAddress, Converter={StaticResource StringToVisibility}}" />
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.EmailAddress}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.EmailAddress, Converter={StaticResource StringToVisibility}}" />
 
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="Date Established"
-                                       Visibility="{x:Bind ViewModel.Loading, Converter={StaticResource ReverseBooleanToVisibility}, Mode=OneWay}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="Date Established"
+                                           Visibility="{x:Bind ViewModel.Loading, Converter={StaticResource ReverseBooleanToVisibility}, Mode=OneWay}" />
 
                                 <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                       Style="{StaticResource BodyTextBlockStyle}"
-                                       Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
+                                           Style="{StaticResource BodyTextBlockStyle}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
                             </StackPanel>
                             <HyperlinkButton Grid.Row="1" Content="Call Customer" />
                             <HyperlinkButton Grid.Row="2" Content="Email Customer" />
@@ -329,9 +329,10 @@
                         <telerikPrimitives:RadLegendControl x:Name="agedInvoiceLegend"
                                                             MinWidth="100"
                                                             MinHeight="300"
+                                                            FontSize="14"
                                                             LegendProvider="{Binding ElementName=pieChart}"
                                                             RelativePanel.AlignRightWith="accountBalance"
-                                                            RelativePanel.AlignTopWithPanel="True" FontSize="14">
+                                                            RelativePanel.AlignTopWithPanel="True">
                             <telerikPrimitives:RadLegendControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Vertical" />
