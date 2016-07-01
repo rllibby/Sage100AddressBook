@@ -84,7 +84,7 @@ namespace Sage100AddressBook.ViewModels
         private void ShowSearch(SearchControl arg)
         {
             _searchControl = arg;
-            _searchControl?.ShowSearch(OnSearchResults);
+            _searchControl?.ShowSearch(OnSearchResults, "Enter a search string, e.g. name, number or city.");
         }
 
         /// <summary>

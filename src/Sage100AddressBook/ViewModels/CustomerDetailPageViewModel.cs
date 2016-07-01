@@ -25,6 +25,9 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
+        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
@@ -33,10 +36,6 @@ namespace Sage100AddressBook.ViewModels
         private string _id = string.Empty;
         private int _index;
         private int _loading;
-
-        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
 
         #endregion
 

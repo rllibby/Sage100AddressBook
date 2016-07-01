@@ -156,14 +156,15 @@ namespace Sage100AddressBook.CustomControls
         /// Sets focus to the search box
         /// </summary>
         /// <param name="onSearchCallback">The event handler to call when a search is executed.</param>
-        public void ShowSearch(EventHandler<SearchEventArgs> onSearchCallback)
+        /// <param name="placeholderText">Optional placeholder text to show when text is empty.</param>
+        public void ShowSearch(EventHandler<SearchEventArgs> onSearchCallback, string placeholderText = null)
         {
             _onSearch = onSearchCallback;
 
             try
             {
                 SearchBox.Text = string.Empty;
-                SearchBox.PlaceholderText = "Search for...";
+                SearchBox.PlaceholderText = (placeholderText == null) ? "Search for..." : placeholderText;
                 Visibility = Visibility.Visible;
                 Focus(FocusState.Programmatic);
             }
