@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
@@ -29,7 +30,6 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<SearchControl> _search;
         private DelegateCommand<SearchControl> _closeSearch;
         private SearchControl _searchControl;
-        private bool _isSearch;
 
         #endregion
 
@@ -85,7 +85,8 @@ namespace Sage100AddressBook.ViewModels
         private void ShowSearch(SearchControl arg)
         {
             _searchControl = arg;
-            _searchControl?.ShowSearch(OnSearchResults);
+            _searchControl.AutoDismiss = false;
+            _searchControl?.ShowSearch(OnSearchResults, "Enter a search string, e.g. name, number or city.");
         }
 
         /// <summary>
@@ -141,6 +142,7 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
+                if (_searchControl != null) _searchControl.Focus(FocusState.Programmatic);
                 if (suspensionState.Any()) { }
             }
             finally
@@ -243,7 +245,7 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool CloseSearchVisible
         {
-            get { return (_isSearch); }
+            get { return (_searchControl != null); }
         }
 
         #endregion

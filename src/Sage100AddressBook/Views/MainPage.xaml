@@ -2,9 +2,9 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
-      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:controls="using:Template10.Controls"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:custom="using:Sage100AddressBook.CustomControls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:helpers="using:Sage100AddressBook.Helpers"
@@ -13,6 +13,12 @@
       xmlns:models="using:Sage100AddressBook.Models"
       xmlns:vm="using:Sage100AddressBook.ViewModels"
       mc:Ignorable="d">
+
+    <Interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.Search}" CommandParameter="{x:Bind Find}" />
+        </core:EventTriggerBehavior>
+    </Interactivity:Interaction.Behaviors>
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
@@ -31,9 +37,10 @@
                        Text="{x:Bind GroupName, Mode=OneWay}" />
         </DataTemplate>
 
+        <!--  Item template for AddressEntry model  -->
         <DataTemplate x:Key="AddressTemplate" x:DataType="models:AddressEntry">
             <StackPanel MinWidth="400"
-                        MinHeight="196"
+                        MinHeight="120"
                         Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
                     <MenuFlyout>
@@ -42,6 +49,7 @@
                                         Text="Remove Favorite" />
                     </MenuFlyout>
                 </helpers:MenuFlyoutService.MenuFlyout>
+
                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                            Text="{x:Bind Name}"
                            TextTrimming="CharacterEllipsis" />
@@ -49,7 +57,7 @@
                            Style="{StaticResource BodyTextBlockStyle}"
                            Text="{x:Bind Address}"
                            TextTrimming="CharacterEllipsis" />
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
                     <TextBlock Margin="0,0,4,0"
                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
@@ -65,12 +73,12 @@
                                Text="{x:Bind ZipCode}"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-                <TextBlock Margin="0,10,0,0"
+                <TextBlock Margin="0,0,10,0"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
                            Text="{x:Bind Phone}"
                            TextTrimming="CharacterEllipsis" />
-                <TextBlock Margin="0,4,0,0"
+                <TextBlock Margin="0,0,10,0"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
                            Text="{x:Bind EmailAddress}"
@@ -157,12 +165,6 @@
                           Foreground="{StaticResource ContrastColorBrush}"
                           Icon="Find"
                           Label="Search" />
-            <AppBarButton Command="{x:Bind ViewModel.CloseSearch}"
-                          CommandParameter="{x:Bind Find}"
-                          Foreground="{StaticResource ContrastColorBrush}"
-                          Icon="Clear"
-                          Label="Close Search"
-                          Visibility="{x:Bind ViewModel.CloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         </controls:PageHeader>
         <Pivot Grid.Row="1">
             <PivotItem Header="Favorites">
@@ -197,8 +199,6 @@
                    Style="{StaticResource SubtitleTextBlockStyle}"
                    Text="No favorite items to display"
                    Visibility="{x:Bind ViewModel.Favorites.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-
-
     </Grid>
 </Page>
 

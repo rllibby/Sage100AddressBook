@@ -12,6 +12,7 @@ using Sage100AddressBook.Services.Sage100Services;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
+using Windows.System;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -25,18 +26,18 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
+        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
+        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
+        private DelegateCommand _showMap;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
         private int _loading;
-
-        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
 
         #endregion
 
@@ -68,26 +69,48 @@ namespace Sage100AddressBook.ViewModels
 
             if (currentCustomer.CurrentBalance != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + " (" + currentCustomer.CurrentBalance.ToString() + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + "\n(" + currentCustomer.CurrentBalance.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory1 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + " (" + currentCustomer.AgingCategory1.ToString() + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + "\n(" + currentCustomer.AgingCategory1.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory2 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + " (" + currentCustomer.AgingCategory2.ToString() + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + "\n(" + currentCustomer.AgingCategory2.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory3 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + " (" + currentCustomer.AgingCategory3.ToString() + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + "\n(" + currentCustomer.AgingCategory3.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory4 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + " (" + currentCustomer.AgingCategory4.ToString() + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + "\n(" + currentCustomer.AgingCategory4.ToString("C") + ")" });
             }
         }
 
+        /// <summary>
+        /// Shows the customer address mapped in the map application.
+        /// </summary>
+        private async void ShowMapAction()
+        {
+            var query = string.Empty;
+
+            if (!string.IsNullOrEmpty(_currentCustomer.AddressLine1)) query += _currentCustomer.AddressLine1;
+            if (!string.IsNullOrEmpty(_currentCustomer.City)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.City);
+            if (!string.IsNullOrEmpty(_currentCustomer.State)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.State);
+            if (!string.IsNullOrEmpty(_currentCustomer.ZipCode)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.ZipCode);
+
+            if (string.IsNullOrEmpty(query)) return;
+
+            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(query));
+            var launcherOptions = new LauncherOptions();
+
+            launcherOptions.TargetApplicationPackageFamilyName = "Microsoft.WindowsMaps_8wekyb3d8bbwe";
+
+            await Launcher.LaunchUriAsync(new Uri(mapUri), launcherOptions);
+        }
+             
         /// <summary>
         /// Toggles the favorites for the current customer.
         /// </summary>
@@ -118,6 +141,7 @@ namespace Sage100AddressBook.ViewModels
             _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
+            _showMap = new DelegateCommand(new Action(ShowMapAction));
         }
 
         #endregion
@@ -160,7 +184,6 @@ namespace Sage100AddressBook.ViewModels
             await Task.CompletedTask;
         }
 
-
         /// <summary>
         /// Maintains the currently selected pivot item.
         /// </summary>
@@ -186,6 +209,14 @@ namespace Sage100AddressBook.ViewModels
         public DocumentPivotViewModel DocumentModel
         {
             get { return _documentModel; }
+        }
+
+        /// <summary>
+        /// Show the map with customer location.
+        /// </summary>
+        public DelegateCommand ShowMap
+        {
+            get { return _showMap; }
         }
 
         /// <summary>
