@@ -132,7 +132,9 @@
                         <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
                         <Setter Target="accountBalance.Width" Value="Auto" />
                         <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
-                        <!-- <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="pieChart" /> -->
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,0" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateNormal">
@@ -140,9 +142,14 @@
                         <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
-                        <!-- <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" /> -->
+                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,0" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateWide">
@@ -152,7 +159,8 @@
                     <VisualState.Setters>
                         <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
                         <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
-                        <!-- <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" /> -->
+                        <Setter Target="accountBalance.(Margin)" Value="10,0,0,0" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -185,7 +193,7 @@
                SelectionChanged="{x:Bind ViewModel.PivotChanged}">
 
             <PivotItem DataContext="{Binding CustomerDetailPageViewModei}" Header="At a Glance">
-                <ScrollViewer>
+                <ScrollViewer MaxZoomFactor="1" MinZoomFactor="1">
                     <RelativePanel>
                         <StackPanel x:Name="customerInfo"
                                     MinWidth="300"
@@ -336,8 +344,6 @@
                                 </DataTemplate>
                             </telerikPrimitives:RadLegendControl.ItemTemplate>
                         </telerikPrimitives:RadLegendControl>
-
-
                     </RelativePanel>
                 </ScrollViewer>
             </PivotItem>
