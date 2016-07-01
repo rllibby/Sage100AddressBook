@@ -221,7 +221,6 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                             continue;
                         }
 
-
                         var entry = new DocumentEntry()
                         {
                             Folder = folder.Name,

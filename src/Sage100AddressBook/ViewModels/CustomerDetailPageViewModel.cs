@@ -67,23 +67,23 @@ namespace Sage100AddressBook.ViewModels
 
             if (currentCustomer.CurrentBalance != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + " (" + currentCustomer.CurrentBalance.ToString("C") + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + "\n(" + currentCustomer.CurrentBalance.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory1 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + " (" + currentCustomer.AgingCategory1.ToString("C") + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + "\n(" + currentCustomer.AgingCategory1.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory2 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + " (" + currentCustomer.AgingCategory2.ToString("C") + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + "\n(" + currentCustomer.AgingCategory2.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory3 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + " (" + currentCustomer.AgingCategory3.ToString("C") + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + "\n(" + currentCustomer.AgingCategory3.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory4 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + " (" + currentCustomer.AgingCategory4.ToString("C") + ")" });
+                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + "\n(" + currentCustomer.AgingCategory4.ToString("C") + ")" });
             }
         }
 

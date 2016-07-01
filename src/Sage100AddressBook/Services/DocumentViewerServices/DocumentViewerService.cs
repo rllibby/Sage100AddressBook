@@ -5,8 +5,6 @@
 using Sage100AddressBook.Helpers;
 using System;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Pdf;
 using Windows.Storage;
