@@ -13,9 +13,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+
+#pragma warning disable 4014
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -27,11 +31,11 @@ namespace Sage100AddressBook.ViewModels
         #region Private fields
 
         private ObservableCollectionEx<AddressGroup> _addressGroups = new ObservableCollectionEx<AddressGroup>();
-        private ObservableCollectionEx<AddressEntry> _addresses = new ObservableCollectionEx<AddressEntry>();
+        private List<AddressEntry> _addresses = new List<AddressEntry>();
         private CustomerSearchService _searchService;
         private AddressEntry _currentAddress;
+        private string _search;
         private bool _loading;
-        private string _search = "Default";
 
         #endregion
 
@@ -49,10 +53,55 @@ namespace Sage100AddressBook.ViewModels
 
             return new NavigationArgs()
             {
-                Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
+                Id = (string.IsNullOrEmpty(entry.ParentId) ? entry.Id : entry.ParentId),
                 CompanyCode = "ABC",
                 RemovePage = removePage ? typeof(SearchResultsPage) : null
             };
+        }
+
+        /// <summary>
+        /// Executes the search on a background thread.
+        /// </summary>
+        /// <param name="searchText">The text to search for.</param>
+        private async void LoadSearchResults(string searchText)
+        {
+            var dispatcher = Window.Current.Dispatcher;
+            var baseUri = string.Empty;
+
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                Loading = true;
+#if NGROK
+                baseUri = Application.Current.Resources["ngrok"].ToString();
+#endif            
+            });
+
+            Task.Run(async () =>
+            {
+                _addresses.Clear();
+
+                var found = await _searchService.ExecuteSearchAsync(baseUri, searchText);
+
+                _addresses.AddRange(found);
+
+            }).ContinueWith(async (t) =>
+            {
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                {
+                    try
+                    {
+                        if (t.IsFaulted)
+                        {
+                            if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", searchText), t.Exception, false);
+                        }
+                        if (t.IsCompleted) BuildAddressGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                });
+            });
         }
 
         /// <summary>
@@ -96,27 +145,14 @@ namespace Sage100AddressBook.ViewModels
         {
             Search = (suspensionState.ContainsKey(nameof(Search))) ? suspensionState[nameof(Search)]?.ToString() : parameter?.ToString();
 
-            Loading = true;
-
             try
             {
-                _addresses.Set(await _searchService.ExecuteSearchAsync(Search), Dispatcher);
-
-                if (_addresses.Count == 1)  
-                {
-                    NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault(), true), new SuppressNavigationTransitionInfo());
-
-                    return;
-                }
-
-                BuildAddressGroups();
+                LoadSearchResults(Search);
             }
             finally
             {
-                Loading = false;
+                await Task.CompletedTask;
             }
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -194,14 +230,6 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollection<AddressGroup> AddressGroups
         {
             get { return _addressGroups; }
-        }
-
-        /// <summary>
-        /// Collection of addresses.
-        /// </summary>
-        public ObservableCollection<AddressEntry> Addresses
-        {
-            get { return _addresses; }
         }
 
         /// <summary>
