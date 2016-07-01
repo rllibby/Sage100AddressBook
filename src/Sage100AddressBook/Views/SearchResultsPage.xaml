@@ -40,13 +40,13 @@
                            Style="{StaticResource BodyTextBlockStyle}"
                            Text="{x:Bind Address}"
                            TextTrimming="CharacterEllipsis" />
-                <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
-                    <TextBlock 
+                <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,4,0"
                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind City}"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock 
+                    <TextBlock Margin="0,0,4,0"
                                Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind State}"

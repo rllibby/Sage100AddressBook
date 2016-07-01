@@ -48,11 +48,13 @@
                            Text="{x:Bind Address}"
                            TextTrimming="CharacterEllipsis" />
                 <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
-                    <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                    <TextBlock Margin="0,0,4,0"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind City}"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                    <TextBlock Margin="0,0,4,0"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                Text="{x:Bind State}"
                                TextTrimming="CharacterEllipsis" />

@@ -207,6 +207,7 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0">
@@ -273,6 +274,9 @@
                             </StackPanel>
                             <HyperlinkButton Grid.Row="1" Content="Call Customer" />
                             <HyperlinkButton Grid.Row="2" Content="Email Customer" />
+                            <HyperlinkButton Grid.Row="3"
+                                             Command="{x:Bind ViewModel.ShowMap}"
+                                             Content="Show On Map" />
                         </Grid>
                         <Grid x:Name="accountBalance"
                               MinWidth="300"

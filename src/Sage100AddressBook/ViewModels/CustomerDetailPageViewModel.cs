@@ -12,6 +12,7 @@ using Sage100AddressBook.Services.Sage100Services;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
+using Windows.System;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -32,6 +33,7 @@ namespace Sage100AddressBook.ViewModels
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
+        private DelegateCommand _showMap;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
@@ -88,6 +90,28 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Shows the customer address mapped in the map application.
+        /// </summary>
+        private async void ShowMapAction()
+        {
+            var query = string.Empty;
+
+            if (!string.IsNullOrEmpty(_currentCustomer.AddressLine1)) query += _currentCustomer.AddressLine1;
+            if (!string.IsNullOrEmpty(_currentCustomer.City)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.City);
+            if (!string.IsNullOrEmpty(_currentCustomer.State)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.State);
+            if (!string.IsNullOrEmpty(_currentCustomer.ZipCode)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.ZipCode);
+
+            if (string.IsNullOrEmpty(query)) return;
+
+            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(query));
+            var launcherOptions = new LauncherOptions();
+
+            launcherOptions.TargetApplicationPackageFamilyName = "Microsoft.WindowsMaps_8wekyb3d8bbwe";
+
+            await Launcher.LaunchUriAsync(new Uri(mapUri), launcherOptions);
+        }
+             
+        /// <summary>
         /// Toggles the favorites for the current customer.
         /// </summary>
         private void ToggleFavoritesAction()
@@ -117,6 +141,7 @@ namespace Sage100AddressBook.ViewModels
             _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
+            _showMap = new DelegateCommand(new Action(ShowMapAction));
         }
 
         #endregion
@@ -184,6 +209,14 @@ namespace Sage100AddressBook.ViewModels
         public DocumentPivotViewModel DocumentModel
         {
             get { return _documentModel; }
+        }
+
+        /// <summary>
+        /// Show the map with customer location.
+        /// </summary>
+        public DelegateCommand ShowMap
+        {
+            get { return _showMap; }
         }
 
         /// <summary>
