@@ -197,8 +197,6 @@
                    Style="{StaticResource SubtitleTextBlockStyle}"
                    Text="No favorite items to display"
                    Visibility="{x:Bind ViewModel.Favorites.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-
-
     </Grid>
 </Page>
 

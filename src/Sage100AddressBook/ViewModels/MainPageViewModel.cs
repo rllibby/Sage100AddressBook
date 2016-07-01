@@ -29,7 +29,6 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<SearchControl> _search;
         private DelegateCommand<SearchControl> _closeSearch;
         private SearchControl _searchControl;
-        private bool _isSearch;
 
         #endregion
 
@@ -243,7 +242,7 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool CloseSearchVisible
         {
-            get { return (_isSearch); }
+            get { return (_searchControl != null); }
         }
 
         #endregion

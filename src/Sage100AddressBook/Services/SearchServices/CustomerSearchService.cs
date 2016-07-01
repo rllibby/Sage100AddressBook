@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using Newtonsoft.Json;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.Web.Http;
@@ -18,7 +20,6 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
 
         public async Task<IEnumerable<AddressEntry>> ExecuteSearchAsync(string searchString)
         {
-
             var retVal = new List<AddressEntry>();
             if (searchString != null) {
 
