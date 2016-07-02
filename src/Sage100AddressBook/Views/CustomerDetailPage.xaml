@@ -190,6 +190,7 @@
                RelativePanel.AlignLeftWithPanel="True"
                RelativePanel.AlignRightWithPanel="True"
                RelativePanel.AlignTopWithPanel="True"
+               SelectedIndex="{x:Bind ViewModel.Index, Mode=TwoWay}"
                SelectionChanged="{x:Bind ViewModel.PivotChanged}">
 
             <PivotItem DataContext="{Binding CustomerDetailPageViewModei}" Header="At a Glance">
@@ -205,7 +206,6 @@
                               RelativePanel.AlignTopWithPanel="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
@@ -272,13 +272,12 @@
                                            Style="{StaticResource BodyTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
                             </StackPanel>
-                            <HyperlinkButton Grid.Row="1"
-                                             Command="{x:Bind ViewModel.Dial}"
-                                             Content="Call Customer" />
+                            <HyperlinkButton x:Name="Contact"
+                                             Grid.Row="1"
+                                             Command="{x:Bind ViewModel.Contact}"
+                                             CommandParameter="{Binding ElementName=Contact}"
+                                             Content="Show Contact Card" />
                             <HyperlinkButton Grid.Row="2"
-                                             Command="{x:Bind ViewModel.Email}"
-                                             Content="Email Customer" />
-                            <HyperlinkButton Grid.Row="3"
                                              Command="{x:Bind ViewModel.ShowMap}"
                                              Content="Show On Map" />
                         </Grid>
@@ -330,8 +329,10 @@
                                 </telerikChart:DoughnutSeries>
                             </telerikChart:RadPieChart>
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <TextBlock Text="Balance Due: " />
-                                <TextBlock Margin="4,0,0,0" Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}" Text="Balance Due: " />
+                                <TextBlock Margin="4,0,0,0"
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
                             </StackPanel>
                         </Grid>
                         <telerikPrimitives:RadLegendControl x:Name="agedInvoiceLegend"

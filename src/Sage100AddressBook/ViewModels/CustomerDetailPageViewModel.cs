@@ -13,10 +13,11 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
 using Windows.System;
-using Windows.Foundation.Metadata;
 using System.Text;
-using Windows.ApplicationModel.Calls;
-using Windows.ApplicationModel.Email;
+using Windows.ApplicationModel.Contacts;
+using Windows.UI.Xaml;
+using Windows.Foundation;
+using Windows.UI.Popups;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -38,8 +39,7 @@ namespace Sage100AddressBook.ViewModels
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
         private DelegateCommand _showMap;
-        private DelegateCommand _dial;
-        private DelegateCommand _email;
+        private DelegateCommand<FrameworkElement> _contact;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
@@ -153,50 +153,70 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Dials the customer phone number.
+        /// 
         /// </summary>
-        private void DialAction()
+        /// <returns></returns>
+        private Contact CreateContactFromCustomer()
         {
             var number = new StringBuilder();
+            var email = _currentCustomer.EmailAddress;
 
-            foreach (var c in _currentCustomer.Telephone)
+            if (!string.IsNullOrEmpty(_currentCustomer.Telephone))
             {
-                if (char.IsNumber(c)) number.Append(c);
+                foreach (var c in _currentCustomer.Telephone)
+                {
+                    if (char.IsNumber(c)) number.Append(c);
+                }
             }
 
-            PhoneCallManager.ShowPhoneCallUI(number.ToString(), _currentCustomer.CustomerName);
+            var contact = new Contact();
+            var address = new ContactAddress();
+
+            address.Country = "USA";
+            address.Description = "Office";
+            address.Kind = ContactAddressKind.Work;
+            address.Locality = _currentCustomer.City;
+            address.Region = _currentCustomer.State;
+            address.PostalCode = _currentCustomer.ZipCode;
+            address.StreetAddress = _currentCustomer.AddressLine1;
+
+            contact.Addresses.Add(address);
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                contact.Emails.Add(new ContactEmail { Address = email });
+            }
+
+            if (!string.IsNullOrEmpty(number.ToString()))
+            {
+                contact.Phones.Add(new ContactPhone { Number = number.ToString() });
+            }
+
+            return contact;
         }
 
         /// <summary>
-        /// Determines if the dial action is available.
+        /// Shows the contact card for the customer.
         /// </summary>
-        /// <returns></returns>
-        private bool CanDial()
+        private void ContactAction(FrameworkElement sender)
         {
-            return (!string.IsNullOrEmpty(_currentCustomer.Telephone) && ApiInformation.IsApiContractPresent("Windows.ApplicationModel.Calls.CallsPhoneContract", 1, 0));
+            if (_currentCustomer == null) return;
+
+            var contact = CreateContactFromCustomer();
+            var transform = sender.TransformToVisual(null);
+            var point = transform.TransformPoint(new Point());
+            var rect = new Rect(point, new Size(sender.ActualWidth, sender.ActualHeight));
+
+            ContactManager.ShowContactCard(contact, rect, Placement.Below);
         }
 
         /// <summary>
-        /// Email the customer.
+        /// Determines if the show contact action is available.
         /// </summary>
-        private async void EmailAction()
+        /// <returns>True if we have a customer.</returns>
+        private bool CanShowContact(FrameworkElement sender)
         {
-            var emailMessage = new EmailMessage();
-            var emailRecipient = new EmailRecipient(_currentCustomer.EmailAddress);
-
-            emailMessage.Body = string.Empty;
-            emailMessage.To.Add(emailRecipient);
-
-            await EmailManager.ShowComposeNewEmailAsync(emailMessage);
-        }
-
-        /// <summary>
-        /// Determines if the email action is available.
-        /// </summary>
-        /// <returns></returns>
-        private bool CanEmail()
-        {
-            return (!string.IsNullOrEmpty(_currentCustomer.EmailAddress));
+            return ((_currentCustomer != null) && (!string.IsNullOrEmpty(_currentCustomer.Telephone) || !string.IsNullOrEmpty(_currentCustomer.EmailAddress)));
         }
 
         #endregion
@@ -209,12 +229,10 @@ namespace Sage100AddressBook.ViewModels
         public CustomerDetailPageViewModel()
         {
             _webService = new CustomerWebService();
-            _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
             _showMap = new DelegateCommand(new Action(ShowMapAction), CanShowMap);
-            _dial = new DelegateCommand(new Action(DialAction), CanDial);
-            _email = new DelegateCommand(new Action(EmailAction), CanEmail);
+            _contact = new DelegateCommand<FrameworkElement>(new Action<FrameworkElement>(ContactAction), CanShowContact);
         }
 
         #endregion
@@ -235,11 +253,13 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 var navArgs = (NavigationArgs)parameter;
+                var index = (suspensionState.ContainsKey("Index")) ? suspensionState["Index"]?.ToString() : "0";
 
+                Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
 
                 _id = CurrentCustomer.Id;
-                _documentModel.SetPivotIndex(0);
+                _documentModel.SetPivotIndex(Index);
                 _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
                 _customerAddress = CurrentCustomer.GetAddressEntry();
 
@@ -255,6 +275,24 @@ namespace Sage100AddressBook.ViewModels
             }
 
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Called when this view model is navigated from.
+        /// </summary>
+        /// <param name="suspensionState">The dictionary of application state.</param>
+        /// <param name="suspending">True if application is suspending.</param>
+        /// <returns>The async task.</returns>
+        public override async Task OnNavigatedFromAsync(IDictionary<string, object> suspensionState, bool suspending)
+        {
+            try
+            {
+                suspensionState["Index"] = _index;
+            }
+            finally
+            {
+                await Task.CompletedTask;
+            }
         }
 
         /// <summary>
@@ -331,19 +369,20 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Command for emailing.
+        /// Command for showing the contact card.
         /// </summary>
-        public DelegateCommand Email
+        public DelegateCommand<FrameworkElement> Contact
         {
-            get { return _email; }
+            get { return _contact; }
         }
 
         /// <summary>
-        /// Command for caling.
+        /// The current pivot index.
         /// </summary>
-        public DelegateCommand Dial
+        public int Index
         {
-            get { return _dial; }
+            get { return _index; }
+            set { Set(ref _index, value); }
         }
 
         /// <summary>
