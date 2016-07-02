@@ -42,24 +42,6 @@ namespace Sage100AddressBook.ViewModels
         #region Private methods
 
         /// <summary>
-        /// Gets the navigation event arguments.
-        /// </summary>
-        /// <param name="entry">The address entry.</param>
-        /// <param name="removePage">True if the receiver should remove this page from the back stack.</param>
-        /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry, bool removePage)
-        {
-            if (entry == null) throw new ArgumentNullException("entry");
-
-            return new NavigationArgs()
-            {
-                Id = (string.IsNullOrEmpty(entry.ParentId) ? entry.Id : entry.ParentId),
-                CompanyCode = "ABC",
-                RemovePage = removePage ? typeof(SearchResultsPage) : null
-            };
-        }
-
-        /// <summary>
         /// Executes the search on a background thread.
         /// </summary>
         /// <param name="searchText">The text to search for.</param>
@@ -203,7 +185,7 @@ namespace Sage100AddressBook.ViewModels
 
             RecentAddress.Instance.AddRecent(_currentAddress);
 
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress, false), new SuppressNavigationTransitionInfo());
+            NavigationService.Navigate(typeof(CustomerDetailPage), AddressEntry.GetNavArgs(_currentAddress), new SuppressNavigationTransitionInfo());
         }
 
         #endregion

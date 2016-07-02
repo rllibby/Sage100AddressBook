@@ -272,8 +272,12 @@
                                            Style="{StaticResource BodyTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
                             </StackPanel>
-                            <HyperlinkButton Grid.Row="1" Content="Call Customer" />
-                            <HyperlinkButton Grid.Row="2" Content="Email Customer" />
+                            <HyperlinkButton Grid.Row="1"
+                                             Command="{x:Bind ViewModel.Dial}"
+                                             Content="Call Customer" />
+                            <HyperlinkButton Grid.Row="2"
+                                             Command="{x:Bind ViewModel.Email}"
+                                             Content="Email Customer" />
                             <HyperlinkButton Grid.Row="3"
                                              Command="{x:Bind ViewModel.ShowMap}"
                                              Content="Show On Map" />

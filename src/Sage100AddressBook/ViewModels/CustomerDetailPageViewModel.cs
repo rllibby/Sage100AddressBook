@@ -13,6 +13,10 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
 using Windows.System;
+using Windows.Foundation.Metadata;
+using System.Text;
+using Windows.ApplicationModel.Calls;
+using Windows.ApplicationModel.Email;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -34,6 +38,8 @@ namespace Sage100AddressBook.ViewModels
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
         private DelegateCommand _showMap;
+        private DelegateCommand _dial;
+        private DelegateCommand _email;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
@@ -90,27 +96,45 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Shows the customer address mapped in the map application.
+        /// Gets the address in a format suitable for a map query.
         /// </summary>
-        private async void ShowMapAction()
+        /// <returns>The map address.</returns>
+        private string GetAddressQuery()
         {
             var query = string.Empty;
+
+            if (_currentCustomer == null) return null;
 
             if (!string.IsNullOrEmpty(_currentCustomer.AddressLine1)) query += _currentCustomer.AddressLine1;
             if (!string.IsNullOrEmpty(_currentCustomer.City)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.City);
             if (!string.IsNullOrEmpty(_currentCustomer.State)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.State);
             if (!string.IsNullOrEmpty(_currentCustomer.ZipCode)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.ZipCode);
 
-            if (string.IsNullOrEmpty(query)) return;
+            return query.Trim();
+        }
 
-            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(query));
+        /// <summary>
+        /// Shows the customer address mapped in the map application.
+        /// </summary>
+        private async void ShowMapAction()
+        {
+            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(GetAddressQuery()));
             var launcherOptions = new LauncherOptions();
 
             launcherOptions.TargetApplicationPackageFamilyName = "Microsoft.WindowsMaps_8wekyb3d8bbwe";
 
             await Launcher.LaunchUriAsync(new Uri(mapUri), launcherOptions);
         }
-             
+
+        /// <summary>
+        /// Determines if the show map should be enabled.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanShowMap()
+        {
+            return (!string.IsNullOrEmpty(GetAddressQuery()));
+        }
+
         /// <summary>
         /// Toggles the favorites for the current customer.
         /// </summary>
@@ -128,6 +152,53 @@ namespace Sage100AddressBook.ViewModels
             }
         }
 
+        /// <summary>
+        /// Dials the customer phone number.
+        /// </summary>
+        private void DialAction()
+        {
+            var number = new StringBuilder();
+
+            foreach (var c in _currentCustomer.Telephone)
+            {
+                if (char.IsNumber(c)) number.Append(c);
+            }
+
+            PhoneCallManager.ShowPhoneCallUI(number.ToString(), _currentCustomer.CustomerName);
+        }
+
+        /// <summary>
+        /// Determines if the dial action is available.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanDial()
+        {
+            return (!string.IsNullOrEmpty(_currentCustomer.Telephone) && ApiInformation.IsApiContractPresent("Windows.ApplicationModel.Calls.CallsPhoneContract", 1, 0));
+        }
+
+        /// <summary>
+        /// Email the customer.
+        /// </summary>
+        private async void EmailAction()
+        {
+            var emailMessage = new EmailMessage();
+            var emailRecipient = new EmailRecipient(_currentCustomer.EmailAddress);
+
+            emailMessage.Body = string.Empty;
+            emailMessage.To.Add(emailRecipient);
+
+            await EmailManager.ShowComposeNewEmailAsync(emailMessage);
+        }
+
+        /// <summary>
+        /// Determines if the email action is available.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanEmail()
+        {
+            return (!string.IsNullOrEmpty(_currentCustomer.EmailAddress));
+        }
+
         #endregion
 
         #region Constructor
@@ -141,7 +212,9 @@ namespace Sage100AddressBook.ViewModels
             _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
-            _showMap = new DelegateCommand(new Action(ShowMapAction));
+            _showMap = new DelegateCommand(new Action(ShowMapAction), CanShowMap);
+            _dial = new DelegateCommand(new Action(DialAction), CanDial);
+            _email = new DelegateCommand(new Action(EmailAction), CanEmail);
         }
 
         #endregion
@@ -255,6 +328,22 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand ToggleFavorite
         {
             get { return _toggleFavorites; }
+        }
+
+        /// <summary>
+        /// Command for emailing.
+        /// </summary>
+        public DelegateCommand Email
+        {
+            get { return _email; }
+        }
+
+        /// <summary>
+        /// Command for caling.
+        /// </summary>
+        public DelegateCommand Dial
+        {
+            get { return _dial; }
         }
 
         /// <summary>

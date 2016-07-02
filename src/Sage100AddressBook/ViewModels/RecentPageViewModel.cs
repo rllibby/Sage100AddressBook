@@ -27,28 +27,6 @@ namespace Sage100AddressBook.ViewModels
 
         #endregion
 
-        #region Private methods
-
-        /// <summary>
-        /// Gets the navigation event arguments.
-        /// </summary>
-        /// <param name="entry">The address entry.</param>
-        /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry)
-        {
-            if (entry == null) throw new ArgumentNullException("entry");
-
-            return new NavigationArgs()
-            {
-                Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
-                CompanyCode = "ABC",
-                RemovePage = null
-            };
-        }
-
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -132,7 +110,7 @@ namespace Sage100AddressBook.ViewModels
 
             _recentAddress.AddRecent(address);
 
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(address), new SuppressNavigationTransitionInfo());
+            NavigationService.Navigate(typeof(CustomerDetailPage), AddressEntry.GetNavArgs(address), new SuppressNavigationTransitionInfo());
         }
 
         #endregion

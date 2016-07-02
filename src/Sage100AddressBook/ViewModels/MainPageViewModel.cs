@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -28,29 +29,11 @@ namespace Sage100AddressBook.ViewModels
 
         private FavoriteAddress _favoriteAddress = FavoriteAddress.Instance;
         private DelegateCommand<SearchControl> _search;
-        private DelegateCommand<SearchControl> _closeSearch;
         private SearchControl _searchControl;
 
         #endregion
 
         #region Private methods
-
-        /// <summary>
-        /// Gets the navigation event arguments.
-        /// </summary>
-        /// <param name="entry">The address entry.</param>
-        /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry)
-        {
-            if (entry == null) throw new ArgumentNullException("entry");
-
-            return new NavigationArgs()
-            {
-                Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
-                CompanyCode = "ABC",
-                RemovePage = null
-            };
-        }
 
         /// <summary>
         /// Callback for search execution.
@@ -68,8 +51,7 @@ namespace Sage100AddressBook.ViewModels
             {
                 try
                 {
-                    await CloseSearchResults(sender as SearchControl);
-
+                    _searchControl?.Reset();
                     NavigationService.Navigate(typeof(Views.SearchResultsPage), search, new SuppressNavigationTransitionInfo());
                 }
                 catch (Exception exception)
@@ -82,34 +64,23 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Show the search control.
         /// </summary>
-        private void ShowSearch(SearchControl arg)
+        private async void ShowSearch(SearchControl arg)
         {
-            _searchControl = arg;
-            _searchControl.AutoDismiss = false;
-            _searchControl?.ShowSearch(OnSearchResults, "Enter a search string, e.g. name, number or city.");
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                _searchControl = arg;
+                _searchControl.AutoDismiss = false;
+                _searchControl?.ShowSearch(OnSearchResults, "Enter a search string, e.g. name, number or city.");
+            });
         }
 
         /// <summary>
         /// Action to close search results.
         /// </summary>
         /// <param name="arg">The search control.</param>
-        private async void CloseSearchAction(SearchControl arg)
+        private void CloseSearchAction(SearchControl arg)
         {
-            await CloseSearchResults(arg);
-        }
-
-        /// <summary>
-        /// Closes the search results and displays all documents.
-        /// </summary>
-        private async Task CloseSearchResults(SearchControl arg)
-        {
-            var dispatcher = Dispatcher;
-
-            await dispatcher.DispatchAsync(() =>
-            {
-                arg?.CloseSearch();
-                _searchControl = null;
-            });
+            /* No-op */
         }
 
         #endregion
@@ -124,7 +95,6 @@ namespace Sage100AddressBook.ViewModels
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled) { }
 
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
-            _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
         }
 
         #endregion
@@ -201,7 +171,7 @@ namespace Sage100AddressBook.ViewModels
 
             if (address.Type.Equals("customer", StringComparison.OrdinalIgnoreCase))
             {
-                NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(address), new SuppressNavigationTransitionInfo());
+                NavigationService.Navigate(typeof(CustomerDetailPage), AddressEntry.GetNavArgs(address), new SuppressNavigationTransitionInfo());
                 return;
             }
         }
@@ -230,14 +200,6 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand<SearchControl> Search
         {
             get { return _search; }
-        }
-
-        /// <summary>
-        /// Closes the search results and reloads all documents.
-        /// </summary>
-        public DelegateCommand<SearchControl> CloseSearch
-        {
-            get { return _closeSearch; }
         }
 
         /// <summary>
