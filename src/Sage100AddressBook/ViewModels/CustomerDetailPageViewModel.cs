@@ -18,6 +18,7 @@ using Windows.ApplicationModel.Contacts;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using Windows.UI.Popups;
+using Windows.UI.ViewManagement;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -206,6 +207,12 @@ namespace Sage100AddressBook.ViewModels
             var transform = sender.TransformToVisual(null);
             var point = transform.TransformPoint(new Point());
             var rect = new Rect(point, new Size(sender.ActualWidth, sender.ActualHeight));
+
+            if (Device.IsMobile)
+            {
+                ContactManager.ShowFullContactCard(contact, new FullContactCardOptions { DesiredRemainingView = ViewSizePreference.Default });
+                return;
+            }
 
             ContactManager.ShowContactCard(contact, rect, Placement.Below);
         }
