@@ -182,7 +182,6 @@
                           Icon="Clear"
                           Label="Close Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-
         </controls:PageHeader>
         <Pivot x:Name="CustomerPivot"
                Grid.Row="1"

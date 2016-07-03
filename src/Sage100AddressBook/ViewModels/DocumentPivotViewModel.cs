@@ -49,7 +49,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private List<DocumentEntry> _documents = new List<DocumentEntry>();
         private List<DocumentFolder> _folders = new List<DocumentFolder>();
-        private CustomerDetailPageViewModel _owner;
+        private ViewModelLoading _owner;
         private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
@@ -687,7 +687,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public DocumentPivotViewModel(CustomerDetailPageViewModel owner)
+        public DocumentPivotViewModel(ViewModelLoading owner)
         {
             if (owner == null) throw new ArgumentNullException("owner");
 

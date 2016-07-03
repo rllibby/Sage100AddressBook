@@ -1,0 +1,219 @@
+<Page x:Class="Sage100AddressBook.Views.DocumentsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Behaviors="using:Template10.Behaviors"
+      xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:controls="using:Template10.Controls"
+      xmlns:converters="using:Template10.Converters"
+      xmlns:custom="using:Sage100AddressBook.CustomControls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Sage100AddressBook.Helpers"
+      xmlns:local="using:Sage100AddressBook.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:models="using:Sage100AddressBook.Models"
+      xmlns:vm="using:Sage100AddressBook.ViewModels"
+      x:Name="ThisPage"
+      mc:Ignorable="d">
+
+    <Page.DataContext>
+        <vm:DocumentsPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <CollectionViewSource x:Name="CvsDocuments"
+                              IsSourceGrouped="True"
+                              ItemsPath="DocumentEntries"
+                              Source="{x:Bind ViewModel.DocumentModel.DocumentGroups, Mode=OneWay}" />
+        <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
+            <StackPanel x:Name="docItem"
+                        MinWidth="400"
+                        MinHeight="84"
+                        Orientation="Horizontal"
+                        Padding="10,10">
+                <helpers:MenuFlyoutService.MenuFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Open}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Open" />
+                        <MenuFlyoutItem Command="{x:Bind Share}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Share" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind MoveTo}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Move To" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Command="{x:Bind Delete}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Delete" />
+                        <MenuFlyoutItem Command="{x:Bind Rename}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Rename" />
+                    </MenuFlyout>
+                </helpers:MenuFlyoutService.MenuFlyout>
+                <Image Width="48"
+                       Height="48"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Source="{x:Bind ImageSource, Converter={StaticResource StringToImage}, Mode=OneWay}"
+                       Stretch="UniformToFill" />
+                <Grid Width="260"
+                      Margin="10,0,0,0"
+                      VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               MaxLines="2"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               Text="{x:Bind Name}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="1"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               Text="{x:Bind LastModifiedDate}"
+                               TextTrimming="CharacterEllipsis" />
+                </Grid>
+            </StackPanel>
+            <!--</Grid>-->
+        </DataTemplate>
+        <DataTemplate x:Key="DocumentGroupHeaderTemplate" x:DataType="models:DocumentGroup">
+            <TextBlock Foreground="{StaticResource CustomColorBrush}"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Text="{x:Bind GroupName, Mode=OneWay}" />
+        </DataTemplate>
+        <Style x:Key="DocumentGridViewHeaderItem" TargetType="GridViewHeaderItem">
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontSize" Value="{ThemeResource GridViewHeaderItemThemeFontSize}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Padding" Value="0,0,0,4" />
+            <Setter Property="MinHeight" Value="10" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewHeaderItem">
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Margin="0"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <controls:PageHeader x:Name="pageHeader"
+                             Grid.Row="0"
+                             Frame="{x:Bind Frame}"
+                             Text="Documents">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Search}"
+                          CommandParameter="{x:Bind Find}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Find"
+                          Label="Search"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.CloseSearch}"
+                          CommandParameter="{x:Bind Find}"
+                          Foreground="{StaticResource ContrastColorBrush}"
+                          Icon="Clear"
+                          Label="Close Search"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+        </controls:PageHeader>
+
+        <GridView x:Name="DocumentGrid"
+                  Grid.Row="1"
+                  Margin="10,10"
+                  DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
+                  IsItemClickEnabled="True"
+                  ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                  ItemTemplate="{StaticResource DocumentTemplate}"
+                  ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
+                  RelativePanel.AlignLeftWithPanel="True"
+                  RelativePanel.AlignRightWithPanel="True"
+                  RelativePanel.Below="pageHeader"
+                  ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                  SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
+                  SelectionMode="Single">
+            <GridView.GroupStyle>
+                <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
+            </GridView.GroupStyle>
+        </GridView>
+
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                   Style="{StaticResource SubtitleTextBlockStyle}"
+                   Text="No documents to display"
+                   Visibility="{x:Bind ViewModel.DocumentModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+
+        <ProgressRing Grid.Row="1"
+                      Width="100"
+                      Height="100"
+                      HorizontalAlignment="Center"
+                      IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+
+        <custom:SearchControl x:Name="Find"
+                              Grid.Row="1"
+                              Visibility="Collapsed" />
+
+        <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
+                          Icon="Upload"
+                          Label="Upload"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                          Icon="OpenFile"
+                          Label="Open"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
+                          CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                          Label="Share"
+                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72D;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="MoveToFolder"
+                              Label="Move To"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="Delete"
+                              Label="Delete"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
+                              CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
+                              Icon="Rename"
+                              Label="Rename"
+                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+    </Grid>
+</Page>
+

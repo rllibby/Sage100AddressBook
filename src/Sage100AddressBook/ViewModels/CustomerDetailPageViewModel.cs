@@ -22,7 +22,7 @@ using Windows.UI.ViewManagement;
 
 namespace Sage100AddressBook.ViewModels
 {
-    public class CustomerDetailPageViewModel : ViewModelBase
+    public class CustomerDetailPageViewModel : ViewModelLoading
     {
         #region Private constants
 
@@ -44,7 +44,6 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
-        private int _loading;
 
         #endregion
 
@@ -247,7 +246,7 @@ namespace Sage100AddressBook.ViewModels
         #region Public methods
 
         /// <summary>
-        /// Called when the page is being naviagted to.
+        /// Called when the page is being navigated to.
         /// </summary>
         /// <param name="parameter">The parameter passed during navigation.</param>
         /// <param name="mode">The navigation mode.</param>
@@ -390,21 +389,6 @@ namespace Sage100AddressBook.ViewModels
         {
             get { return _index; }
             set { Set(ref _index, value); }
-        }
-
-        /// <summary>
-        /// True if loading, otherwise false.
-        /// </summary>
-        public bool Loading
-        {
-            get { return (_loading > 0); }
-            set
-            {
-                _loading += (value ? 1 : (-1));
-                _loading = Math.Max(0, _loading);
-                 
-                base.RaisePropertyChanged();
-            }
         }
 
         #endregion
