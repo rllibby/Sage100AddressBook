@@ -4,11 +4,8 @@
 
 using Newtonsoft.Json;
 using Sage100AddressBook.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.Web.Http;
-using Windows.Web.Http.Headers;
 
 namespace Sage100AddressBook.Services.CustomerSearchServices
 {
@@ -19,7 +16,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
     {
         #region Private constants
 
-        private const string CompanyCode = "ABC"; 
+        private const string CompanyCode = "abc"; 
 
         #endregion
 

@@ -39,13 +39,20 @@ namespace Sage100AddressBook.Services
             {
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                using (var response = await client.GetAsync(new Uri((_baseAddress + address).ToLower())))
+#if DEBUG
+                client.Timeout = TimeSpan.FromSeconds(5);
+#endif
+                try
                 {
-                    if ((response != null) && (response.IsSuccessStatusCode == true))
+                    using (var response = await client.GetAsync(new Uri(_baseAddress + address)))
                     {
-                        return await response.Content.ReadAsStringAsync();
+                        if ((response != null) && (response.IsSuccessStatusCode == true))
+                        {
+                            return await response.Content.ReadAsStringAsync();
+                        }
                     }
                 }
+                catch { }
             }
 #endif
             return await Task.FromResult<string>(null);

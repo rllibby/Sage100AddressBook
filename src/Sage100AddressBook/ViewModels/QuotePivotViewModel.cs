@@ -76,7 +76,7 @@ namespace Sage100AddressBook.ViewModels
         public void SetArguments(string id, string companyCode)
         {
             _rootId = id;
-            _companyCode = companyCode;
+            _companyCode = companyCode.ToLower();
         }
 
         /// <summary>
