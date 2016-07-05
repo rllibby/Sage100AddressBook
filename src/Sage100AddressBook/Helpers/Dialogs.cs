@@ -145,6 +145,47 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection list dialog.
         /// </summary>
+        /// <param name="rootId">The base level folder name<param>
+        /// <returns>The index of the selected item.</returns>
+        public static async Task<int> CreateQuickQuote(string rootId)
+        {
+            if (string.IsNullOrEmpty(rootId)) return (-1);
+
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
+            };
+
+            var control = new QuickQuote(dialog, rootId)
+            {
+                DisplayText = "New Quick Quote",
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
+            dialog.Content = control;
+
+            var result = (-1);
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = false;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.SecondaryButtonClick += delegate { result = (-1); };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Show a selection list dialog.
+        /// </summary>
         /// <param name="operation">The operation to perform, this controls the text.</param>
         /// <param name="items">The collection of items to show in list.</param>
         /// <param name="rootId">The base level folder name<param>

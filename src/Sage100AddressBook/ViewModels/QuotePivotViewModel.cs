@@ -31,6 +31,7 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
+        private DelegateCommand _quickQuote;
         private OrderSummary _current;
         private string _companyCode;
         private string _rootId;
@@ -50,6 +51,15 @@ namespace Sage100AddressBook.ViewModels
             return ((entry != null) || (_current != null));
         }
 
+        /// <summary>
+        /// Performs the quick quote action.
+        /// </summary>
+        private async void QuickQuoteAction()
+        {
+            await Dialogs.CreateQuickQuote("abc");
+        }
+        
+
         #endregion
 
         #region Constructor
@@ -62,6 +72,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
 
         #endregion
@@ -141,6 +152,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
         }
 
@@ -180,6 +192,22 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderSummary> Quotes
         {
             get { return _quotes; }
+        }
+
+        /// <summary>
+        /// The action for the quick quote.
+        /// </summary>
+        public DelegateCommand QuickQuote
+        {
+            get { return _quickQuote; }
+        }
+
+        /// <summary>
+        /// Determines if the quote commands are available.
+        /// </summary>
+        public bool QuoteCommandsVisible
+        {
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>

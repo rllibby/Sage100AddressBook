@@ -392,6 +392,7 @@
                           Label="Close Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         </controls:PageHeader>
+
         <Pivot x:Name="CustomerPivot"
                Grid.Row="1"
                RelativePanel.AlignBottomWithPanel="True"
@@ -680,6 +681,10 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
+                          Icon="Add"
+                          Label="Quick Quote"
+                          Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
                           Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
                           Label="Favorite"
