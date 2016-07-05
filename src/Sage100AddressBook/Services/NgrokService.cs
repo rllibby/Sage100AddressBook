@@ -48,16 +48,14 @@ namespace Sage100AddressBook.Services
         {
             if (address == null) throw new ArgumentNullException("address");
 
+#if (NGROK)
             await LoadBaseAddress();
 
-            var uri = new Uri(_baseAddress + address);
-
-#if (NGROK)
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
 
-                using (var response = await client.GetAsync(uri))
+                using (var response = await client.GetAsync(new Uri(_baseAddress + address)))
                 {
                     if ((response != null) && (response.IsSuccessStatusCode == true))
                     {

@@ -3,9 +3,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -14,7 +16,45 @@ namespace Sage100AddressBook.ViewModels
     /// </summary>
     public class SettingsPageViewModel : ViewModelBase
     {
+        #region Private fields
+
+        private int _pivotIndex;
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Called when the page is being naviagted to.
+        /// </summary>
+        /// <param name="parameter">The parameter passed during navigation.</param>
+        /// <param name="mode">The navigation mode.</param>
+        /// <param name="suspensionState">The saved state.</param>
+        /// <returns>The async task to wait on.</returns>
+        public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
+        {
+            try
+            {
+                PivotIndex = (parameter == null) ? 0 : Convert.ToInt32(parameter);
+            }
+            finally
+            {
+                await Task.CompletedTask;
+            }
+        }
+
+        #endregion
+
         #region Public properties
+
+        /// <summary>
+        /// The current pivot index.
+        /// </summary>
+        public int PivotIndex
+        {
+            get { return _pivotIndex; }
+            set { Set(ref _pivotIndex, value); }
+        }
 
         /// <summary>
         /// Settings pivot view model.

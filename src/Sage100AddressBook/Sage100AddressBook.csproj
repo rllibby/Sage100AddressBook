@@ -152,6 +152,8 @@
     <Compile Include="ViewModels\DocumentPivotViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\DocumentsPageViewModel.cs" />
+    <Compile Include="ViewModels\OrderPivotModel.cs" />
+    <Compile Include="ViewModels\QuotePivotViewModel.cs" />
     <Compile Include="ViewModels\RecentPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultsPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />

@@ -7,7 +7,6 @@ using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.UI.Xaml;
 
 namespace Sage100AddressBook.Services.Sage100Services
 {
@@ -107,7 +106,38 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
-            return new List<OrderSummary>();
+            var result = new List<OrderSummary>();
+
+            result.Add(new OrderSummary
+            {
+                SalesOrderNo = "0000313",
+                OrderType = "Quote",
+                OrderStatus = "",
+                ShipExpireDate = DateTime.Parse("07/08/2106"),
+                BillToName = "American Business Futures",
+                TaxableAmt = 179.00,
+                NonTaxableAmt = 0,
+                SalesTaxAmt = 14.32,
+                DiscountAmt = 0,
+                Total = 193.32
+            });
+
+            result.Add(new OrderSummary
+            {
+                SalesOrderNo = "0000314",
+                OrderType = "Quote",
+                OrderStatus = "",
+                ShipExpireDate = DateTime.Parse("07/20/2106"),
+                BillToName = "Avnet Coporation",
+                TaxableAmt = 245.00,
+                NonTaxableAmt = 100,
+                SalesTaxAmt = 8.21,
+                DiscountAmt = 45.50,
+                Total = 207.71
+            });
+
+
+            return result;
         }
 
         /// <summary>
@@ -125,7 +155,23 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
-            return new List<OrderSummary>();
+            var result = new List<OrderSummary>();
+
+            result.Add(new OrderSummary
+            {
+                SalesOrderNo = "0000313",
+                OrderType = "Standard Order",
+                OrderStatus = "Shipped",
+                ShipExpireDate = DateTime.Parse("07/03/2106"),
+                BillToName = "Avnet Processing Corp",
+                TaxableAmt = 179.00,
+                NonTaxableAmt = 0,
+                SalesTaxAmt = 14.32,
+                DiscountAmt = 0,
+                Total = 193.32,
+            });
+
+            return result;
         }
 
         #endregion

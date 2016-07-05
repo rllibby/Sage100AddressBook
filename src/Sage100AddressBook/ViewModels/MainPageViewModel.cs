@@ -176,11 +176,15 @@ namespace Sage100AddressBook.ViewModels
             }
         }
 
+        /// <summary>
+        /// Navigate to the settings page, pivot index 0.
+        /// </summary>
         public void GotoSettings() => NavigationService.Navigate(typeof(Views.SettingsPage), 0, new SuppressNavigationTransitionInfo());
 
-        public void GotoPrivacy() => NavigationService.Navigate(typeof(Views.SettingsPage), 1, new SuppressNavigationTransitionInfo());
-
-        public void GotoAbout() => NavigationService.Navigate(typeof(Views.SettingsPage), 2, new SuppressNavigationTransitionInfo());
+        /// <summary>
+        /// Navigate to the settings page, pivot index 1.
+        /// </summary>
+        public void GotoAbout() => NavigationService.Navigate(typeof(Views.SettingsPage), 1, new SuppressNavigationTransitionInfo());
 
         #endregion
 

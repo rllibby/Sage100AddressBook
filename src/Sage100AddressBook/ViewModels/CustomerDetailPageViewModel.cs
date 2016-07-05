@@ -36,6 +36,8 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
         private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
+        private QuotePivotViewModel _quoteModel;
+        private OrderPivotViewModel _orderModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
@@ -71,6 +73,11 @@ namespace Sage100AddressBook.ViewModels
         /// <param name="currentCustomer">The current customer.</param>
         private void BuildChartData(Customer currentCustomer)
         {
+            if (currentCustomer == null) return;
+
+            _customerAddress = currentCustomer.GetAddressEntry();
+            _id = currentCustomer.Id;
+
             AgingChartData = new ObservableCollection<PieChartData>();
 
             if (currentCustomer.CurrentBalance != 0)
@@ -153,9 +160,9 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// 
+        /// Creates a windows contact for the given customer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The windows contact.</returns>
         private Contact CreateContactFromCustomer()
         {
             var number = new StringBuilder();
@@ -236,6 +243,8 @@ namespace Sage100AddressBook.ViewModels
         {
             _webService = new CustomerWebService();
             _documentModel = new DocumentPivotViewModel(this);
+            _quoteModel = new QuotePivotViewModel(this);
+            _orderModel = new OrderPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
             _showMap = new DelegateCommand(new Action(ShowMapAction), CanShowMap);
             _contact = new DelegateCommand<FrameworkElement>(new Action<FrameworkElement>(ContactAction), CanShowContact);
@@ -262,16 +271,17 @@ namespace Sage100AddressBook.ViewModels
                 var index = (suspensionState.ContainsKey("Index")) ? suspensionState["Index"]?.ToString() : "0";
 
                 Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
-                CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
 
-                _id = CurrentCustomer.Id;
                 _documentModel.SetPivotIndex(Index);
                 _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _customerAddress = CurrentCustomer.GetAddressEntry();
+                _quoteModel.SetPivotIndex(Index);
+                _quoteModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _orderModel.SetPivotIndex(Index);
+                _orderModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
+                CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);
 
-                _quotes.Set(await _webService.GetQuotesSummaryAsync(navArgs.Id, navArgs.CompanyCode),Dispatcher);
                 _orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
                 _recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
             }
@@ -313,12 +323,31 @@ namespace Sage100AddressBook.ViewModels
             if (pivot != null) _index = pivot.SelectedIndex;
 
             SetPivotIndex(_index);
+
             _documentModel.SetPivotIndex(_index);
+            _quoteModel.SetPivotIndex(_index);
+            _orderModel.SetPivotIndex(_index);
         }
 
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// The model handling the quotes pivot page.
+        /// </summary>
+        public QuotePivotViewModel QuoteModel
+        {
+            get { return _quoteModel; }
+        }
+
+        /// <summary>
+        /// The model handling the quotes pivot page.
+        /// </summary>
+        public OrderPivotViewModel OrderModel
+        {
+            get { return _orderModel; }
+        }
 
         /// <summary>
         /// The model handling the document pivot page.

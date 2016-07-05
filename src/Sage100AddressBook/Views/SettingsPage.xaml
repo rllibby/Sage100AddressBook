@@ -58,6 +58,7 @@
         <!--  content  -->
         <Pivot x:Name="MyPivot"
                Grid.Row="1"
+               SelectedIndex="{x:Bind ViewModel.PivotIndex, Mode=TwoWay}"
                RelativePanel.AlignBottomWithPanel="True"
                RelativePanel.AlignLeftWithPanel="True"
                RelativePanel.AlignRightWithPanel="True"

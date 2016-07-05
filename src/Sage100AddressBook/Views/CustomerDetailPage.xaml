@@ -20,10 +20,262 @@
     </Page.DataContext>
 
     <Page.Resources>
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+
+        <CollectionViewSource x:Name="CvsQuotes"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind ViewModel.QuoteModel.Quotes, Mode=OneWay}" />
+
+        <CollectionViewSource x:Name="CvsOrders"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind ViewModel.OrderModel.Orders, Mode=OneWay}" />
+
         <CollectionViewSource x:Name="CvsDocuments"
                               IsSourceGrouped="True"
                               ItemsPath="DocumentEntries"
                               Source="{x:Bind ViewModel.DocumentModel.DocumentGroups, Mode=OneWay}" />
+
+        <!--  Data template for the quote item type  -->
+        <DataTemplate x:Key="QuoteTemplate" x:DataType="models:OrderSummary">
+            <Grid x:Name="quoteItem"
+                  MinWidth="400"
+                  MinHeight="220"
+                  Padding="10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind BillToName}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{StaticResource CustomColorBrush}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind SalesOrderNo}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Non Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Sales Tax Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Discount Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Total:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="1"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Right"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
+
+        <!--  Data template for the quote item type  -->
+        <DataTemplate x:Key="OrderTemplate" x:DataType="models:OrderSummary">
+            <Grid x:Name="orderItem"
+                  MinWidth="400"
+                  MinHeight="220"
+                  Padding="10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind BillToName}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{StaticResource CustomColorBrush}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind SalesOrderNo}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Non Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Sales Tax Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Discount Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Total:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="1"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Right"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
+
+        <!--  Data template for the document item type  -->
         <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
             <StackPanel x:Name="docItem"
                         MinWidth="400"
@@ -76,13 +328,14 @@
                                TextTrimming="CharacterEllipsis" />
                 </Grid>
             </StackPanel>
-            <!--</Grid>-->
         </DataTemplate>
+
         <DataTemplate x:Key="DocumentGroupHeaderTemplate" x:DataType="models:DocumentGroup">
             <TextBlock Foreground="{StaticResource CustomColorBrush}"
                        Style="{StaticResource TitleTextBlockStyle}"
                        Text="{x:Bind GroupName, Mode=OneWay}" />
         </DataTemplate>
+
         <Style x:Key="DocumentGridViewHeaderItem" TargetType="GridViewHeaderItem">
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
             <Setter Property="FontSize" Value="{ThemeResource GridViewHeaderItemThemeFontSize}" />
@@ -107,7 +360,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -354,8 +607,64 @@
                 </Grid>
             </PivotItem>
 
-            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes" />
-            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Orders" />
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="QuotesGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource QuoteTemplate}"
+                              ItemsSource="{x:Bind CvsQuotes.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.QuoteModel.QuoteSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No quotes to display"
+                               Visibility="{x:Bind ViewModel.QuoteModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>
+            </PivotItem>
+
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Orders">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="OrdersGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource OrderTemplate}"
+                              ItemsSource="{x:Bind CvsOrders.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.OrderModel.OrderSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No orders to display"
+                               Visibility="{x:Bind ViewModel.OrderModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>                
+            </PivotItem>
+            
             <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items" />
         </Pivot>
 
