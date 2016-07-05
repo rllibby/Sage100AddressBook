@@ -2,22 +2,22 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Controls;
 
 namespace Sage100AddressBook.Views
 {
     /// <summary>
-    /// Code behind for the Settings page.
+    /// Code behind for the Documents page.
     /// </summary>
-    public sealed partial class SettingsPage : Page
+    public sealed partial class DocumentsPage : Page
     {
         #region Constructor
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SettingsPage()
+        public DocumentsPage()
         {
             InitializeComponent();
             NavigationCacheMode = NavigationCacheMode.Disabled;
@@ -26,3 +26,4 @@ namespace Sage100AddressBook.Views
         #endregion
     }
 }
+

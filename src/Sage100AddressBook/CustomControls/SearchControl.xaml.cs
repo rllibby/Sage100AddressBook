@@ -59,6 +59,7 @@ namespace Sage100AddressBook.CustomControls
 
         private EventHandler<SearchEventArgs> _onSearch;
         private string _searchText;
+        private string _placeholderText;
         private bool _autoDismiss;
         private bool _active;
         private bool _showing;
@@ -167,7 +168,7 @@ namespace Sage100AddressBook.CustomControls
             try
             {
                 SearchBox.Text = string.Empty;
-                SearchBox.PlaceholderText = (placeholderText == null) ? "Search for..." : placeholderText;
+                SearchBox.PlaceholderText = _placeholderText = (placeholderText == null) ? "Search for..." : placeholderText;
                 Visibility = Visibility.Visible;
                 Focus(FocusState.Programmatic);
             }
@@ -177,6 +178,15 @@ namespace Sage100AddressBook.CustomControls
             }
         }
         
+        /// <summary>
+        /// Resets the search box field.
+        /// </summary>
+        public void Reset()
+        {
+            SearchBox.Text = string.Empty;
+            SearchBox.PlaceholderText = _placeholderText;
+        }
+
         /// <summary>
         /// Close the search window.
         /// </summary>

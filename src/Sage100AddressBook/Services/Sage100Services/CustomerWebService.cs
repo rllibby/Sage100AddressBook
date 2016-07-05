@@ -1,177 +1,191 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using Newtonsoft.Json;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Xaml;
-using Windows.Web.Http;
-using Windows.Web.Http.Headers;
 
 namespace Sage100AddressBook.Services.Sage100Services
 {
+    /// <summary>
+    /// Class for obtaining the customer via a webapi call.
+    /// </summary>
     public class CustomerWebService
     {
-        public static CustomerWebService Instance { get; } = new CustomerWebService();
+        #region Private fields
 
-        private string baseUrl = Application.Current.Resources["ngrok"].ToString();
+        private static CustomerWebService _instance = new CustomerWebService();
 
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Gets the specified customer.
+        /// </summary>
+        /// <param name="custId">The customer id.</param>
+        /// <param name="companyCode">The company code for the customer.</param>
+        /// <returns>The customer on success, null if not found.</returns>
         public async Task<Customer> GetCustomerAsync(string custId, string companyCode)
         {
+            if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            Customer retVal = null;
-            if (custId != null)
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId);
+
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Customer>(content);
+
+            var result = new Customer
             {
+                CustomerId = "02-AUTOCR",
+                CustomerName = "Autocraft Accessories",
+                AddressLine1 = "310 Fernando Street",
+                AddressLine2 = "",
+                AddressLine3 = "",
+                City = "Newport Beach",
+                State = "CA",
+                ZipCode = "92661-0002",
+                TelephoneNo = "(949) 555-1212",
+                EmailAddress = "joe-bloggs@gmail.com",
+                DateEstablished = new DateTimeOffset(2019, 01, 01, 0, 0, 0, new TimeSpan()),
+                CaptionCurrrent = "Current",
+                CurrentBalance = 12940.31,
+                CaptionAging1 = "Over 30 Days",
+                AgingCategory1 = 4657,
+                CaptionAging2 = "Over 60 Days",
+                AgingCategory2 = 6406.53,
+                CaptionAging3 = "Over 90 Days",
+                AgingCategory3 = 4607.18,
+                CaptionAging4 = "Over 120 Days",
+                AgingCategory4 = 980.34,
+                DateLastPayment = new DateTimeOffset(2020, 05, 17, 0, 0, 0, new TimeSpan()),
+                DateLastStatemtent = null,
+                CreditLimit = 25000,
+                OpenOrderAmt = 1908,
+                AmountDue = 23954.02,
+                CreditRemaining = -862.0200000000004,
+                Id = "303141564E4554"
+            };
 
-                HttpResponseMessage response = null;
-
-                using (var sageWeb = new HttpClient())
-                {
-                    //to-do put base url in a config file
-                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId);
-
-                    //client.DefaultRequestHeaders
-                    //  .Accept
-                    //  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-#if (NGROK)
-                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                    response = await sageWeb.GetAsync(requestURI);
-#endif
-                }
-
-                //Customer obj = JsonConvert.DeserializeObject<Customer>(response.Content.ReadAsStringAsync
-
-                if ((response != null) && (response.IsSuccessStatusCode == true))
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    retVal = JsonConvert.DeserializeObject<Customer>(content);
-                }
-                else
-                {
-                    //fake data when offline
-                    var cust = new Customer()
-                    {
-                        CustomerId = "02-AUTOCR",
-                        CustomerName = "Autocraft Accessories",
-                        AddressLine1 = "310 Fernando Street",
-                        AddressLine2 = "",
-                        AddressLine3 = "",
-                        City = "Newport Beach",
-                        State = "CA",
-                        ZipCode = "92661-0002",
-                        Telephone = "(949) 555-1212",
-                        EmailAddress = "joe-bloggs@gmail.com",
-                        DateEstablished = new DateTimeOffset(2019, 01, 01, 0, 0, 0, new TimeSpan()),
-                        CaptionCurrrent = "Current",
-                        CurrentBalance = 12940.31,
-                        CaptionAging1 = "Over 30 Days",
-                        AgingCategory1 = 4657,
-                        CaptionAging2 = "Over 60 Days",
-                        AgingCategory2 = 6406.53,
-                        CaptionAging3 = "Over 90 Days",
-                        AgingCategory3 = 4607.18,
-                        CaptionAging4 = "Over 120 Days",
-                        AgingCategory4 = 980.34,
-                        DateLastPayment = new DateTimeOffset(2020, 05, 17, 0, 0, 0, new TimeSpan()),
-                        DateLastStatemtent = null,
-                        CreditLimit = 25000,
-                        OpenOrderAmt = 1908,
-                        AmountDue = 23954.02,
-                        CreditRemaining = -862.0200000000004,
-                        Id = "303141564E4554"
-                    };
-                    retVal = cust;
-
-                }
-            }
-            return retVal;
+            return result;
         }
 
+        /// <summary>
+        /// Gets the recently purchased items for the customer.
+        /// </summary>
+        /// <param name="custId">The customer id.</param>
+        /// <param name="companyCode">The company code for the customer.</param>
+        /// <returns>The collection of purchased items on success, null on failure.</returns>
         public async Task<IEnumerable<RecentPurchasedItem>> GetRecentlyPurchasedItemsAsync(string custId, string companyCode)
         {
-            var result = new List<RecentPurchasedItem>();
-            if (custId != null)
-            {
+            if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-                HttpResponseMessage response = null;
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/RecentlyPurchasedItems");
 
-                using (var sageWeb = new HttpClient())
-                {
-                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/RecentlyPurchasedItems");
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<RecentPurchasedItem>>(content);
 
-#if (NGROK)
-                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                    response = await sageWeb.GetAsync(requestURI);
-#endif
-                }
-
-
-                if ((response != null) && (response.IsSuccessStatusCode == true))
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    result = JsonConvert.DeserializeObject<List<RecentPurchasedItem>>(content);
-                }
-            }
-            return result;
+            return new List<RecentPurchasedItem>();
         }
 
+        /// <summary>
+        /// Gets the quote summaries for the customer.
+        /// </summary>
+        /// <param name="custId">The customer id.</param>
+        /// <param name="companyCode">The company code for the customer.</param>
+        /// <returns>The collection of quote summaries on success, null on failure.</returns>
         public async Task<IEnumerable<OrderSummary>> GetQuotesSummaryAsync(string custId, string companyCode)
         {
+            if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/Quotes");
+
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
+
             var result = new List<OrderSummary>();
-            if (custId != null)
+
+            result.Add(new OrderSummary
             {
+                SalesOrderNo = "0000313",
+                OrderType = "Quote",
+                OrderStatus = "",
+                ShipExpireDate = DateTime.Parse("07/08/2106"),
+                BillToName = "American Business Futures",
+                TaxableAmt = 179.00,
+                NonTaxableAmt = 0,
+                SalesTaxAmt = 14.32,
+                DiscountAmt = 0,
+                Total = 193.32
+            });
 
-                HttpResponseMessage response = null;
+            result.Add(new OrderSummary
+            {
+                SalesOrderNo = "0000314",
+                OrderType = "Quote",
+                OrderStatus = "",
+                ShipExpireDate = DateTime.Parse("07/20/2106"),
+                BillToName = "Avnet Coporation",
+                TaxableAmt = 245.00,
+                NonTaxableAmt = 100,
+                SalesTaxAmt = 8.21,
+                DiscountAmt = 45.50,
+                Total = 207.71
+            });
 
-                using (var sageWeb = new HttpClient())
-                {
-                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Quotes");
 
-#if (NGROK)
-                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                    response = await sageWeb.GetAsync(requestURI);
-#endif
-                }
-
-
-                if ((response != null) && (response.IsSuccessStatusCode == true))
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    result = JsonConvert.DeserializeObject<List<OrderSummary>>(content);
-                }
-            }
             return result;
         }
 
+        /// <summary>
+        /// Gets the order summaries for the customer.
+        /// </summary>
+        /// <param name="custId">The customer id.</param>
+        /// <param name="companyCode">The company code for the customer.</param>
+        /// <returns>The collection of order summaries on success, null on failure.</returns>
         public async Task<IEnumerable<OrderSummary>> GetOrdersSummaryAsync(string custId, string companyCode)
         {
+            if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/Orders");
+
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
+
             var result = new List<OrderSummary>();
-            if (custId != null)
+
+            result.Add(new OrderSummary
             {
+                SalesOrderNo = "0000313",
+                OrderType = "Standard Order",
+                OrderStatus = "Shipped",
+                ShipExpireDate = DateTime.Parse("07/03/2106"),
+                BillToName = "Avnet Processing Corp",
+                TaxableAmt = 179.00,
+                NonTaxableAmt = 0,
+                SalesTaxAmt = 14.32,
+                DiscountAmt = 0,
+                Total = 193.32,
+            });
 
-                HttpResponseMessage response = null;
-
-                using (var sageWeb = new HttpClient())
-                {
-                    var requestURI = new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Orders");
-
-#if (NGROK)
-                    sageWeb.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-                    response = await sageWeb.GetAsync(requestURI);
-#endif
-                }
-
-
-                if ((response != null) && (response.IsSuccessStatusCode == true))
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    result = JsonConvert.DeserializeObject<List<OrderSummary>>(content);
-                }
-            }
             return result;
         }
 
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// The static instance to this service.
+        /// </summary>
+        public static CustomerWebService Instance
+        {
+            get { return _instance; }
+        }
+
+        #endregion
     }
 }

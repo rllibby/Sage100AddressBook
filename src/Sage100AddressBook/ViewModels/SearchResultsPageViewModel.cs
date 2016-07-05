@@ -42,51 +42,23 @@ namespace Sage100AddressBook.ViewModels
         #region Private methods
 
         /// <summary>
-        /// Gets the navigation event arguments.
-        /// </summary>
-        /// <param name="entry">The address entry.</param>
-        /// <param name="removePage">True if the receiver should remove this page from the back stack.</param>
-        /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry, bool removePage)
-        {
-            if (entry == null) throw new ArgumentNullException("entry");
-
-            return new NavigationArgs()
-            {
-                Id = (string.IsNullOrEmpty(entry.ParentId) ? entry.Id : entry.ParentId),
-                CompanyCode = "ABC",
-                RemovePage = removePage ? typeof(SearchResultsPage) : null
-            };
-        }
-
-        /// <summary>
         /// Executes the search on a background thread.
         /// </summary>
         /// <param name="searchText">The text to search for.</param>
-        private async void LoadSearchResults(string searchText)
+        private void LoadSearchResults(string searchText)
         {
             var dispatcher = Window.Current.Dispatcher;
-            var baseUri = string.Empty;
 
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-            {
-                Loading = true;
-#if NGROK
-                baseUri = Application.Current.Resources["ngrok"].ToString();
-#endif            
-            });
+            dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = true; });
 
             Task.Run(async () =>
             {
                 _addresses.Clear();
 
-                var found = await _searchService.ExecuteSearchAsync(baseUri, searchText);
-
-                _addresses.AddRange(found);
-
+                return await _searchService.ExecuteSearchAsync(searchText);
             }).ContinueWith(async (t) =>
             {
-                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     try
                     {
@@ -94,7 +66,10 @@ namespace Sage100AddressBook.ViewModels
                         {
                             if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", searchText), t.Exception, false);
                         }
-                        if (t.IsCompleted) BuildAddressGroups();
+
+                        if (t.IsCompleted) _addresses.AddRange(t.Result);
+
+                        BuildAddressGroups();
                     }
                     finally
                     {
@@ -203,7 +178,7 @@ namespace Sage100AddressBook.ViewModels
 
             RecentAddress.Instance.AddRecent(_currentAddress);
 
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress, false), new SuppressNavigationTransitionInfo());
+            NavigationService.Navigate(typeof(CustomerDetailPage), AddressEntry.GetNavArgs(_currentAddress), new SuppressNavigationTransitionInfo());
         }
 
         #endregion

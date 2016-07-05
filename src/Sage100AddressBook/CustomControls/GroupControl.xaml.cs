@@ -21,6 +21,7 @@ namespace Sage100AddressBook.CustomControls
     {
         #region Private fields
 
+        private ObservableCollectionEx<DocumentFolder> _context = new ObservableCollectionEx<DocumentFolder>();
         private ICollection<DocumentFolder> _source;
         private ContentDialog _dialog;
         private string _rootId;
@@ -78,7 +79,11 @@ namespace Sage100AddressBook.CustomControls
 
                     if (folder != null)
                     {
-                        _source.Add(new DocumentFolder(folder.Id, folder.Name));
+                        var newFolder = new DocumentFolder(folder.Id, folder.Name);
+
+                        _source.Add(newFolder);
+                        _context.Add(newFolder);
+                        Items.SelectedIndex = Items.Items.Count - 1;
                     }
                 }
                 catch (ServiceException exception)
@@ -155,12 +160,14 @@ namespace Sage100AddressBook.CustomControls
             if (source == null) throw new ArgumentNullException("source");
             if (string.IsNullOrEmpty(rootId)) throw new ArgumentException("rootId");
 
-            Items.ItemsSource = source;
+            Items.ItemsSource = _context;
             Add.IsEnabled = false;
 
             _dialog = dialog;
-            _source = source;
             _rootId = rootId;
+            _source = source;
+
+            _context.Set(source);
         }
 
         #endregion

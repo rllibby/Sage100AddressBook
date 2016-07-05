@@ -1,3 +1,7 @@
+/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using System;
 using Template10.Common;
 using Template10.Utils;
@@ -5,15 +9,35 @@ using Windows.UI.Xaml;
 
 namespace Sage100AddressBook.Services.SettingsServices
 {
+    /// <summary>
+    /// Settings service.
+    /// </summary>
     public class SettingsService
     {
-        public static SettingsService Instance { get; } = new SettingsService();
+        #region Private fields
+
         Template10.Services.SettingsService.ISettingsHelper _helper;
+        private static SettingsService _instance = new SettingsService();
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         private SettingsService()
         {
             _helper = new Template10.Services.SettingsService.SettingsHelper();
         }
 
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Determines if the shell back button is shown.
+        /// </summary>
         public bool UseShellBackButton
         {
             get { return _helper.Read<bool>(nameof(UseShellBackButton), true); }
@@ -29,6 +53,9 @@ namespace Sage100AddressBook.Services.SettingsServices
             }
         }
 
+        /// <summary>
+        /// The application theme.
+        /// </summary>
         public ApplicationTheme AppTheme
         {
             get
@@ -45,6 +72,9 @@ namespace Sage100AddressBook.Services.SettingsServices
             }
         }
 
+        /// <summary>
+        /// The max duration to holde cached pages.
+        /// </summary>
         public TimeSpan CacheMaxDuration
         {
             get { return _helper.Read<TimeSpan>(nameof(CacheMaxDuration), TimeSpan.FromDays(2)); }
@@ -54,6 +84,16 @@ namespace Sage100AddressBook.Services.SettingsServices
                 BootStrapper.Current.CacheMaxDuration = value;
             }
         }
+
+        /// <summary>
+        /// The singleton instance of the settings service.
+        /// </summary>
+        public static SettingsService Instance
+        {
+            get { return _instance; }
+        }
+
+        #endregion
     }
 }
 

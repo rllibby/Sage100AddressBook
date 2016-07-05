@@ -13,10 +13,16 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
 using Sage100AddressBook.Helpers;
 using Windows.System;
+using System.Text;
+using Windows.ApplicationModel.Contacts;
+using Windows.UI.Xaml;
+using Windows.Foundation;
+using Windows.UI.Popups;
+using Windows.UI.ViewManagement;
 
 namespace Sage100AddressBook.ViewModels
 {
-    public class CustomerDetailPageViewModel : ViewModelBase
+    public class CustomerDetailPageViewModel : ViewModelLoading
     {
         #region Private constants
 
@@ -30,14 +36,16 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
         private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
+        private QuotePivotViewModel _quoteModel;
+        private OrderPivotViewModel _orderModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
         private DelegateCommand _showMap;
+        private DelegateCommand<FrameworkElement> _contact;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
         private int _index;
-        private int _loading;
 
         #endregion
 
@@ -65,6 +73,11 @@ namespace Sage100AddressBook.ViewModels
         /// <param name="currentCustomer">The current customer.</param>
         private void BuildChartData(Customer currentCustomer)
         {
+            if (currentCustomer == null) return;
+
+            _customerAddress = currentCustomer.GetAddressEntry();
+            _id = currentCustomer.Id;
+
             AgingChartData = new ObservableCollection<PieChartData>();
 
             if (currentCustomer.CurrentBalance != 0)
@@ -90,27 +103,45 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Shows the customer address mapped in the map application.
+        /// Gets the address in a format suitable for a map query.
         /// </summary>
-        private async void ShowMapAction()
+        /// <returns>The map address.</returns>
+        private string GetAddressQuery()
         {
             var query = string.Empty;
+
+            if (_currentCustomer == null) return null;
 
             if (!string.IsNullOrEmpty(_currentCustomer.AddressLine1)) query += _currentCustomer.AddressLine1;
             if (!string.IsNullOrEmpty(_currentCustomer.City)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.City);
             if (!string.IsNullOrEmpty(_currentCustomer.State)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.State);
             if (!string.IsNullOrEmpty(_currentCustomer.ZipCode)) query += string.Format("{0}{1}", string.IsNullOrEmpty(query) ? "" : ", ", _currentCustomer.ZipCode);
 
-            if (string.IsNullOrEmpty(query)) return;
+            return query.Trim();
+        }
 
-            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(query));
+        /// <summary>
+        /// Shows the customer address mapped in the map application.
+        /// </summary>
+        private async void ShowMapAction()
+        {
+            var mapUri = string.Format("bingmaps:?where={0}", Uri.EscapeUriString(GetAddressQuery()));
             var launcherOptions = new LauncherOptions();
 
             launcherOptions.TargetApplicationPackageFamilyName = "Microsoft.WindowsMaps_8wekyb3d8bbwe";
 
             await Launcher.LaunchUriAsync(new Uri(mapUri), launcherOptions);
         }
-             
+
+        /// <summary>
+        /// Determines if the show map should be enabled.
+        /// </summary>
+        /// <returns></returns>
+        private bool CanShowMap()
+        {
+            return (!string.IsNullOrEmpty(GetAddressQuery()));
+        }
+
         /// <summary>
         /// Toggles the favorites for the current customer.
         /// </summary>
@@ -128,6 +159,79 @@ namespace Sage100AddressBook.ViewModels
             }
         }
 
+        /// <summary>
+        /// Creates a windows contact for the given customer.
+        /// </summary>
+        /// <returns>The windows contact.</returns>
+        private Contact CreateContactFromCustomer()
+        {
+            var number = new StringBuilder();
+            var email = _currentCustomer.EmailAddress;
+
+            if (!string.IsNullOrEmpty(_currentCustomer.TelephoneNo))
+            {
+                foreach (var c in _currentCustomer.TelephoneNo)
+                {
+                    if (char.IsNumber(c)) number.Append(c);
+                }
+            }
+
+            var contact = new Contact();
+            var address = new ContactAddress();
+
+            address.Country = "USA";
+            address.Description = "Office";
+            address.Kind = ContactAddressKind.Work;
+            address.Locality = _currentCustomer.City;
+            address.Region = _currentCustomer.State;
+            address.PostalCode = _currentCustomer.ZipCode;
+            address.StreetAddress = _currentCustomer.AddressLine1;
+
+            contact.Addresses.Add(address);
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                contact.Emails.Add(new ContactEmail { Address = email });
+            }
+
+            if (!string.IsNullOrEmpty(number.ToString()))
+            {
+                contact.Phones.Add(new ContactPhone { Number = number.ToString() });
+            }
+
+            return contact;
+        }
+
+        /// <summary>
+        /// Shows the contact card for the customer.
+        /// </summary>
+        private void ContactAction(FrameworkElement sender)
+        {
+            if (_currentCustomer == null) return;
+
+            var contact = CreateContactFromCustomer();
+            var transform = sender.TransformToVisual(null);
+            var point = transform.TransformPoint(new Point());
+            var rect = new Rect(point, new Size(sender.ActualWidth, sender.ActualHeight));
+
+            if (Device.IsMobile)
+            {
+                ContactManager.ShowFullContactCard(contact, new FullContactCardOptions { DesiredRemainingView = ViewSizePreference.Default });
+                return;
+            }
+
+            ContactManager.ShowContactCard(contact, rect, Placement.Below);
+        }
+
+        /// <summary>
+        /// Determines if the show contact action is available.
+        /// </summary>
+        /// <returns>True if we have a customer.</returns>
+        private bool CanShowContact(FrameworkElement sender)
+        {
+            return ((_currentCustomer != null) && (!string.IsNullOrEmpty(_currentCustomer.TelephoneNo) || !string.IsNullOrEmpty(_currentCustomer.EmailAddress)));
+        }
+
         #endregion
 
         #region Constructor
@@ -138,10 +242,12 @@ namespace Sage100AddressBook.ViewModels
         public CustomerDetailPageViewModel()
         {
             _webService = new CustomerWebService();
-            _currentCustomer = new Customer();
             _documentModel = new DocumentPivotViewModel(this);
+            _quoteModel = new QuotePivotViewModel(this);
+            _orderModel = new OrderPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
-            _showMap = new DelegateCommand(new Action(ShowMapAction));
+            _showMap = new DelegateCommand(new Action(ShowMapAction), CanShowMap);
+            _contact = new DelegateCommand<FrameworkElement>(new Action<FrameworkElement>(ContactAction), CanShowContact);
         }
 
         #endregion
@@ -149,7 +255,7 @@ namespace Sage100AddressBook.ViewModels
         #region Public methods
 
         /// <summary>
-        /// Called when the page is being naviagted to.
+        /// Called when the page is being navigated to.
         /// </summary>
         /// <param name="parameter">The parameter passed during navigation.</param>
         /// <param name="mode">The navigation mode.</param>
@@ -162,17 +268,20 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 var navArgs = (NavigationArgs)parameter;
+                var index = (suspensionState.ContainsKey("Index")) ? suspensionState["Index"]?.ToString() : "0";
+
+                Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
+
+                _documentModel.SetPivotIndex(Index);
+                _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _quoteModel.SetPivotIndex(Index);
+                _quoteModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _orderModel.SetPivotIndex(Index);
+                _orderModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
-
-                _id = CurrentCustomer.Id;
-                _documentModel.SetPivotIndex(0);
-                _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _customerAddress = CurrentCustomer.GetAddressEntry();
-
                 BuildChartData(CurrentCustomer);
 
-                _quotes.Set(await _webService.GetQuotesSummaryAsync(navArgs.Id, navArgs.CompanyCode),Dispatcher);
                 _orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
                 _recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
             }
@@ -182,6 +291,24 @@ namespace Sage100AddressBook.ViewModels
             }
 
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Called when this view model is navigated from.
+        /// </summary>
+        /// <param name="suspensionState">The dictionary of application state.</param>
+        /// <param name="suspending">True if application is suspending.</param>
+        /// <returns>The async task.</returns>
+        public override async Task OnNavigatedFromAsync(IDictionary<string, object> suspensionState, bool suspending)
+        {
+            try
+            {
+                suspensionState["Index"] = _index;
+            }
+            finally
+            {
+                await Task.CompletedTask;
+            }
         }
 
         /// <summary>
@@ -196,12 +323,31 @@ namespace Sage100AddressBook.ViewModels
             if (pivot != null) _index = pivot.SelectedIndex;
 
             SetPivotIndex(_index);
+
             _documentModel.SetPivotIndex(_index);
+            _quoteModel.SetPivotIndex(_index);
+            _orderModel.SetPivotIndex(_index);
         }
 
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// The model handling the quotes pivot page.
+        /// </summary>
+        public QuotePivotViewModel QuoteModel
+        {
+            get { return _quoteModel; }
+        }
+
+        /// <summary>
+        /// The model handling the quotes pivot page.
+        /// </summary>
+        public OrderPivotViewModel OrderModel
+        {
+            get { return _orderModel; }
+        }
 
         /// <summary>
         /// The model handling the document pivot page.
@@ -258,18 +404,20 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// True if loading, otherwise false.
+        /// Command for showing the contact card.
         /// </summary>
-        public bool Loading
+        public DelegateCommand<FrameworkElement> Contact
         {
-            get { return (_loading > 0); }
-            set
-            {
-                _loading += (value ? 1 : (-1));
-                _loading = Math.Max(0, _loading);
-                 
-                base.RaisePropertyChanged();
-            }
+            get { return _contact; }
+        }
+
+        /// <summary>
+        /// The current pivot index.
+        /// </summary>
+        public int Index
+        {
+            get { return _index; }
+            set { Set(ref _index, value); }
         }
 
         #endregion

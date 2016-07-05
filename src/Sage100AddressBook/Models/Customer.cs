@@ -45,7 +45,7 @@ namespace Sage100AddressBook.Models
                 State = State,
                 ZipCode = ZipCode,
                 Name = CustomerName,
-                Phone = Telephone,
+                Phone = TelephoneNo,
                 EmailAddress = EmailAddress,
                 Type = "Customer"
             };
@@ -100,7 +100,7 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Telephone.
         /// </summary>
-        public string Telephone { get; set; }
+        public string TelephoneNo { get; set; }
 
         /// <summary>
         /// Email address.

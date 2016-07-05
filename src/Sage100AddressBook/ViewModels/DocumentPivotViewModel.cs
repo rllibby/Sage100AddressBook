@@ -49,7 +49,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private List<DocumentEntry> _documents = new List<DocumentEntry>();
         private List<DocumentFolder> _folders = new List<DocumentFolder>();
-        private CustomerDetailPageViewModel _owner;
+        private ViewModelLoading _owner;
         private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
@@ -67,6 +67,7 @@ namespace Sage100AddressBook.ViewModels
         private string _rootId;
         private int _index = (-1);
         private bool _isSearch;
+        private bool _loading;
 
         #endregion
 
@@ -480,7 +481,6 @@ namespace Sage100AddressBook.ViewModels
             });
         }
 
-
         /// <summary>
         /// Moves the document to a new folder.
         /// </summary>
@@ -687,7 +687,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public DocumentPivotViewModel(CustomerDetailPageViewModel owner)
+        public DocumentPivotViewModel(ViewModelLoading owner)
         {
             if (owner == null) throw new ArgumentNullException("owner");
 
@@ -733,9 +733,7 @@ namespace Sage100AddressBook.ViewModels
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
                 Loading = true;
-
                 _documents.Clear();
-
                 BuildDocumentGroups();
             });
 
@@ -968,12 +966,16 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool Loading
         {
-            get { return _owner.Loading; }
+            get { return _loading; }
             set
             {
-                _owner.Loading = value;
+                if (_loading != value)
+                {
+                    _loading = value;
+                    _owner.Loading = value;
 
-                RaisePropertyChanged("Loading");
+                    RaisePropertyChanged("Loading");
+                }
             }
         }
 

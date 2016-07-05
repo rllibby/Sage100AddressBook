@@ -157,8 +157,8 @@
                              Text="Home">
             <controls:PageHeader.SecondaryCommands>
                 <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
-                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
                 <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
+                <AppBarButton Height="1" />
             </controls:PageHeader.SecondaryCommands>
             <AppBarButton Command="{x:Bind ViewModel.Search}"
                           CommandParameter="{x:Bind Find}"

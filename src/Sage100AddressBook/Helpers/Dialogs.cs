@@ -4,10 +4,12 @@
 
 using Sage100AddressBook.CustomControls;
 using Sage100AddressBook.Models;
+using Sage100AddressBook.Services.SettingsServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Template10.Utils;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -87,6 +89,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (string)null;
@@ -122,6 +125,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (-1);
@@ -164,6 +168,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (-1);
@@ -221,6 +226,7 @@ namespace Sage100AddressBook.Helpers
 
             viewer.Content = text;
             dialog.Content = viewer;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             bool result = false;
 
@@ -260,6 +266,7 @@ namespace Sage100AddressBook.Helpers
             };
 
             dialog.Content = control;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             dialog.PrimaryButtonText = Ok;
             dialog.SecondaryButtonText = Cancel;
@@ -293,6 +300,7 @@ namespace Sage100AddressBook.Helpers
             };
 
             dialog.Content = control;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             var result = false;
 
