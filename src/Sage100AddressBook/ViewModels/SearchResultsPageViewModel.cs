@@ -45,30 +45,20 @@ namespace Sage100AddressBook.ViewModels
         /// Executes the search on a background thread.
         /// </summary>
         /// <param name="searchText">The text to search for.</param>
-        private async void LoadSearchResults(string searchText)
+        private void LoadSearchResults(string searchText)
         {
             var dispatcher = Window.Current.Dispatcher;
-            var baseUri = string.Empty;
 
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-            {
-                Loading = true;
-#if NGROK
-                baseUri = Application.Current.Resources["ngrok"].ToString();
-#endif            
-            });
+            dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = true; });
 
             Task.Run(async () =>
             {
                 _addresses.Clear();
 
-                var found = await _searchService.ExecuteSearchAsync(baseUri, searchText);
-
-                _addresses.AddRange(found);
-
+                return await _searchService.ExecuteSearchAsync(searchText);
             }).ContinueWith(async (t) =>
             {
-                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     try
                     {
@@ -76,7 +66,10 @@ namespace Sage100AddressBook.ViewModels
                         {
                             if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", searchText), t.Exception, false);
                         }
-                        if (t.IsCompleted) BuildAddressGroups();
+
+                        if (t.IsCompleted) _addresses.AddRange(t.Result);
+
+                        BuildAddressGroups();
                     }
                     finally
                     {

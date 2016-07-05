@@ -48,7 +48,7 @@ namespace Sage100AddressBook.Services.Sage100Services
                 City = "Newport Beach",
                 State = "CA",
                 ZipCode = "92661-0002",
-                Telephone = "(949) 555-1212",
+                TelephoneNo = "(949) 555-1212",
                 EmailAddress = "joe-bloggs@gmail.com",
                 DateEstablished = new DateTimeOffset(2019, 01, 01, 0, 0, 0, new TimeSpan()),
                 CaptionCurrrent = "Current",

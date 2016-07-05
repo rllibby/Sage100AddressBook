@@ -37,7 +37,7 @@ namespace Sage100AddressBook.Services.CustomerSearchServices
         /// <param name="baseUri">The base URI where NGROK is hosted.</param>
         /// <param name="searchString">The search string.</param>
         /// <returns>The collection of addresses.</returns>
-        public async Task<IEnumerable<AddressEntry>> ExecuteSearchAsync(string baseUri, string searchString)
+        public async Task<IEnumerable<AddressEntry>> ExecuteSearchAsync(string searchString)
         {
             if (searchString == null) return new List<AddressEntry>();
 

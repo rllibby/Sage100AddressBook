@@ -168,9 +168,9 @@ namespace Sage100AddressBook.ViewModels
             var number = new StringBuilder();
             var email = _currentCustomer.EmailAddress;
 
-            if (!string.IsNullOrEmpty(_currentCustomer.Telephone))
+            if (!string.IsNullOrEmpty(_currentCustomer.TelephoneNo))
             {
-                foreach (var c in _currentCustomer.Telephone)
+                foreach (var c in _currentCustomer.TelephoneNo)
                 {
                     if (char.IsNumber(c)) number.Append(c);
                 }
@@ -229,7 +229,7 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>True if we have a customer.</returns>
         private bool CanShowContact(FrameworkElement sender)
         {
-            return ((_currentCustomer != null) && (!string.IsNullOrEmpty(_currentCustomer.Telephone) || !string.IsNullOrEmpty(_currentCustomer.EmailAddress)));
+            return ((_currentCustomer != null) && (!string.IsNullOrEmpty(_currentCustomer.TelephoneNo) || !string.IsNullOrEmpty(_currentCustomer.EmailAddress)));
         }
 
         #endregion

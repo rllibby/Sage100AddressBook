@@ -3,9 +3,12 @@
  */
 
 using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.Web.Http.Headers;
 
 namespace Sage100AddressBook.Services
 {
@@ -16,24 +19,7 @@ namespace Sage100AddressBook.Services
     {
         #region Private fields
 
-        private static string _baseAddress;
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        /// Loads the base address from the application resources.
-        /// </summary>
-        private static async Task LoadBaseAddress()
-        {
-            if (!string.IsNullOrEmpty(_baseAddress)) return;
-
-            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                _baseAddress = Application.Current.Resources["ngrok"].ToString();
-            });
-        }
+        private static string _baseAddress = "https://sage100poc.ngrok.io/api/";
 
         #endregion
 
@@ -49,13 +35,11 @@ namespace Sage100AddressBook.Services
             if (address == null) throw new ArgumentNullException("address");
 
 #if (NGROK)
-            await LoadBaseAddress();
-
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                using (var response = await client.GetAsync(new Uri(_baseAddress + address)))
+                using (var response = await client.GetAsync(new Uri((_baseAddress + address).ToLower())))
                 {
                     if ((response != null) && (response.IsSuccessStatusCode == true))
                     {

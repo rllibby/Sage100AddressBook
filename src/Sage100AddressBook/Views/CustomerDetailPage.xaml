@@ -459,9 +459,9 @@
                                 <TextBlock Margin="0,10,0,0"
                                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.CurrentCustomer.Telephone}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.TelephoneNo}"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ViewModel.CurrentCustomer.Telephone, Converter={StaticResource StringToVisibility}}" />
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.TelephoneNo, Converter={StaticResource StringToVisibility}}" />
                                 <TextBlock Margin="0,4,0,0"
                                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
@@ -662,9 +662,9 @@
                                Style="{StaticResource SubtitleTextBlockStyle}"
                                Text="No orders to display"
                                Visibility="{x:Bind ViewModel.OrderModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                </Grid>                
+                </Grid>
             </PivotItem>
-            
+
             <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items" />
         </Pivot>
 
