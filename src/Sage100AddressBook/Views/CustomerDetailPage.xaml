@@ -120,52 +120,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                <VisualState x:Name="VisualStateNarrow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.Width" Value="Auto" />
-                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateNormal">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.Width" Value="Auto" />
-                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateWide">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(Margin)" Value="10,0,10,0" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="True" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
@@ -456,5 +410,50 @@
             </CommandBar.SecondaryCommands>
         </CommandBar>
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="10,0,10,0" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

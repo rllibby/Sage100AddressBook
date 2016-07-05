@@ -26,9 +26,9 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
 
         private readonly static string[] SubFolders = { "Statements", "SalesHistory", "Quotes", "PriceList" };
         private readonly static string[] DocumentSubFolders = { "General", "Receipts", "BusinessCards" };
-        private const string Documents = "Documents";
         private const string MetadataExtension = ".json.txt";
-
+        private const string Documents = "Documents";
+        
         #endregion
 
         #region Private fields

@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
-using Windows.Web.Http;
-using Windows.Web.Http.Headers;
 
 namespace Sage100AddressBook.Services.Sage100Services
 {
@@ -21,37 +19,6 @@ namespace Sage100AddressBook.Services.Sage100Services
         #region Private fields
 
         private static CustomerWebService _instance = new CustomerWebService();
-        private string baseUrl = Application.Current.Resources["ngrok"].ToString();
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        /// Gets the content at the specified address.
-        /// </summary>
-        /// <param name="address">The webapi address for the request.</param>
-        /// <returns>The content on success, null on failure.</returns>
-        private async Task<string> GetAsync(Uri address)
-        {
-            if (address == null) throw new ArgumentNullException("address");
-
-#if (NGROK)
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Add(new HttpMediaTypeWithQualityHeaderValue("application/json"));
-
-                using (var response = await client.GetAsync(address))
-                {
-                    if ((response != null) && (response.IsSuccessStatusCode == true))
-                    {
-                        return await response.Content.ReadAsStringAsync();
-                    }
-                }
-            }
-#endif
-            return null;
-        }
 
         #endregion
 
@@ -68,7 +35,7 @@ namespace Sage100AddressBook.Services.Sage100Services
             if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            var content = await GetAsync(new Uri(baseUrl + companyCode + "/Customers/" + custId));
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId);
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Customer>(content);
 
@@ -118,7 +85,7 @@ namespace Sage100AddressBook.Services.Sage100Services
             if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            var content = await GetAsync(new Uri(baseUrl + companyCode + "/Customers/" + custId + "/RecentlyPurchasedItems"));
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/RecentlyPurchasedItems");
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<RecentPurchasedItem>>(content);
 
@@ -136,7 +103,7 @@ namespace Sage100AddressBook.Services.Sage100Services
             if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            var content = await GetAsync(new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Quotes"));
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/Quotes");
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
@@ -154,7 +121,7 @@ namespace Sage100AddressBook.Services.Sage100Services
             if (string.IsNullOrEmpty(custId)) throw new ArgumentNullException("custId");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            var content = await GetAsync(new Uri(baseUrl + companyCode + "/Customers/" + custId + "/Orders"));
+            var content = await NgrokService.GetAsync(companyCode + "/Customers/" + custId + "/Orders");
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
