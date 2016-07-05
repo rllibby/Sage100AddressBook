@@ -9,7 +9,8 @@ namespace Sage100AddressBook.Models
     /// <summary>
     /// POCO class for quote and order summary.
     /// </summary>
-    public class OrderSummary
+    public class OrderSummary : Sage100BaseEntity
+
     {
         #region Public properties
 
