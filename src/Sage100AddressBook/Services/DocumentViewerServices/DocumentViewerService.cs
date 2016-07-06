@@ -110,7 +110,6 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                     var file = await folder.GetFileAsync(fileName);
                     var options = new LauncherOptions()
                     {
-                        DisplayApplicationPicker = true,
                     };
 
                     result = await Launcher.LaunchFileAsync(file, options);

@@ -6,6 +6,7 @@ using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Core;
@@ -31,6 +32,7 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
+        private DelegateCommand _quickQuote;
         private OrderSummary _current;
         private string _companyCode;
         private string _rootId;
@@ -50,6 +52,46 @@ namespace Sage100AddressBook.ViewModels
             return ((entry != null) || (_current != null));
         }
 
+        /// <summary>
+        /// Performs the quick quote action.
+        /// </summary>
+        private async void QuickQuoteAction()
+        {
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                Loading = true;
+
+                try
+                {
+                    var line = await Dialogs.GetQuickQuoteItem(_companyCode, _rootId);
+
+                    if (line == null) return;
+
+                    var quickQuote = new QuickQuote
+                    {
+                        CustomerId = _rootId,
+                        ItemId = line.Id,
+                        Quantity = line.Quantity
+                    };
+
+                    var result = await OrderWebService.Instance.PostQuickQuote(_companyCode, quickQuote);
+
+                    if (result == null) return;
+
+                    var quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
+
+                    foreach (var quote in quotes)
+                    {
+                        if (_quotes.FirstOrDefault(q => q.Id.Equals(quote.Id)) == null) _quotes.Add(quote);
+                    }
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
+        }
+
         #endregion
 
         #region Constructor
@@ -62,6 +104,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
 
         #endregion
@@ -76,7 +119,7 @@ namespace Sage100AddressBook.ViewModels
         public void SetArguments(string id, string companyCode)
         {
             _rootId = id;
-            _companyCode = companyCode;
+            _companyCode = companyCode.ToLower();
         }
 
         /// <summary>
@@ -141,6 +184,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
         }
 
@@ -157,7 +201,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
-                /* Raise notification changes */
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
         }
 
@@ -180,6 +224,22 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderSummary> Quotes
         {
             get { return _quotes; }
+        }
+
+        /// <summary>
+        /// The action for the quick quote.
+        /// </summary>
+        public DelegateCommand QuickQuote
+        {
+            get { return _quickQuote; }
+        }
+
+        /// <summary>
+        /// Determines if the quote commands are available.
+        /// </summary>
+        public bool QuoteCommandsVisible
+        {
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>
