@@ -32,12 +32,13 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
-        private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
+        //private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
+        //private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
+        //private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
         private QuotePivotViewModel _quoteModel;
         private OrderPivotViewModel _orderModel;
+        private RecentPurchasedPivotViewModel _recentPurchasePVModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
@@ -282,8 +283,9 @@ namespace Sage100AddressBook.ViewModels
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);
 
-                _orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
-                _recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
+                //_orders.Set(await _webService.GetOrdersSummaryAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
+                //_recentItems.Set(await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode), Dispatcher);
+                //RecentPurchasedItems = await _webService.GetRecentlyPurchasedItemsAsync(navArgs.Id, navArgs.CompanyCode); /*), Dispatcher);*/
             }
             finally
             {

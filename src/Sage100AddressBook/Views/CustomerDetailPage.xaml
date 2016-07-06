@@ -11,6 +11,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Sage100AddressBook.Models"
       xmlns:telerikChart="using:Telerik.UI.Xaml.Controls.Chart"
+      xmlns:telerikGrid="using:Telerik.UI.Xaml.Controls.Grid"
       xmlns:telerikPrimitives="using:Telerik.UI.Xaml.Controls.Primitives"
       xmlns:viewModels="using:Sage100AddressBook.ViewModels"
       mc:Ignorable="d">
@@ -665,7 +666,13 @@
                 </Grid>
             </PivotItem>
 
-            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items" />
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <telerikGrid:RadDataGrid x:Name="DataGrid" ItemsSource="x:Bind RecentPurchasedPivotViewModel.RecentPurchasedItems" />
+                </Grid>
+            </PivotItem>
         </Pivot>
 
         <ProgressRing Grid.Row="1"
