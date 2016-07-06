@@ -6,6 +6,7 @@ using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Core;
@@ -77,8 +78,12 @@ namespace Sage100AddressBook.ViewModels
 
                     if (result == null) return;
 
+                    var quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
 
-
+                    foreach (var quote in quotes)
+                    {
+                        if (_quotes.FirstOrDefault(q => q.Id.Equals(quote.Id)) == null) _quotes.Add(quote);
+                    }
                 }
                 finally
                 {
@@ -196,7 +201,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
-                /* Raise notification changes */
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
         }
 
