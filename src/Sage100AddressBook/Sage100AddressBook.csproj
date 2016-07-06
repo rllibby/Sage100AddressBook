@@ -113,6 +113,9 @@
     <Compile Include="CustomControls\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\QuickQuote.xaml.cs">
+      <DependentUpon>QuickQuote.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\RenameControl.xaml.cs">
       <DependentUpon>RenameControl.xaml</DependentUpon>
     </Compile>
@@ -262,6 +265,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\QuickQuote.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

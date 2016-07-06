@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Sage100AddressBook.Helpers;
 using System;
 
 namespace Sage100AddressBook.Models
@@ -10,9 +11,26 @@ namespace Sage100AddressBook.Models
     /// POCO class for quote and order summary.
     /// </summary>
     public class OrderSummary : Sage100BaseEntity
-
     {
         #region Public properties
+
+        /// <summary>
+        /// Gets the dynamic width based on the device being displayed.
+        /// </summary>
+        public int ItemWidth
+        {
+            get
+            {
+                if (Device.IsMobile)
+                {
+                    var bounds = App.Bounds;
+
+                    return Convert.ToInt32(bounds.Width - 30);
+                }
+
+                return 400;
+            }
+        }
 
         /// <summary>
         /// The quote or order number.

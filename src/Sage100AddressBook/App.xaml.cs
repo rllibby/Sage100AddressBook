@@ -14,8 +14,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.ApplicationModel;
-using System.IO.IsolatedStorage;
 using Windows.Foundation.Metadata;
+using Windows.Foundation;
 
 namespace Sage100AddressBook
 {
@@ -25,6 +25,12 @@ namespace Sage100AddressBook
     [Bindable]
     sealed partial class App : BootStrapper
     {
+        #region Private fields
+
+        private static Rect _bounds;
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -79,6 +85,8 @@ namespace Sage100AddressBook
         {
             var view = ApplicationView.GetForCurrentView();
 
+            _bounds = view.VisibleBounds;
+
             view.TitleBar.ButtonBackgroundColor = Colors.Black;
             view.TitleBar.ButtonForegroundColor = Colors.White;
             view.TitleBar.BackgroundColor = Colors.Black;
@@ -131,6 +139,18 @@ namespace Sage100AddressBook
             {
                 deferral.Complete();
             }
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Returns the bounds of the display, which should only be used on mobile devices.
+        /// </summary>
+        public static Rect Bounds
+        {
+            get { return _bounds; }
         }
 
         #endregion

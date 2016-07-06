@@ -39,12 +39,12 @@
         <!--  Data template for the quote item type  -->
         <DataTemplate x:Key="QuoteTemplate" x:DataType="models:OrderSummary">
             <Grid x:Name="quoteItem"
-                  MinWidth="400"
+                  Width="{x:Bind ItemWidth}"
                   MinHeight="220"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -59,11 +59,13 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            HorizontalAlignment="Left"
+                           MaxLines="1"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Text="{x:Bind BillToName}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="0"
                            Grid.Column="1"
+                           Margin="20,0,0,0"
                            HorizontalAlignment="Right"
                            Foreground="{StaticResource CustomColorBrush}"
                            Style="{StaticResource SubtitleTextBlockStyle}"
@@ -156,15 +158,15 @@
             </Grid>
         </DataTemplate>
 
-        <!--  Data template for the quote item type  -->
+        <!--  Data template for the order item type  -->
         <DataTemplate x:Key="OrderTemplate" x:DataType="models:OrderSummary">
             <Grid x:Name="orderItem"
-                  MinWidth="400"
+                  Width="{x:Bind ItemWidth}"
                   MinHeight="220"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -179,11 +181,13 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            HorizontalAlignment="Left"
+                           MaxLines="1"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Text="{x:Bind BillToName}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="0"
                            Grid.Column="1"
+                           Margin="20,0,0,0"
                            HorizontalAlignment="Right"
                            Foreground="{StaticResource CustomColorBrush}"
                            Style="{StaticResource SubtitleTextBlockStyle}"
@@ -391,6 +395,7 @@
                           Label="Close Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
         </controls:PageHeader>
+
         <Pivot x:Name="CustomerPivot"
                Grid.Row="1"
                RelativePanel.AlignBottomWithPanel="True"
@@ -685,6 +690,10 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
         <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
+                          Icon="Add"
+                          Label="Quick Quote"
+                          Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
             <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
                           Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
                           Label="Favorite"

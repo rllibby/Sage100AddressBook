@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Services.Sage100Services
 {
-    class OrderWebService
+    /// <summary>
+    /// Class for handling order based web api requests.
+    /// </summary>
+    public class OrderWebService
     {
         #region Private fields
 
@@ -18,6 +21,10 @@ namespace Sage100AddressBook.Services.Sage100Services
 
         #region Private Methods
 
+        /// <summary>
+        /// Generate offline data.
+        /// </summary>
+        /// <returns>An offline data payload for the order.</returns>
         private Order GetFakeOrder()
         {
             var Details = new List<OrderDetail>();
@@ -32,7 +39,6 @@ namespace Sage100AddressBook.Services.Sage100Services
                 UnitPrice = 3,
                 ExtensionAmt = 36
             });
-
 
             var result = new Order
             {
@@ -51,8 +57,8 @@ namespace Sage100AddressBook.Services.Sage100Services
             };
 
             return result;
-
         }
+
         #endregion
 
         #region Public methods
@@ -101,6 +107,24 @@ namespace Sage100AddressBook.Services.Sage100Services
             return result;
         }
 
+        /// <summary>
+        /// Posts the quick quote payload to the web api endpoint.
+        /// </summary>
+        /// <param name="companyCode">The company for the request.</param>
+        /// <param name="payload">The quick quote payload for the request.</param>
+        /// <returns>Testing for now.</returns>
+        public async Task<Order> PostQuickQuote(string companyCode, QuickQuote payload)
+        {
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+            if (payload == null) throw new ArgumentNullException("payload");
+
+            var content = await NgrokService.PostAsync(companyCode + "/quotes", payload);
+
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
+
+            return null;
+        }
+
         //RUSSELL SEE BELOW
 
         // additional methods/endpoints
@@ -109,8 +133,6 @@ namespace Sage100AddressBook.Services.Sage100Services
         //EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
         //DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
         //SendQuote: HttpPOST on: api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
-
-
 
         #endregion
 
