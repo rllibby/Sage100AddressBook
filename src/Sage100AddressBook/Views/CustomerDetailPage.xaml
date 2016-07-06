@@ -683,22 +683,19 @@
                               Grid.Row="1"
                               Visibility="Collapsed" />
 
-        <!--  Command bar for quotes  -->
-        <CommandBar x:Name="quoteBar"
-                    Grid.Row="2"
-                    Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
-            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
-                          Icon="Add"
-                          Label="Quick Quote" />
-        </CommandBar>
-
-        <!--  Command bar for documents  -->
-        <CommandBar x:Name="documentBar"
+        <!--  Command bar for customer at a glance  -->
+        <CommandBar x:Name="customerBar"
                     Grid.Row="2"
                     Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
                           Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
                           Label="Favorite" />
+        </CommandBar>
+
+        <!--  Command bar for documents  -->
+        <CommandBar x:Name="documentBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
                           Label="Upload" />
@@ -728,6 +725,19 @@
                               Icon="Rename"
                               Label="Rename" />
             </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+        <!--  Command bar for quotes  -->
+        <CommandBar x:Name="quoteBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
+                          Icon="Add"
+                          Label="Quick Quote" />
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send}"
+                          CommandParameter="{x:Bind}"
+                          Icon="Send"
+                          Label="Send" />
         </CommandBar>
 
         <VisualStateManager.VisualStateGroups>

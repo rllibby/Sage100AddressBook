@@ -32,6 +32,7 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
+        private DelegateCommand<OrderSummary> _send;
         private DelegateCommand _quickQuote;
         private OrderSummary _current;
         private string _companyCode;
@@ -50,6 +51,25 @@ namespace Sage100AddressBook.ViewModels
         private bool HasQuote(OrderSummary entry)
         {
             return ((entry != null) || (_current != null));
+        }
+
+        /// <summary>
+        /// Sends the quote message.
+        /// </summary>
+        /// <returns>True if the quote is not null.</returns>
+        private async void SendAction(OrderSummary entry)
+        {
+            /*
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+
+
+
+
+            });
+            */
+
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -104,6 +124,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _send = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(SendAction), HasQuote);
             _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
 
@@ -224,6 +245,14 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderSummary> Quotes
         {
             get { return _quotes; }
+        }
+
+        /// <summary>
+        /// The action for the send quote.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Send
+        {
+            get { return _send; }
         }
 
         /// <summary>

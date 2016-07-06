@@ -130,6 +130,7 @@
     <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\ObservableCollectionEx.cs" />
+    <Compile Include="Helpers\OfflineData.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\VisualTree.cs" />
     <Compile Include="Models\AddressEntry.cs" />

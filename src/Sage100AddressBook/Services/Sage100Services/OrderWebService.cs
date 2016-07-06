@@ -131,6 +131,7 @@ namespace Sage100AddressBook.Services.Sage100Services
         // EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
         // DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
         // SendQuote: HttpPOST on: api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
+        // Delete a quote:  HTTP DELETE api/{company}/quotes/{orderId}
 
         #endregion
 
