@@ -84,7 +84,6 @@ namespace Sage100AddressBook.Services.Sage100Services
             return result;
         }
 
-
         /// <summary>
         /// Add line to the specified order.
         /// </summary>
@@ -128,11 +127,10 @@ namespace Sage100AddressBook.Services.Sage100Services
         //RUSSELL SEE BELOW
 
         // additional methods/endpoints
-        //Quick Quote: HttpPOST on: api/{company}/quotes using QuickQuote model as payload
-        //AddLine (partially implemented above)
-        //EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
-        //DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
-        //SendQuote: HttpPOST on: api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
+        // AddLine (partially implemented above)
+        // EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
+        // DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
+        // SendQuote: HttpPOST on: api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
 
         #endregion
 

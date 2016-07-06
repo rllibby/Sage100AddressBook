@@ -93,7 +93,7 @@ namespace Sage100AddressBook.CustomControls
                     {
                         var entry = new QuickQuoteLine
                         {
-                            Quantity = 1,
+                            Quantity = (item.QuantityToBuy > 0) ? (int)item.QuantityToBuy : 1,
                             Id = item.Id,
                             Description = item.ItemCodeDesc,
                         };
@@ -144,8 +144,8 @@ namespace Sage100AddressBook.CustomControls
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
-                await LookupItem(SearchText.Text);
                 e.Handled = true;
+                await LookupItem(SearchText.Text);
 
                 return;
             }
