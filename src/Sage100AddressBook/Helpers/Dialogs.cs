@@ -78,7 +78,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 10),
                 MaxHeight = 210,
             };
 
@@ -114,7 +114,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 10),
                 MaxHeight = 260,
             };
 
@@ -145,20 +145,21 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection list dialog.
         /// </summary>
-        /// <param name="rootId">The base level folder name<param>
+        /// <param name="companyId">The company identifier.<param>
+        /// <param name="customerId">The customer identifier.<param>
         /// <returns>The index of the selected item.</returns>
-        public static async Task<int> CreateQuickQuote(string rootId)
+        public static async Task<int> CreateQuickQuote(string companyId, string customerId)
         {
-            if (string.IsNullOrEmpty(rootId)) return (-1);
+            if (string.IsNullOrEmpty(companyId) || string.IsNullOrEmpty(customerId)) return (-1);
 
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 10),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
-            var control = new QuickQuote(dialog, rootId)
+            var control = new CustomControls.QuickQuote(dialog, companyId, customerId)
             {
                 DisplayText = "New Quick Quote",
                 Background = dialog.Background,
@@ -197,7 +198,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 10),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 

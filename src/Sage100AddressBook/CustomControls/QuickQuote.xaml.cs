@@ -4,6 +4,7 @@
 
 using Microsoft.Graph;
 using Sage100AddressBook.Helpers;
+using Sage100AddressBook.Services.Sage100Services;
 using System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -20,7 +21,8 @@ namespace Sage100AddressBook.CustomControls
 
         private ObservableCollectionEx<string> _context = new ObservableCollectionEx<string>();
         private ContentDialog _dialog;
-        private string _rootId;
+        private string _companyId;
+        private string _customerId;
         private int _selected = (-1);
 
         #endregion
@@ -37,6 +39,7 @@ namespace Sage100AddressBook.CustomControls
             {
                 Find.IsEnabled = false;
                 SearchText.IsEnabled = false;
+                QuantityText.IsEnabled = false;
                 Items.Visibility = Visibility.Collapsed;
                 Progress.IsActive = true;
 
@@ -44,6 +47,7 @@ namespace Sage100AddressBook.CustomControls
             }
 
             SearchText.IsEnabled = true;
+            QuantityText.IsEnabled = true;
             SearchText.Text = string.Empty;
             Progress.IsActive = false;
             Items.Visibility = Visibility.Visible;
@@ -64,7 +68,14 @@ namespace Sage100AddressBook.CustomControls
 
                 try
                 {
-                    /// TODO - query for an item.
+                    var quickQuote = new Models.QuickQuote
+                    {
+                        CustomerId = _customerId,
+                        ItemId = searchText,
+                        Quantity = 1
+                    };
+
+                    var content = await OrderWebService.Instance.PostQuickQuote(_companyId, quickQuote);
                 }
                 catch (ServiceException exception)
                 {
@@ -86,6 +97,24 @@ namespace Sage100AddressBook.CustomControls
                 {
                     SetBusy(false);
                 }
+            });
+        }
+
+        /// <summary>
+        /// Event that is triggered when the quantity text changes.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private async void OnQuantityTextChanged(object sender, TextChangedEventArgs e)
+        {
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                var temp = QuantityText.Text;
+                var quantity = 1;
+
+                if (string.IsNullOrEmpty(temp)) return;
+
+                if (!int.TryParse(temp, out quantity)) QuantityText.Text = "1";
             });
         }
 
@@ -123,18 +152,20 @@ namespace Sage100AddressBook.CustomControls
         /// <summary>
         /// Constructor
         /// </summary>
-        public QuickQuote(ContentDialog dialog, string rootId)
+        public QuickQuote(ContentDialog dialog, string companyId, string customerId)
         {
             InitializeComponent();
 
             if (dialog == null) throw new ArgumentNullException("dialog");
-            if (string.IsNullOrEmpty(rootId)) throw new ArgumentException("rootId");
+            if (string.IsNullOrEmpty(companyId)) throw new ArgumentNullException("companyId");
+            if (string.IsNullOrEmpty(customerId)) throw new ArgumentNullException("customerId");
 
             Items.ItemsSource = _context;
             Find.IsEnabled = false;
 
             _dialog = dialog;
-            _rootId = rootId;
+            _companyId = companyId;
+            _customerId = customerId;
         }
 
         #endregion

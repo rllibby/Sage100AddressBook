@@ -38,12 +38,12 @@
         <!--  Data template for the quote item type  -->
         <DataTemplate x:Key="QuoteTemplate" x:DataType="models:OrderSummary">
             <Grid x:Name="quoteItem"
-                  MinWidth="300"
+                  Width="{x:Bind ItemWidth}"
                   MinHeight="220"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -58,6 +58,7 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            HorizontalAlignment="Left"
+                           MaxLines="1"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Text="{x:Bind BillToName}"
                            TextTrimming="CharacterEllipsis" />
@@ -159,12 +160,12 @@
         <!--  Data template for the quote item type  -->
         <DataTemplate x:Key="OrderTemplate" x:DataType="models:OrderSummary">
             <Grid x:Name="orderItem"
-                  MinWidth="300"
+                  Width="{x:Bind ItemWidth}"
                   MinHeight="220"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -179,6 +180,7 @@
                 <TextBlock Grid.Row="0"
                            Grid.Column="0"
                            HorizontalAlignment="Left"
+                           MaxLines="1"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Text="{x:Bind BillToName}"
                            TextTrimming="CharacterEllipsis" />

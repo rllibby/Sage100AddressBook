@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Models
 {
-    class Order : OrderSummary
+    public class Order : OrderSummary
     {
         //to-do - add additional fields required for order that are not in OrderSummary
         public List<OrderDetail> Details { get; set; }
@@ -17,8 +17,7 @@ namespace Sage100AddressBook.Models
         }
     }
 
-
-    class OrderDetail : Sage100BaseEntity
+    public class OrderDetail : Sage100BaseEntity
     {
         public string ItemId { get; set; }
         public string ItemCode { get; set; }

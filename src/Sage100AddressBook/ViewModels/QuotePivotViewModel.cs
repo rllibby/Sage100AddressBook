@@ -56,9 +56,8 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private async void QuickQuoteAction()
         {
-            await Dialogs.CreateQuickQuote("abc");
+            await Dialogs.CreateQuickQuote(_companyCode, _rootId);
         }
-        
 
         #endregion
 

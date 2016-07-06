@@ -136,6 +136,19 @@ namespace Sage100AddressBook.Services.Sage100Services
                 Total = 207.71
             });
 
+            result.Add(new OrderSummary
+            {
+                SalesOrderNo = "0000315",
+                OrderType = "Quote",
+                OrderStatus = "",
+                ShipExpireDate = DateTime.Parse("07/08/2106"),
+                BillToName = "American Business Futures",
+                TaxableAmt = 179.00,
+                NonTaxableAmt = 0,
+                SalesTaxAmt = 14.32,
+                DiscountAmt = 0,
+                Total = 193.32
+            });
 
             return result;
         }

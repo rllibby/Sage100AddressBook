@@ -25,13 +25,24 @@
                    Grid.ColumnSpan="2"
                    Margin="4,4"
                    Text="Search for item." />
-        <TextBox x:Name="SearchText"
-                 Grid.Row="1"
-                 Grid.Column="0"
-                 Margin="10,10,0,10"
-                 HorizontalAlignment="Stretch"
-                 PlaceholderText="Enter item search criteria..."
-                 TextChanged="OnSearchTextChanged" />
+        <Grid Grid.Row="1" Margin="10,10,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="QuantityText"
+                     Grid.Column="0"
+                     Margin="0,0,4,0"
+                     InputScope="Digits"
+                     MaxLength="4"
+                     PlaceholderText="Qty"
+                     TextChanged="OnQuantityTextChanged" />
+            <TextBox x:Name="SearchText"
+                     Grid.Column="1"
+                     HorizontalAlignment="Stretch"
+                     PlaceholderText="Enter item search criteria..."
+                     TextChanged="OnSearchTextChanged" />
+        </Grid>
         <Button x:Name="Find"
                 Grid.Row="1"
                 Grid.Column="1"
