@@ -9,7 +9,7 @@ namespace Sage100AddressBook.Models
     /// <summary>
     /// POCO class for the recently purchased items.
     /// </summary>
-    public class RecentPurchasedItem : Sage100BaseEntity
+    public class RecentPurchasedItem
     {
         #region Public properties
 

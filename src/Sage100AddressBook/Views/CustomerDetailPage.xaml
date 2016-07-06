@@ -670,7 +670,7 @@
                 <Grid RelativePanel.AlignLeftWithPanel="True"
                       RelativePanel.AlignRightWithPanel="True"
                       RelativePanel.Below="pageHeader">
-                    <telerikGrid:RadDataGrid x:Name="DataGrid" ItemsSource="x:Bind RecentPurchasedPivotViewModel.RecentPurchasedItems" />
+                    <telerikGrid:RadDataGrid x:Name="DataGrid"  ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
                 </Grid>
             </PivotItem>
         </Pivot>

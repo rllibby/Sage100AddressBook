@@ -14,7 +14,7 @@ using Windows.UI.Xaml;
 
 namespace Sage100AddressBook.ViewModels
 {
-    class RecentPurchasedPivotViewModel : BindableBase
+    public class RecentPurchasedPivotViewModel : BindableBase
     {
         #region Private constants
 
