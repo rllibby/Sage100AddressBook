@@ -1,21 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
+using Newtonsoft.Json;
 using Sage100AddressBook.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sage100AddressBook.Services.SearchServices
 {
-    class ItemSearchService
+    /// <summary>
+    /// Search service for items.
+    /// </summary>
+    public class ItemSearchService
     {
-        #region Private constants
-
-        private const string CompanyCode = "ABC";
-
-        #endregion
-
         #region Private fields
 
         private static ItemSearchService _instance = new ItemSearchService();
@@ -27,14 +25,14 @@ namespace Sage100AddressBook.Services.SearchServices
         /// <summary>
         /// Performs an async search using the NGROK uri.
         /// </summary>
-        /// <param name="baseUri">The base URI where NGROK is hosted.</param>
+        /// <param name="companyCode">The company code to perform the search on.</param>
         /// <param name="searchString">The search string.</param>
         /// <returns>The collection of addresses.</returns>
-        public async Task<IEnumerable<Item>> ExecuteSearchAsync(string searchString)
+        public async Task<IEnumerable<Item>> ExecuteSearchAsync(string companyCode, string searchString)
         {
-            if (searchString == null) return new List<Item>();
+            if (string.IsNullOrEmpty(companyCode) || string.IsNullOrEmpty(searchString)) return new List<Item>();
 
-            var content = await NgrokService.GetAsync(CompanyCode + "/items?search=" + searchString);
+            var content = await NgrokService.GetAsync(companyCode + "/items?search=" + searchString);
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<Item>>(content);
 
@@ -50,8 +48,20 @@ namespace Sage100AddressBook.Services.SearchServices
                 StandardPrice = 123.44,
                 RetailPrice = 199.99,
                 QuantityOnHand = 512,
-                quantityToBuy = 10
+                QuantityToBuy = 10
+            });
 
+            result.Add(new Item()
+            {
+                Id = "303141564E4554",
+                ItemCode = "8953",
+                ItemCodeDesc = "Universal 3 1/2\" SSDD flex",
+                UnitOfMeasure = "EACH",
+                TaxClass = "CA",
+                StandardPrice = 113.44,
+                RetailPrice = 120.50,
+                QuantityOnHand = 42,
+                QuantityToBuy = 3
             });
 
             return result;

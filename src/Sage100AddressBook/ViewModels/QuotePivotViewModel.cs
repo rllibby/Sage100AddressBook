@@ -56,7 +56,35 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         private async void QuickQuoteAction()
         {
-            await Dialogs.CreateQuickQuote(_companyCode, _rootId);
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                Loading = true;
+
+                try
+                {
+                    var line = await Dialogs.GetQuickQuoteItem(_companyCode, _rootId);
+
+                    if (line == null) return;
+
+                    var quickQuote = new QuickQuote
+                    {
+                        CustomerId = _rootId,
+                        ItemId = line.Id,
+                        Quantity = line.Quantity
+                    };
+
+                    var result = await OrderWebService.Instance.PostQuickQuote(_companyCode, quickQuote);
+
+                    if (result == null) return;
+
+
+
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
         }
 
         #endregion

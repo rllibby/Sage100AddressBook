@@ -65,7 +65,6 @@ namespace Sage100AddressBook.Services
             }
 #endif
             return await Task.FromResult<string>(null);
-
         }
 
         /// <summary>
@@ -81,7 +80,6 @@ namespace Sage100AddressBook.Services
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
 #if DEBUG
                 client.Timeout = TimeSpan.FromSeconds(_timeout);
 #endif

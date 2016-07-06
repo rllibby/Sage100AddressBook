@@ -157,7 +157,7 @@
             </Grid>
         </DataTemplate>
 
-        <!--  Data template for the quote item type  -->
+        <!--  Data template for the order item type  -->
         <DataTemplate x:Key="OrderTemplate" x:DataType="models:OrderSummary">
             <Grid x:Name="orderItem"
                   Width="{x:Bind ItemWidth}"

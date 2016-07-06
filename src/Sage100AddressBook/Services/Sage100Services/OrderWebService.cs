@@ -113,16 +113,16 @@ namespace Sage100AddressBook.Services.Sage100Services
         /// <param name="companyCode">The company for the request.</param>
         /// <param name="payload">The quick quote payload for the request.</param>
         /// <returns>Testing for now.</returns>
-        public async Task<string> PostQuickQuote(string companyCode, QuickQuote payload)
+        public async Task<Order> PostQuickQuote(string companyCode, QuickQuote payload)
         {
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
             if (payload == null) throw new ArgumentNullException("payload");
 
             var content = await NgrokService.PostAsync(companyCode + "/quotes", payload);
 
-            if (!string.IsNullOrEmpty(content)) return content;
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
 
-            return string.Empty;
+            return null;
         }
 
         //RUSSELL SEE BELOW

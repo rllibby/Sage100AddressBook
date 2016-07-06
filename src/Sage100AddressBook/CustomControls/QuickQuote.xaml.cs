@@ -4,11 +4,16 @@
 
 using Microsoft.Graph;
 using Sage100AddressBook.Helpers;
-using Sage100AddressBook.Services.Sage100Services;
+using Sage100AddressBook.Models;
+using Sage100AddressBook.Services.SearchServices;
 using System;
+using System.Threading.Tasks;
+using Telerik.UI.Xaml.Controls.Grid;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
 
 namespace Sage100AddressBook.CustomControls
 {
@@ -19,11 +24,11 @@ namespace Sage100AddressBook.CustomControls
     {
         #region Private fields
 
-        private ObservableCollectionEx<string> _context = new ObservableCollectionEx<string>();
+        private ObservableCollectionEx<QuickQuoteLine> _context = new ObservableCollectionEx<QuickQuoteLine>();
         private ContentDialog _dialog;
+        private QuickQuoteLine _selected;
         private string _companyId;
         private string _customerId;
-        private int _selected = (-1);
 
         #endregion
 
@@ -39,7 +44,6 @@ namespace Sage100AddressBook.CustomControls
             {
                 Find.IsEnabled = false;
                 SearchText.IsEnabled = false;
-                QuantityText.IsEnabled = false;
                 Items.Visibility = Visibility.Collapsed;
                 Progress.IsActive = true;
 
@@ -47,35 +51,56 @@ namespace Sage100AddressBook.CustomControls
             }
 
             SearchText.IsEnabled = true;
-            QuantityText.IsEnabled = true;
             SearchText.Text = string.Empty;
             Progress.IsActive = false;
             Items.Visibility = Visibility.Visible;
         }
 
         /// <summary>
-        /// Event that is triggered when a new group should be added.
+        /// Event that is triggered when the quantity changes for a quick quote line item.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private async void ItemFindClick(object sender, RoutedEventArgs e)
+        /// <param name="arg">The event arguments.</param>
+        private void OnQuantityChanged(object sender, EventArgs arg)
         {
+            var entry = Items.SelectedItem as QuickQuoteLine;
+
+            if (entry == null) return;
+
+            _dialog.IsPrimaryButtonEnabled = (entry.Quantity >= 1);
+        }
+
+        /// <summary>
+        /// Perform the item look up.
+        /// </summary>
+        /// <param name="searchText">The search text to use for locating the item.</param>
+        /// <returns>The async task to wait on.</returns>
+        private async Task LookupItem(string searchText)
+        {
+            if (string.IsNullOrEmpty(searchText)) return;
+
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 SetBusy(true);
 
-                var searchText = SearchText.Text;
+                _context.Clear();
 
                 try
                 {
-                    var quickQuote = new Models.QuickQuote
-                    {
-                        CustomerId = _customerId,
-                        ItemId = searchText,
-                        Quantity = 1
-                    };
+                    var items = await ItemSearchService.Instance.ExecuteSearchAsync(_companyId, searchText);
 
-                    var content = await OrderWebService.Instance.PostQuickQuote(_companyId, quickQuote);
+                    foreach (var item in items)
+                    {
+                        var entry = new QuickQuoteLine
+                        {
+                            Quantity = 1,
+                            Id = item.Id,
+                            Description = item.ItemCodeDesc,
+                        };
+
+                        entry.QuantityChanged += OnQuantityChanged;
+                        _context.Add(entry);
+                    }
                 }
                 catch (ServiceException exception)
                 {
@@ -101,21 +126,31 @@ namespace Sage100AddressBook.CustomControls
         }
 
         /// <summary>
-        /// Event that is triggered when the quantity text changes.
+        /// Event that is triggered when a new group should be added.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments.</param>
-        private async void OnQuantityTextChanged(object sender, TextChangedEventArgs e)
+        private async void ItemFindClick(object sender, RoutedEventArgs e)
         {
-            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await LookupItem(SearchText.Text);
+        }
+
+        /// <summary>
+        /// Event that is triggered when a key down event occurs in the text field.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private async void OnSearchKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
             {
-                var temp = QuantityText.Text;
-                var quantity = 1;
+                await LookupItem(SearchText.Text);
+                e.Handled = true;
 
-                if (string.IsNullOrEmpty(temp)) return;
+                return;
+            }
 
-                if (!int.TryParse(temp, out quantity)) QuantityText.Text = "1";
-            });
+            e.Handled = false;
         }
 
         /// <summary>
@@ -136,12 +171,14 @@ namespace Sage100AddressBook.CustomControls
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments.</param>
-        private async void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void OnSelectionChanged(object sender, DataGridSelectionChangedEventArgs e)
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                _dialog.IsPrimaryButtonEnabled = (Items.SelectedIndex >= 0);
-                _selected = Items.SelectedIndex;
+                var selected = Items.SelectedItem as QuickQuoteLine;
+
+                _dialog.IsPrimaryButtonEnabled = ((selected != null) && (selected.Quantity > 0));
+                _selected = selected;
             });
         }
 
@@ -175,7 +212,7 @@ namespace Sage100AddressBook.CustomControls
         /// <summary>
         /// Returns the selected item in the list.
         /// </summary>
-        public int Selected
+        public QuickQuoteLine Selected
         {
             get { return _selected; }
         }
