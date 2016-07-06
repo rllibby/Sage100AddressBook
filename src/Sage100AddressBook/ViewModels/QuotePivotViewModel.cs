@@ -12,6 +12,7 @@ using Template10.Mvvm;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 #pragma warning disable 4014
 
@@ -59,17 +60,23 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>True if the quote is not null.</returns>
         private async void SendAction(OrderSummary entry)
         {
-            /*
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                var customer = (_owner as CustomerDetailPageViewModel)?.CurrentCustomer;
+                var scope = new InputScope();
+                var name = new InputScopeName();
+
+                name.NameValue = InputScopeNameValue.EmailNameOrAddress;
+                scope.Names.Add(name);
+
+                var result = await Dialogs.Input(scope, "Recipient email address.", customer?.EmailAddress, "Email address...");
+
+                if (result == null) return;
 
 
 
 
             });
-            */
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -219,10 +226,11 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 Current = (sender as GridView)?.SelectedItem as OrderSummary;
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
             finally
             {
-                RaisePropertyChanged("QuoteCommandsVisible");
+                _send.RaiseCanExecuteChanged();
             }
         }
 

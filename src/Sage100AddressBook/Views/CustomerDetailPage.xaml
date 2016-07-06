@@ -675,7 +675,7 @@
                 <Grid RelativePanel.AlignLeftWithPanel="True"
                       RelativePanel.AlignRightWithPanel="True"
                       RelativePanel.Below="pageHeader">
-                    <telerikGrid:RadDataGrid x:Name="DataGrid"  ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
+                    <telerikGrid:RadDataGrid x:Name="DataGrid" ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
                 </Grid>
             </PivotItem>
         </Pivot>
@@ -741,8 +741,8 @@
             <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
                           Icon="Add"
                           Label="Quick Quote" />
-            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send}"
-                          CommandParameter="{x:Bind}"
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send, Mode=OneWay}"
+                          CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
                           Icon="Send"
                           Label="Send" />
         </CommandBar>

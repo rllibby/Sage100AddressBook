@@ -107,6 +107,9 @@
     <Compile Include="CustomControls\GroupControl.xaml.cs">
       <DependentUpon>GroupControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\InputBox.xaml.cs">
+      <DependentUpon>InputBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\LinkTypeControl.xaml.cs">
       <DependentUpon>LinkTypeControl.xaml</DependentUpon>
     </Compile>
@@ -259,6 +262,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="CustomControls\GroupControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\InputBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
