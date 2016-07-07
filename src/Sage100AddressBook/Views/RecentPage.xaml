@@ -32,6 +32,7 @@
         <DataTemplate x:Key="AddressTemplate" x:DataType="models:AddressEntry">
             <StackPanel MinWidth="400"
                         MinHeight="120"
+                        Background="{StaticResource CardColorBrush}"
                         Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
                     <MenuFlyout>
@@ -110,35 +111,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                <VisualState x:Name="VisualStateNarrow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsMobilePanelTemplate}" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateNormal">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsPanelTemplate}" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateWide">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsPanelTemplate}" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
@@ -182,6 +154,35 @@
                           Icon="Clear"
                           Label="Clear" />
         </CommandBar>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsMobilePanelTemplate}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsPanelTemplate}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddressesGrid.ItemsPanel" Value="{StaticResource AddressItemsPanelTemplate}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>
 

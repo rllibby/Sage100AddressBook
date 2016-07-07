@@ -2,9 +2,6 @@
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Core;
@@ -111,7 +108,7 @@ namespace Sage100AddressBook.ViewModels
             {
                 Loading = true;
 
-                _recentPurchased.Clear();
+                _items.Clear();
             });
 
             Task.Run(async () =>
@@ -126,7 +123,7 @@ namespace Sage100AddressBook.ViewModels
                     {
                         if (t.IsCompleted)
                         {
-                            _recentPurchased.Set(t.Result);
+                            _items.Set(t.Result);
                             _loaded = true;
                         }
 

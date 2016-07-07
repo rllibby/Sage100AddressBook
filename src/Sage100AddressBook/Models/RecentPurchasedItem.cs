@@ -14,6 +14,7 @@ namespace Sage100AddressBook.Models
     {
         #region Private fields
 
+        private string _description;
         private string _uom;
 
         #endregion
@@ -46,7 +47,11 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The item code description.
         /// </summary>
-        public string ItemCodeDesc { get; set; }
+        public string ItemCodeDesc
+        {
+            get { return string.IsNullOrEmpty(_description) ? "(Blank)" : _description; }
+            set { _description = value; }
+        }
 
         /// <summary>
         /// The invoice date.

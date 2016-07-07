@@ -71,6 +71,59 @@ namespace Sage100AddressBook.CustomControls
         }
 
         /// <summary>
+        /// Query and return the recommended items.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private async void RecommendedClick(object sender, RoutedEventArgs e)
+        {
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                SetBusy(true);
+
+                _context.Clear();
+
+                try
+                {
+                    var items = await ItemSearchService.Instance.ExecuteRecommendedAsync(_companyId, _customerId);
+
+                    foreach (var item in items)
+                    {
+                        var entry = new QuickQuoteLine
+                        {
+                            Quantity = (item.QuantityToBuy > 0) ? (int)item.QuantityToBuy : 1,
+                            Id = item.Id,
+                            Description = item.ItemCodeDesc,
+                        };
+
+                        entry.QuantityChanged += OnQuantityChanged;
+                        _context.Add(entry);
+
+                    }
+                }
+                catch (ServiceException exception)
+                {
+                    _dialog.Hide();
+
+                    try
+                    {
+                        await Dialogs.ShowException("Failed to load recommended items.", exception, false);
+                    }
+                    finally
+                    {
+#pragma warning disable 4014
+                        _dialog.ShowAsync();
+#pragma warning restore 4014
+                    }
+                }
+                finally
+                {
+                    SetBusy(false);
+                }
+            });
+        }
+
+        /// <summary>
         /// Perform the item look up.
         /// </summary>
         /// <param name="searchText">The search text to use for locating the item.</param>

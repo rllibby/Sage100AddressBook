@@ -42,11 +42,11 @@ namespace Sage100AddressBook
 
             SplashFactory = (e) => new Views.Splash(e);
 
-            var _settings = SettingsService.Instance;
+            var settings = SettingsService.Instance;
 
-            RequestedTheme = _settings.AppTheme;
-            CacheMaxDuration = _settings.CacheMaxDuration;
-            ShowShellBackButton = _settings.UseShellBackButton;
+            RequestedTheme = settings.AppTheme;
+            CacheMaxDuration = settings.CacheMaxDuration;
+            ShowShellBackButton = settings.UseShellBackButton;
         }
 
         #endregion
@@ -86,6 +86,8 @@ namespace Sage100AddressBook
             var view = ApplicationView.GetForCurrentView();
 
             _bounds = view.VisibleBounds;
+
+            SettingsService.Instance.UpdateCardBrush();
 
             view.TitleBar.ButtonBackgroundColor = Colors.Black;
             view.TitleBar.ButtonForegroundColor = Colors.White;

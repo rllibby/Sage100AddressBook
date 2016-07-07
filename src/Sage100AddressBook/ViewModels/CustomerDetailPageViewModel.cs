@@ -277,8 +277,8 @@ namespace Sage100AddressBook.ViewModels
                 _quoteModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
                 _orderModel.SetPivotIndex(Index);
                 _orderModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _recentPurchasePVModel.SetPivotIndex(Index);
-                _recentPurchasePVModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _recentItemModel.SetPivotIndex(Index);
+                _recentItemModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);
@@ -326,7 +326,7 @@ namespace Sage100AddressBook.ViewModels
             _documentModel.SetPivotIndex(_index);
             _quoteModel.SetPivotIndex(_index);
             _orderModel.SetPivotIndex(_index);
-            _recentPurchasePVModel.SetPivotIndex(_index);
+            _recentItemModel.SetPivotIndex(_index);
         }
 
         #endregion

@@ -31,7 +31,11 @@
     <Color x:Key="CustomColor">#00DC00</Color>
     <Color x:Key="ContrastColor">White</Color>
     <Color x:Key="SystemAccentColor">#00DC00</Color>
-    
+    <Color x:Key="CardColorDark">#0A0A0A</Color>
+    <Color x:Key="CardColorLight">F0F0F0</Color>
+
+    <SolidColorBrush x:Key="CardColorBrush" Color="{StaticResource CardColorDark}" />
+
     <ResourceDictionary.ThemeDictionaries>
 
         <ResourceDictionary x:Key="Light">

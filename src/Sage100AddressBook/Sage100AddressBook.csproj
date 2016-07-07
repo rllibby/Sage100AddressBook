@@ -167,7 +167,6 @@
     <Compile Include="ViewModels\DocumentsPageViewModel.cs" />
     <Compile Include="ViewModels\OrderPivotModel.cs" />
     <Compile Include="ViewModels\QuotePivotViewModel.cs" />
-    <Compile Include="ViewModels\RecentItemPivotViewModel.cs" />
     <Compile Include="ViewModels\RecentPageViewModel.cs" />
     <Compile Include="ViewModels\RecentPurchasedPivotViewModel.cs" />
     <Compile Include="ViewModels\SearchResultsPageViewModel.cs" />

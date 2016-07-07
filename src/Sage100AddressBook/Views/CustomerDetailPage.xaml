@@ -45,6 +45,7 @@
             <Grid x:Name="quoteItem"
                   Width="{x:Bind ItemWidth}"
                   MinHeight="220"
+                  Background="{StaticResource CardColorBrush}"
                   Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
                     <MenuFlyout>
@@ -174,6 +175,7 @@
             <Grid x:Name="orderItem"
                   Width="{x:Bind ItemWidth}"
                   MinHeight="220"
+                  Background="{StaticResource CardColorBrush}"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="65*" />
@@ -292,21 +294,20 @@
         </DataTemplate>
 
         <!--  Data template for the recently purchased item type  -->
-        <DataTemplate x:Key="recentItemTemplate" x:DataType="models:RecentPurchasedItem">
+        <DataTemplate x:Key="RecentItemTemplate" x:DataType="models:RecentPurchasedItem">
             <Grid x:Name="recentItem"
                   Width="{x:Bind ItemWidth}"
-                  MinHeight="220"
+                  MinHeight="160"
+                  Background="{StaticResource CardColorBrush}"
                   Padding="10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="65*" />
-                    <ColumnDefinition Width="35*" />
+                    <ColumnDefinition Width="55*" />
+                    <ColumnDefinition Width="45*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="20" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -316,7 +317,7 @@
                            HorizontalAlignment="Left"
                            MaxLines="1"
                            Style="{StaticResource SubtitleTextBlockStyle}"
-                           Text="{x:Bind BillToName}"
+                           Text="{x:Bind ItemCodeDesc}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="0"
                            Grid.Column="1"
@@ -324,7 +325,7 @@
                            HorizontalAlignment="Right"
                            Foreground="{StaticResource CustomColorBrush}"
                            Style="{StaticResource SubtitleTextBlockStyle}"
-                           Text="{x:Bind SalesOrderNo}"
+                           Text="{x:Bind ItemCode}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
@@ -332,21 +333,21 @@
                            HorizontalAlignment="Left"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           Text="{x:Bind InvoiceDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="3"
                            Grid.Column="0"
                            HorizontalAlignment="Left"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="Taxable Amount:"
+                           Text="Quantity Shipped:"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="3"
                            Grid.Column="1"
                            HorizontalAlignment="Right"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           Text="{x:Bind QuantityShipped, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0\}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
@@ -354,7 +355,7 @@
                            HorizontalAlignment="Left"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="Non Taxable Amount:"
+                           Text="Unit of Measure:"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="4"
                            Grid.Column="1"
@@ -362,7 +363,7 @@
                            HorizontalAlignment="Right"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           Text="{x:Bind UnitOfMeasure, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0\}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="5"
                            Grid.Column="0"
@@ -370,7 +371,7 @@
                            HorizontalAlignment="Left"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="Sales Tax Amount:"
+                           Text="Unit Price:"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Row="5"
                            Grid.Column="1"
@@ -378,37 +379,7 @@
                            HorizontalAlignment="Right"
                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                            Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Grid.Row="6"
-                           Grid.Column="0"
-                           Margin="0,4,0,0"
-                           HorizontalAlignment="Left"
-                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           Text="Discount Amount:"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Grid.Row="6"
-                           Grid.Column="1"
-                           Margin="0,4,0,0"
-                           HorizontalAlignment="Right"
-                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Grid.Row="7"
-                           Grid.Column="0"
-                           Margin="0,20,0,0"
-                           HorizontalAlignment="Left"
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           Text="Total:"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Grid.Row="7"
-                           Grid.Column="1"
-                           Margin="0,20,0,0"
-                           HorizontalAlignment="Right"
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           Text="{x:Bind Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           Text="{x:Bind UnitPrice, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                            TextTrimming="CharacterEllipsis" />
             </Grid>
         </DataTemplate>
@@ -418,6 +389,7 @@
             <StackPanel x:Name="docItem"
                         MinWidth="400"
                         MinHeight="84"
+                        Background="{StaticResource CardColorBrush}"
                         Orientation="Horizontal"
                         Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
@@ -544,6 +516,7 @@
                         <Grid x:Name="customerInfo"
                               MinWidth="300"
                               MinHeight="300"
+                              Background="{StaticResource CardColorBrush}"
                               BorderBrush="{StaticResource CustomColorBrush}"
                               BorderThickness="1,1,1,1"
                               Padding="10,10"
@@ -630,6 +603,7 @@
                               MinWidth="300"
                               MinHeight="300"
                               Margin="10,0,10,0"
+                              Background="{StaticResource CardColorBrush}"
                               BorderBrush="{StaticResource CustomColorBrush}"
                               BorderThickness="1,1,1,1"
                               Padding="10,10"
@@ -808,7 +782,28 @@
                 <Grid RelativePanel.AlignLeftWithPanel="True"
                       RelativePanel.AlignRightWithPanel="True"
                       RelativePanel.Below="pageHeader">
-                    <telerikGrid:RadDataGrid x:Name="DataGrid" ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="RecentGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource RecentItemTemplate}"
+                              ItemsSource="{x:Bind CvsRecentItem.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.RecentItemModel.RecentItemSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No items to display"
+                               Visibility="{x:Bind ViewModel.RecentItemModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
                 </Grid>
             </PivotItem>
         </Pivot>
@@ -897,6 +892,15 @@
                     Grid.Row="2"
                     Visibility="{x:Bind ViewModel.OrderModel.OrderCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.OrderModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
+        </CommandBar>
+
+        <!--  Command bar for recently purchased items  -->
+        <CommandBar x:Name="recentBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.RecentItemModel.RecentItemCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.RecentItemModel.Refresh}"
                           Icon="Refresh"
                           Label="Refresh" />
         </CommandBar>
