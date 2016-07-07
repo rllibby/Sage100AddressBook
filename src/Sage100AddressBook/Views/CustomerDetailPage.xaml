@@ -703,6 +703,9 @@
         <CommandBar x:Name="documentBar"
                     Grid.Row="2"
                     Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
                           Label="Upload" />
