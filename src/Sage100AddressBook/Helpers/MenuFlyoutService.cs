@@ -3,6 +3,7 @@
  */
 
 using System;
+using Windows.Foundation;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,20 +21,32 @@ namespace Sage100AddressBook.Helpers
         #region Private methods
 
         /// <summary>
+        /// Shows the menu flyout.
+        /// </summary>
+        /// <param name="element">The element that the flyout is attached to.</param>
+        /// <param name="pt">The point on the screen to display the flyout.</param>
+        private static void ShowFlyout(FrameworkElement element, Point pt)
+        {
+            if (element == null) return;
+
+            var flyOut = (FlyoutBase.GetAttachedFlyout(element) as MenuFlyout);
+
+            FlyoutBase.ShowAttachedFlyout(element);
+        }
+
+        /// <summary>
         /// The right tapped event.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments.</param>
         private static void OnElementRightTapped(object sender, RightTappedRoutedEventArgs e)
         {
+            e.Handled = true;
+
             var element = sender as FrameworkElement;
-
-            if (element == null) return;
-
             var pt = e.GetPosition(element);
-            var flyOut = FlyoutBase.GetAttachedFlyout(element);
 
-            ((MenuFlyout)flyOut).ShowAt(element, pt);
+            ShowFlyout(element, pt);
         }
 
         /// <summary>
@@ -46,13 +59,9 @@ namespace Sage100AddressBook.Helpers
             if (e.HoldingState != HoldingState.Started) return;
 
             var element = sender as FrameworkElement;
-
-            if (element == null) return;
-
             var pt = e.GetPosition(element);
-            var flyOut = FlyoutBase.GetAttachedFlyout(element);
 
-            ((MenuFlyout)flyOut).ShowAt(element, pt);
+            ShowFlyout(element, pt);
         }
 
         #endregion

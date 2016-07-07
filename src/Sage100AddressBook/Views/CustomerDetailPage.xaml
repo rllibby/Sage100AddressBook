@@ -11,6 +11,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:models="using:Sage100AddressBook.Models"
       xmlns:telerikChart="using:Telerik.UI.Xaml.Controls.Chart"
+      xmlns:telerikGrid="using:Telerik.UI.Xaml.Controls.Grid"
       xmlns:telerikPrimitives="using:Telerik.UI.Xaml.Controls.Primitives"
       xmlns:viewModels="using:Sage100AddressBook.ViewModels"
       mc:Ignorable="d">
@@ -20,14 +21,375 @@
     </Page.DataContext>
 
     <Page.Resources>
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+
+        <CollectionViewSource x:Name="CvsRecentItem"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind ViewModel.RecentItemModel.Items, Mode=OneWay}" />
+
+        <CollectionViewSource x:Name="CvsQuotes"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind ViewModel.QuoteModel.Quotes, Mode=OneWay}" />
+
+        <CollectionViewSource x:Name="CvsOrders"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind ViewModel.OrderModel.Orders, Mode=OneWay}" />
+
         <CollectionViewSource x:Name="CvsDocuments"
                               IsSourceGrouped="True"
                               ItemsPath="DocumentEntries"
                               Source="{x:Bind ViewModel.DocumentModel.DocumentGroups, Mode=OneWay}" />
+
+        <!--  Data template for the quote item type  -->
+        <DataTemplate x:Key="QuoteTemplate" x:DataType="models:OrderSummary">
+            <Grid x:Name="quoteItem"
+                  Width="{x:Bind ItemWidth}"
+                  MinHeight="220"
+                  Background="{StaticResource CardColorBrush}"
+                  Padding="10,10">
+                <helpers:MenuFlyoutService.MenuFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Delete}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Delete" />
+                    </MenuFlyout>
+                </helpers:MenuFlyoutService.MenuFlyout>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           MaxLines="1"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind BillToName}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           Margin="20,0,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{StaticResource CustomColorBrush}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind SalesOrderNo}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Non Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Sales Tax Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Discount Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Total:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="1"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Right"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
+
+        <!--  Data template for the order item type  -->
+        <DataTemplate x:Key="OrderTemplate" x:DataType="models:OrderSummary">
+            <Grid x:Name="orderItem"
+                  Width="{x:Bind ItemWidth}"
+                  MinHeight="220"
+                  Background="{StaticResource CardColorBrush}"
+                  Padding="10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65*" />
+                    <ColumnDefinition Width="35*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           MaxLines="1"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind BillToName}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           Margin="20,0,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{StaticResource CustomColorBrush}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind SalesOrderNo}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Non Taxable Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Sales Tax Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Discount Amount:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="6"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Total:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="7"
+                           Grid.Column="1"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Right"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
+
+        <!--  Data template for the recently purchased item type  -->
+        <DataTemplate x:Key="RecentItemTemplate" x:DataType="models:RecentPurchasedItem">
+            <Grid x:Name="recentItem"
+                  Width="{x:Bind ItemWidth}"
+                  MinHeight="160"
+                  Background="{StaticResource CardColorBrush}"
+                  Padding="10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="55*" />
+                    <ColumnDefinition Width="45*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           MaxLines="1"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind ItemCodeDesc}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           Margin="20,0,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{StaticResource CustomColorBrush}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="{x:Bind ItemCode}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind InvoiceDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Quantity Shipped:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind QuantityShipped, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Unit of Measure:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="4"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind UnitOfMeasure, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0\}}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Left"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Unit Price:"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="5"
+                           Grid.Column="1"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Text="{x:Bind UnitPrice, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
+
+        <!--  Data template for the document item type  -->
         <DataTemplate x:Key="DocumentTemplate" x:DataType="models:DocumentEntry">
             <StackPanel x:Name="docItem"
                         MinWidth="400"
                         MinHeight="84"
+                        Background="{StaticResource CardColorBrush}"
                         Orientation="Horizontal"
                         Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
@@ -76,13 +438,14 @@
                                TextTrimming="CharacterEllipsis" />
                 </Grid>
             </StackPanel>
-            <!--</Grid>-->
         </DataTemplate>
+
         <DataTemplate x:Key="DocumentGroupHeaderTemplate" x:DataType="models:DocumentGroup">
             <TextBlock Foreground="{StaticResource CustomColorBrush}"
                        Style="{StaticResource TitleTextBlockStyle}"
                        Text="{x:Bind GroupName, Mode=OneWay}" />
         </DataTemplate>
+
         <Style x:Key="DocumentGridViewHeaderItem" TargetType="GridViewHeaderItem">
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
             <Setter Property="FontSize" Value="{ThemeResource GridViewHeaderItemThemeFontSize}" />
@@ -107,7 +470,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -119,43 +482,6 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                <VisualState x:Name="VisualStateNarrow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
-                        <Setter Target="accountBalance.Width" Value="Auto" />
-                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="pieChart" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateNormal">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateWide">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
-                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
-                        <Setter Target="agedInvoiceLegend.(RelativePanel.RightOf)" Value="pieChart" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
 
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
@@ -173,28 +499,36 @@
                           Icon="Clear"
                           Label="Close Search"
                           Visibility="{x:Bind ViewModel.DocumentModel.DocumentCloseSearchVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-
         </controls:PageHeader>
-        <RelativePanel Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Pivot x:Name="CustomerPivot"
-                   RelativePanel.AlignBottomWithPanel="True"
-                   RelativePanel.AlignLeftWithPanel="True"
-                   RelativePanel.AlignRightWithPanel="True"
-                   RelativePanel.AlignTopWithPanel="True"
-                   SelectionChanged="{x:Bind ViewModel.PivotChanged}">
 
-                <PivotItem DataContext="{Binding CustomerDetailPageViewModei}" Header="At a Glance">
-                    <ScrollViewer>
-                        <RelativePanel HorizontalAlignment="Left">
-                            <StackPanel x:Name="customerInfo"
-                                        MinWidth="300"
-                                        MinHeight="124"
-                                        Margin="10,10,0,0"
-                                        BorderBrush="{StaticResource CustomColorBrush}"
-                                        BorderThickness="1,1,1,1"
-                                        Padding="10,10"
-                                        RelativePanel.AlignLeftWithPanel="True"
-                                        RelativePanel.AlignTopWithPanel="True">
+        <Pivot x:Name="CustomerPivot"
+               Grid.Row="1"
+               RelativePanel.AlignBottomWithPanel="True"
+               RelativePanel.AlignLeftWithPanel="True"
+               RelativePanel.AlignRightWithPanel="True"
+               RelativePanel.AlignTopWithPanel="True"
+               SelectedIndex="{x:Bind ViewModel.Index, Mode=TwoWay}"
+               SelectionChanged="{x:Bind ViewModel.PivotChanged}">
+
+            <PivotItem DataContext="{Binding CustomerDetailPageViewModei}" Header="At a Glance">
+                <ScrollViewer VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto">
+                    <RelativePanel>
+                        <Grid x:Name="customerInfo"
+                              MinWidth="300"
+                              MinHeight="300"
+                              Background="{StaticResource CardColorBrush}"
+                              BorderBrush="{StaticResource CustomColorBrush}"
+                              BorderThickness="1,1,1,1"
+                              Padding="10,10"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignTopWithPanel="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0">
                                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.CustomerName}"
                                            TextTrimming="CharacterEllipsis" />
@@ -237,9 +571,9 @@
                                 <TextBlock Margin="0,10,0,0"
                                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
-                                           Text="{x:Bind ViewModel.CurrentCustomer.Telephone}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.TelephoneNo}"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ViewModel.CurrentCustomer.Telephone, Converter={StaticResource StringToVisibility}}" />
+                                           Visibility="{x:Bind ViewModel.CurrentCustomer.TelephoneNo, Converter={StaticResource StringToVisibility}}" />
                                 <TextBlock Margin="0,4,0,0"
                                            Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                                            Style="{StaticResource BodyTextBlockStyle}"
@@ -256,104 +590,224 @@
                                            Style="{StaticResource BodyTextBlockStyle}"
                                            Text="{x:Bind ViewModel.CurrentCustomer.DateEstablished, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}" />
                             </StackPanel>
-                            <StackPanel x:Name="accountBalance">
-                                <RelativePanel>
-                                    <telerikChart:RadPieChart x:Name="pieChart"
-                                                              MaxWidth="400"
-                                                              MaxHeight="400"
-                                                              PaletteName="DefaultDark">
-                                        <telerikChart:DoughnutSeries ItemsSource="{x:Bind ViewModel.AgingChartData}"
-                                                                     RadiusFactor=".75"
-                                                                     ShowLabels="True">
-                                            <telerikChart:DoughnutSeries.ValueBinding>
+                            <HyperlinkButton x:Name="Contact"
+                                             Grid.Row="1"
+                                             Command="{x:Bind ViewModel.Contact}"
+                                             CommandParameter="{Binding ElementName=Contact}"
+                                             Content="Show Contact Card" />
+                            <HyperlinkButton Grid.Row="2"
+                                             Command="{x:Bind ViewModel.ShowMap}"
+                                             Content="Show On Map" />
+                        </Grid>
+                        <Grid x:Name="accountBalance"
+                              MinWidth="300"
+                              MinHeight="300"
+                              Margin="10,0,10,0"
+                              Background="{StaticResource CardColorBrush}"
+                              BorderBrush="{StaticResource CustomColorBrush}"
+                              BorderThickness="1,1,1,1"
+                              Padding="10,10"
+                              RelativePanel.AlignRightWithPanel="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <telerikChart:RadPieChart x:Name="pieChart"
+                                                      Grid.Row="0"
+                                                      MinWidth="240"
+                                                      MinHeight="240"
+                                                      Margin="0,0,0,0"
+                                                      HorizontalAlignment="Left"
+                                                      VerticalAlignment="Top"
+                                                      HorizontalContentAlignment="Center"
+                                                      VerticalContentAlignment="Center"
+                                                      MaxZoom="100,100"
+                                                      MinZoom="1,1"
+                                                      PaletteName="DefaultDark"
+                                                      Zoom="1,1">
+                                <telerikChart:DoughnutSeries HorizontalContentAlignment="Stretch"
+                                                             VerticalContentAlignment="Stretch"
+                                                             FontSize="10"
+                                                             InnerRadiusFactor="0.3"
+                                                             ItemsSource="{x:Bind ViewModel.AgingChartData}"
+                                                             ShowLabels="False">
+                                    <telerikChart:DoughnutSeries.ValueBinding>
+                                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
+                                    </telerikChart:DoughnutSeries.ValueBinding>
+
+                                    <telerikChart:DoughnutSeries.LabelDefinitions>
+                                        <telerikChart:ChartSeriesLabelDefinition>
+                                            <telerikChart:ChartSeriesLabelDefinition.Binding>
                                                 <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
-                                            </telerikChart:DoughnutSeries.ValueBinding>
-
-                                            <telerikChart:DoughnutSeries.LabelDefinitions>
-                                                <telerikChart:ChartSeriesLabelDefinition Margin="-10">
-                                                    <telerikChart:ChartSeriesLabelDefinition.Binding>
-                                                        <telerikChart:PropertyNameDataPointBinding PropertyName="Value" />
-                                                    </telerikChart:ChartSeriesLabelDefinition.Binding>
-                                                </telerikChart:ChartSeriesLabelDefinition>
-                                            </telerikChart:DoughnutSeries.LabelDefinitions>
-                                            <telerikChart:DoughnutSeries.LegendTitleBinding>
-                                                <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
-                                            </telerikChart:DoughnutSeries.LegendTitleBinding>
-                                        </telerikChart:DoughnutSeries>
-                                    </telerikChart:RadPieChart>
-
-                                    <telerikPrimitives:RadLegendControl x:Name="agedInvoiceLegend" LegendProvider="{Binding ElementName=pieChart}">
-                                        <telerikPrimitives:RadLegendControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Vertical" />
-                                            </ItemsPanelTemplate>
-                                        </telerikPrimitives:RadLegendControl.ItemsPanel>
-                                        <telerikPrimitives:RadLegendControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Width="10"
-                                                             Height="10"
-                                                             Fill="{Binding Fill}"
-                                                             Stroke="{Binding Stroke}"
-                                                             StrokeThickness="1" />
-                                                    <TextBlock Margin="10"
-                                                               FontStyle="Normal"
-                                                               Foreground="{Binding Fill}"
-                                                               Text="{Binding Title}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </telerikPrimitives:RadLegendControl.ItemTemplate>
-                                    </telerikPrimitives:RadLegendControl>
-                                </RelativePanel>
-
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Balance Due: " />
-                                    <TextBlock Margin="4,0,0,0" Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
-                                </StackPanel>
+                                            </telerikChart:ChartSeriesLabelDefinition.Binding>
+                                        </telerikChart:ChartSeriesLabelDefinition>
+                                    </telerikChart:DoughnutSeries.LabelDefinitions>
+                                    <telerikChart:DoughnutSeries.LegendTitleBinding>
+                                        <telerikChart:PropertyNameDataPointBinding PropertyName="Label" />
+                                    </telerikChart:DoughnutSeries.LegendTitleBinding>
+                                </telerikChart:DoughnutSeries>
+                            </telerikChart:RadPieChart>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                <TextBlock Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}" Text="Balance Due: " />
+                                <TextBlock Margin="4,0,0,0"
+                                           Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                                           Text="{x:Bind ViewModel.CurrentCustomer.AmountDue, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}" />
                             </StackPanel>
-                        </RelativePanel>
-                    </ScrollViewer>
-                </PivotItem>
+                        </Grid>
+                        <telerikPrimitives:RadLegendControl x:Name="agedInvoiceLegend"
+                                                            MinWidth="100"
+                                                            MinHeight="300"
+                                                            FontSize="14"
+                                                            LegendProvider="{Binding ElementName=pieChart}"
+                                                            RelativePanel.AlignRightWith="accountBalance"
+                                                            RelativePanel.AlignTopWithPanel="True">
+                            <telerikPrimitives:RadLegendControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </telerikPrimitives:RadLegendControl.ItemsPanel>
+                            <telerikPrimitives:RadLegendControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10"
+                                                 Height="10"
+                                                 Fill="{Binding Fill}"
+                                                 Stroke="{Binding Stroke}"
+                                                 StrokeThickness="1" />
+                                        <TextBlock Margin="10"
+                                                   FontStyle="Normal"
+                                                   Foreground="{Binding Fill}"
+                                                   Text="{Binding Title}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </telerikPrimitives:RadLegendControl.ItemTemplate>
+                        </telerikPrimitives:RadLegendControl>
+                    </RelativePanel>
+                </ScrollViewer>
+            </PivotItem>
 
-                <PivotItem Header="Documents">
-                    <Grid RelativePanel.AlignLeftWithPanel="True"
-                          RelativePanel.AlignRightWithPanel="True"
-                          RelativePanel.Below="pageHeader">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <GridView x:Name="DocumentGrid"
-                                  Grid.Row="0"
-                                  DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
-                                  IsItemClickEnabled="True"
-                                  ItemContainerStyle="{StaticResource GridViewItemExpanded}"
-                                  ItemTemplate="{StaticResource DocumentTemplate}"
-                                  ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
-                                  RelativePanel.AlignLeftWithPanel="True"
-                                  RelativePanel.AlignRightWithPanel="True"
-                                  RelativePanel.Below="pageHeader"
-                                  ScrollViewer.IsVerticalScrollChainingEnabled="False"
-                                  SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
-                                  SelectionMode="Single">
-                            <GridView.GroupStyle>
-                                <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
-                            </GridView.GroupStyle>
-                        </GridView>
-                        <TextBlock Grid.Row="0"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
-                                   Style="{StaticResource SubtitleTextBlockStyle}"
-                                   Text="No documents to display"
-                                   Visibility="{x:Bind ViewModel.DocumentModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                    </Grid>
-                </PivotItem>
+            <PivotItem Header="Documents">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="DocumentGrid"
+                              Grid.Row="0"
+                              DoubleTapped="{x:Bind ViewModel.DocumentModel.DocumentDoubleTapped}"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource DocumentTemplate}"
+                              ItemsSource="{x:Bind CvsDocuments.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.DocumentModel.DocumentSelectionChanged}"
+                              SelectionMode="Single">
+                        <GridView.GroupStyle>
+                            <GroupStyle HeaderContainerStyle="{StaticResource DocumentGridViewHeaderItem}" HeaderTemplate="{StaticResource DocumentGroupHeaderTemplate}" />
+                        </GridView.GroupStyle>
+                    </GridView>
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No documents to display"
+                               Visibility="{x:Bind ViewModel.DocumentModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>
+            </PivotItem>
 
-                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes" />
-                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Orders" />
-                <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items" />
-            </Pivot>
-        </RelativePanel>
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Quotes">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="QuotesGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource QuoteTemplate}"
+                              ItemsSource="{x:Bind CvsQuotes.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.QuoteModel.QuoteSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No quotes to display"
+                               Visibility="{x:Bind ViewModel.QuoteModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>
+            </PivotItem>
+
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Orders">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="OrdersGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource OrderTemplate}"
+                              ItemsSource="{x:Bind CvsOrders.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.OrderModel.OrderSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No orders to display"
+                               Visibility="{x:Bind ViewModel.OrderModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>
+            </PivotItem>
+
+            <PivotItem DataContext="{Binding SettingsPartViewModel}" Header="Recently Purchased Items">
+                <Grid RelativePanel.AlignLeftWithPanel="True"
+                      RelativePanel.AlignRightWithPanel="True"
+                      RelativePanel.Below="pageHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GridView x:Name="RecentGrid"
+                              Grid.Row="0"
+                              IsItemClickEnabled="True"
+                              ItemContainerStyle="{StaticResource GridViewItemExpanded}"
+                              ItemTemplate="{StaticResource RecentItemTemplate}"
+                              ItemsSource="{x:Bind CvsRecentItem.View, Mode=OneWay}"
+                              RelativePanel.AlignLeftWithPanel="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="pageHeader"
+                              ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectionChanged="{x:Bind ViewModel.RecentItemModel.RecentItemSelectionChanged}"
+                              SelectionMode="Single" />
+                    <TextBlock Grid.Row="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               Text="No items to display"
+                               Visibility="{x:Bind ViewModel.RecentItemModel.IsEmpty, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                </Grid>
+            </PivotItem>
+        </Pivot>
+
         <ProgressRing Grid.Row="1"
                       Width="100"
                       Height="100"
@@ -363,24 +817,33 @@
         <custom:SearchControl x:Name="Find"
                               Grid.Row="1"
                               Visibility="Collapsed" />
-        <CommandBar x:Name="bottomBar" Grid.Row="2">
+
+        <!--  Command bar for customer at a glance  -->
+        <CommandBar x:Name="customerBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
                           Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
-                          Label="Favorite"
-                          Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Favorite" />
+        </CommandBar>
+
+        <!--  Command bar for documents  -->
+        <CommandBar x:Name="documentBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
-                          Label="Upload"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Upload" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                           Icon="OpenFile"
-                          Label="Open"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Open" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
                           CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
-                          Label="Share"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                          Label="Share">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE72D;" />
                 </AppBarButton.Icon>
@@ -389,21 +852,103 @@
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="MoveToFolder"
-                              Label="Move To"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Move To" />
+                <AppBarSeparator />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Delete"
-                              Label="Delete"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Delete" />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Rename"
-                              Label="Rename"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Rename" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
 
+        <!--  Command bar for quotes  -->
+        <CommandBar x:Name="quoteBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
+                          Icon="Add"
+                          Label="Quick Quote" />
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send, Mode=OneWay}"
+                          CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
+                          Icon="Send"
+                          Label="Send" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Delete}"
+                              CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
+                              Icon="Delete"
+                              Label="Delete" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+        <!--  Command bar for orders  -->
+        <CommandBar x:Name="orderBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.OrderModel.OrderCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.OrderModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
+        </CommandBar>
+
+        <!--  Command bar for recently purchased items  -->
+        <CommandBar x:Name="recentBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.RecentItemModel.RecentItemCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.RecentItemModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
+        </CommandBar>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="customerInfo.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignLeftWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.(RelativePanel.AlignRightWithPanel)" Value="True" />
+                        <Setter Target="accountBalance.Width" Value="Auto" />
+                        <Setter Target="accountBalance.(RelativePanel.Below)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="0,10,0,10" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="False" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.Below)" Value="customerInfo" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="accountBalance.(RelativePanel.AlignTopWith)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(RelativePanel.RightOf)" Value="customerInfo" />
+                        <Setter Target="accountBalance.(Margin)" Value="10,0,10,0" />
+                        <Setter Target="agedInvoiceLegend.(RelativePanel.AlignTopWithPanel)" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

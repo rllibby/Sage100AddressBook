@@ -25,8 +25,10 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
         #region Private constants
 
         private readonly static string[] SubFolders = { "Statements", "SalesHistory", "Quotes", "PriceList" };
+        private readonly static string[] DocumentSubFolders = { "General", "Receipts", "BusinessCards" };
         private const string MetadataExtension = ".json.txt";
-
+        private const string Documents = "Documents";
+        
         #endregion
 
         #region Private fields
@@ -57,12 +59,22 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                 {
                     var driveItem = new DriveItem()
                     {
-
                         Name = folderId,
                         Folder = new Folder()
                     };
 
                     var root = await client.Me.Drive.Root.Children.Request().AddAsync(driveItem);
+
+                    if (folderId.Equals(Documents, StringComparison.OrdinalIgnoreCase))
+                    {
+                        foreach (var item in DocumentSubFolders)
+                        {
+                            driveItem.Name = item;
+                            await client.Me.Drive.Items[root.Id].Children.Request().AddAsync(driveItem);
+                        }
+
+                        return;
+                    }
 
                     foreach (var item in SubFolders)
                     {
@@ -220,7 +232,6 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                             metadata.Add(names[0], doc.Id);
                             continue;
                         }
-
 
                         var entry = new DocumentEntry()
                         {

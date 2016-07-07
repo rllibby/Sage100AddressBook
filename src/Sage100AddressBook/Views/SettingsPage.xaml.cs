@@ -1,23 +1,28 @@
-using System.Threading.Tasks;
+/*
+ *  Copyright © 2016, Sage Software, Inc. 
+ */
+
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.Views
 {
+    /// <summary>
+    /// Code behind for the Settings page.
+    /// </summary>
     public sealed partial class SettingsPage : Page
     {
-        Template10.Services.SerializationService.ISerializationService _SerializationService;
+        #region Constructor
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SettingsPage()
         {
             InitializeComponent();
-            _SerializationService = Template10.Services.SerializationService.SerializationService.Json;
+            NavigationCacheMode = NavigationCacheMode.Disabled;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            var index = int.Parse(_SerializationService.Deserialize(e.Parameter?.ToString()).ToString());
-            MyPivot.SelectedIndex = index;
-        }
+        #endregion
     }
 }

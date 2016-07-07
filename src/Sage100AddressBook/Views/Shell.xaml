@@ -35,21 +35,6 @@
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
 
-            <Controls:HamburgerButtonInfo PageType="views:FavoritesPage">
-                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-                    <SuppressNavigationTransitionInfo />
-                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
-                                Height="48"
-                                Symbol="OutlineStar" />
-                    <TextBlock Margin="12,0,0,0"
-                               VerticalAlignment="Center"
-                               Text="Favorites" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-
             <Controls:HamburgerButtonInfo PageType="views:RecentPage">
                 <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                     <SuppressNavigationTransitionInfo />
@@ -65,6 +50,21 @@
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
 
+            <Controls:HamburgerButtonInfo PageType="views:DocumentsPage">
+                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <SuppressNavigationTransitionInfo />
+                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Width="48"
+                                Height="48"
+                                Symbol="Document" />
+                    <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               Text="Documents" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+
         </Controls:HamburgerMenu.PrimaryButtons>
 
         <Controls:HamburgerMenu.SecondaryButtons>
@@ -74,7 +74,7 @@
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48"
                                 Height="48"
-                                Symbol="People" />
+                                Symbol="Contact" />
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                         <TextBlock Margin="12,0,0,0" Text="{x:Bind ViewModel.SignInText, Mode=OneWay}" />
                         <TextBlock Margin="12,0,0,0"

@@ -14,8 +14,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.ApplicationModel;
-using System.IO.IsolatedStorage;
 using Windows.Foundation.Metadata;
+using Windows.Foundation;
 
 namespace Sage100AddressBook
 {
@@ -25,6 +25,12 @@ namespace Sage100AddressBook
     [Bindable]
     sealed partial class App : BootStrapper
     {
+        #region Private fields
+
+        private static Rect _bounds;
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -36,11 +42,11 @@ namespace Sage100AddressBook
 
             SplashFactory = (e) => new Views.Splash(e);
 
-            var _settings = SettingsService.Instance;
+            var settings = SettingsService.Instance;
 
-            RequestedTheme = _settings.AppTheme;
-            CacheMaxDuration = _settings.CacheMaxDuration;
-            ShowShellBackButton = _settings.UseShellBackButton;
+            RequestedTheme = settings.AppTheme;
+            CacheMaxDuration = settings.CacheMaxDuration;
+            ShowShellBackButton = settings.UseShellBackButton;
         }
 
         #endregion
@@ -78,6 +84,10 @@ namespace Sage100AddressBook
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
         {
             var view = ApplicationView.GetForCurrentView();
+
+            _bounds = view.VisibleBounds;
+
+            SettingsService.Instance.UpdateCardBrush();
 
             view.TitleBar.ButtonBackgroundColor = Colors.Black;
             view.TitleBar.ButtonForegroundColor = Colors.White;
@@ -131,6 +141,18 @@ namespace Sage100AddressBook
             {
                 deferral.Complete();
             }
+        }
+
+        #endregion
+
+        #region Public properties
+
+        /// <summary>
+        /// Returns the bounds of the display, which should only be used on mobile devices.
+        /// </summary>
+        public static Rect Bounds
+        {
+            get { return _bounds; }
         }
 
         #endregion

@@ -4,13 +4,16 @@
 
 using Sage100AddressBook.CustomControls;
 using Sage100AddressBook.Models;
+using Sage100AddressBook.Services.SettingsServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Template10.Utils;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace Sage100AddressBook.Helpers
 {
@@ -67,6 +70,48 @@ namespace Sage100AddressBook.Helpers
         #region Public methods
 
         /// <summary>
+        /// Shows a dialog that allows for text based user input.
+        /// </summary>
+        /// <param name="scope">The input scope for the text box.</param>
+        /// <param name="title">The title for the input box.</param>
+        /// <param name="value">The optional starting value.</param>
+        /// <param name="placeholder">The optional placeholder text for the input box.</param>
+        /// <returns>The resulting string on success, null on cancel.</returns>
+        public static async Task<string> Input(InputScope scope, string title, string value = null, string placeholder = null)
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
+                MaxHeight = 210,
+            };
+
+            var control = new InputBox(dialog, title, value, placeholder)
+            {
+                Scope = scope,
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
+            dialog.Content = control;
+
+            var result = (string)null;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.ResultText; };
+            dialog.SecondaryButtonClick += delegate { result = null; };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+        /// <summary>
         /// Shows a dialog that allows a rename to occur.
         /// </summary>
         /// <param name="original">The original string for the rename.</param>
@@ -76,7 +121,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 210,
             };
 
@@ -87,6 +132,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (string)null;
@@ -111,7 +157,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(300, App.Bounds.Width - 2),
                 MaxHeight = 260,
             };
 
@@ -122,6 +168,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (-1);
@@ -141,6 +188,55 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection list dialog.
         /// </summary>
+        /// <param name="companyId">The company identifier.<param>
+        /// <param name="customerId">The customer identifier.<param>
+        /// <returns>The QuickQuoteLine on success, null on failure.</returns>
+        public static async Task<QuickQuoteLine> GetQuickQuoteItem(string companyId, string customerId)
+        {
+            if (string.IsNullOrEmpty(companyId) || string.IsNullOrEmpty(customerId)) return (null);
+
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(600, App.Bounds.Width - 2),
+                MaxHeight = Math.Min(420, Window.Current.Bounds.Height - 20),
+            };
+
+            var control = new CustomControls.QuickQuote(dialog, companyId, customerId)
+            {
+                DisplayText = "New Quick Quote",
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
+            dialog.Content = control;
+
+            QuickQuoteLine result = null;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = false;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Selected; };
+            dialog.SecondaryButtonClick += delegate { result = null; };
+
+            await dialog.ShowAsync();
+
+            if (result != null)
+            {
+                var ok = await ShowOkCancel(string.Format("Create a new quick quote for:\n\n({0}) - {1}", result.Quantity, result.Description));
+
+                if (!ok) result = null;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Show a selection list dialog.
+        /// </summary>
         /// <param name="operation">The operation to perform, this controls the text.</param>
         /// <param name="items">The collection of items to show in list.</param>
         /// <param name="rootId">The base level folder name<param>
@@ -152,7 +248,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
@@ -164,6 +260,7 @@ namespace Sage100AddressBook.Helpers
                 Height = dialog.MaxHeight - 120,
             };
 
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
             dialog.Content = control;
 
             var result = (-1);
@@ -194,7 +291,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = Title,
-                MaxWidth = Window.Current.Bounds.Width - 40,
+                MaxWidth = App.Bounds.Width - 2,
                 MaxHeight = Window.Current.Bounds.Height - 40
             };
 
@@ -221,6 +318,7 @@ namespace Sage100AddressBook.Helpers
 
             viewer.Content = text;
             dialog.Content = viewer;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             bool result = false;
 
@@ -246,7 +344,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 200,
             };
 
@@ -260,6 +358,7 @@ namespace Sage100AddressBook.Helpers
             };
 
             dialog.Content = control;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             dialog.PrimaryButtonText = Ok;
             dialog.SecondaryButtonText = Cancel;
@@ -279,7 +378,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, Window.Current.Bounds.Width - 60),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 200,
             };
 
@@ -293,6 +392,7 @@ namespace Sage100AddressBook.Helpers
             };
 
             dialog.Content = control;
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
 
             var result = false;
 

@@ -5,8 +5,6 @@
 using Sage100AddressBook.Helpers;
 using System;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Data.Pdf;
 using Windows.Storage;
@@ -112,7 +110,6 @@ namespace Sage100AddressBook.Services.DocumentViewerServices
                     var file = await folder.GetFileAsync(fileName);
                     var options = new LauncherOptions()
                     {
-                        DisplayApplicationPicker = true,
                     };
 
                     result = await Launcher.LaunchFileAsync(file, options);

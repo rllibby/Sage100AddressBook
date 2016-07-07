@@ -59,6 +59,8 @@ namespace Sage100AddressBook.CustomControls
 
         private EventHandler<SearchEventArgs> _onSearch;
         private string _searchText;
+        private string _placeholderText;
+        private bool _autoDismiss;
         private bool _active;
         private bool _showing;
 
@@ -107,7 +109,7 @@ namespace Sage100AddressBook.CustomControls
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (_showing && (Visibility == Visibility.Visible) && !_active)
+                if (_showing && (Visibility == Visibility.Visible) && !_active && _autoDismiss)
                 {
                     try
                     {
@@ -146,6 +148,8 @@ namespace Sage100AddressBook.CustomControls
         public SearchControl()
         {
             InitializeComponent();
+
+            _autoDismiss = true;
         }
 
         #endregion
@@ -156,14 +160,15 @@ namespace Sage100AddressBook.CustomControls
         /// Sets focus to the search box
         /// </summary>
         /// <param name="onSearchCallback">The event handler to call when a search is executed.</param>
-        public void ShowSearch(EventHandler<SearchEventArgs> onSearchCallback)
+        /// <param name="placeholderText">Optional placeholder text to show when text is empty.</param>
+        public void ShowSearch(EventHandler<SearchEventArgs> onSearchCallback, string placeholderText = null)
         {
             _onSearch = onSearchCallback;
 
             try
             {
                 SearchBox.Text = string.Empty;
-                SearchBox.PlaceholderText = "Search for...";
+                SearchBox.PlaceholderText = _placeholderText = (placeholderText == null) ? "Search for..." : placeholderText;
                 Visibility = Visibility.Visible;
                 Focus(FocusState.Programmatic);
             }
@@ -173,6 +178,15 @@ namespace Sage100AddressBook.CustomControls
             }
         }
         
+        /// <summary>
+        /// Resets the search box field.
+        /// </summary>
+        public void Reset()
+        {
+            SearchBox.Text = string.Empty;
+            SearchBox.PlaceholderText = _placeholderText;
+        }
+
         /// <summary>
         /// Close the search window.
         /// </summary>
@@ -202,6 +216,15 @@ namespace Sage100AddressBook.CustomControls
         public string SearchText
         {
             get { return _searchText; }
+        }
+
+        /// <summary>
+        /// True if the search 
+        /// </summary>
+        public bool AutoDismiss
+        {
+            get { return _autoDismiss; }
+            set { _autoDismiss = value; }
         }
 
         #endregion

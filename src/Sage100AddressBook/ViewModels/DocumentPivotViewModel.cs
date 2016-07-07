@@ -49,7 +49,7 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private List<DocumentEntry> _documents = new List<DocumentEntry>();
         private List<DocumentFolder> _folders = new List<DocumentFolder>();
-        private CustomerDetailPageViewModel _owner;
+        private ViewModelLoading _owner;
         private SearchControl _searchControl;
         private DataTransferManager _dataTransferManager;
         private DelegateCommand<SearchControl> _search;
@@ -62,11 +62,15 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<DocumentEntry> _delete;
         private DelegateCommand<DocumentEntry> _rename;
         private DelegateCommand _upload;
+        private DelegateCommand _refresh;
         private string _searchText;
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
         private bool _isSearch;
+        private bool _isLoading;
+        private bool _loaded;
+        private bool _loading;
 
         #endregion
 
@@ -210,23 +214,19 @@ namespace Sage100AddressBook.ViewModels
                     Loading = true;
                     SearchText = search;
 
-                    _documents.Clear();
+                    foreach (var entry in _documents) entry.Active = false;
+
                     BuildDocumentGroups();
 
                     Task.Run<IEnumerable<DocumentEntry>>(async () =>
                     {
-                        var source = new List<DocumentEntry>();
-
-                        _documents.Clear();
-                        source.AddRange(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
-
                         var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, search);
 
                         foreach (var item in found)
                         {
-                            var match = source.FirstOrDefault(e => e.Id.Equals(item.Id));
+                            var match = _documents.FirstOrDefault(e => e.Id.Equals(item.Id));
 
-                            if (match != null) _documents.Add(match);
+                            if (match != null) match.Active = true;
                         }
 
                         return _documents;
@@ -299,11 +299,14 @@ namespace Sage100AddressBook.ViewModels
                 SearchText = string.Empty;
                
                 _searchControl = null;
-                _documents.Clear();
 
+                foreach (var entry in _documents) entry.Active = true;
                 BuildDocumentGroups();
 
-                if (_index == PivotIndex) Load();
+                if ((_index == PivotIndex) && !_loaded)
+                {
+                    Load();
+                }
             });
         }
 
@@ -321,7 +324,7 @@ namespace Sage100AddressBook.ViewModels
                 document.Rename = _rename;
             }
 
-            var grouped = from document in _documents group document by new { document.Folder, document.FolderId } into grp
+            var grouped = from document in _documents where document.Active group document by new { document.Folder, document.FolderId } into grp
                           orderby grp.Key.Folder descending
                           select new DocumentGroup
                           {
@@ -480,7 +483,6 @@ namespace Sage100AddressBook.ViewModels
             });
         }
 
-
         /// <summary>
         /// Moves the document to a new folder.
         /// </summary>
@@ -583,6 +585,20 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Refresh the document list.
+        /// </summary>
+        /// <returns>The async action.</returns>
+        private async void RefreshAction()
+        {
+            if (_isLoading) return;
+
+            CloseSearchResults(_searchControl);
+            _loaded = false;
+
+            await Load();
+        }
+
+        /// <summary>
         /// Uploads a document to one drive.
         /// </summary>
         private async void UploadDocument()
@@ -644,7 +660,8 @@ namespace Sage100AddressBook.ViewModels
                                 FolderId = folder.Id,
                                 Id = driveItem.Id,
                                 Name = driveItem.Name,
-                                LastModifiedDate = driveItem.LastModifiedDateTime?.DateTime.ToLocalTime()
+                                LastModifiedDate = driveItem.LastModifiedDateTime?.DateTime.ToLocalTime(),
+                                Active = true
                             };
 
                             _documents.Add(entry);
@@ -687,7 +704,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Constructor.
         /// </summary>
-        public DocumentPivotViewModel(CustomerDetailPageViewModel owner)
+        public DocumentPivotViewModel(ViewModelLoading owner)
         {
             if (owner == null) throw new ArgumentNullException("owner");
 
@@ -698,6 +715,7 @@ namespace Sage100AddressBook.ViewModels
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
             _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
             _upload = new DelegateCommand(new Action(UploadDocument));
+            _refresh = new DelegateCommand(new Action(RefreshAction));
             _open = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(OpenDocument), HasDocument);
             _move = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(MoveDocument), HasDocument);
             _share = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(ShareDocument), HasDocument);
@@ -717,7 +735,7 @@ namespace Sage100AddressBook.ViewModels
         public void SetArguments(string id, string companyCode)
         {
             _rootId = id;
-            _companyCode = companyCode;
+            _companyCode = companyCode.ToLower();
         }
 
         /// <summary>
@@ -726,34 +744,43 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public async Task Load()
         {
-            if (_index != PivotIndex) return;
+            if ((_index != PivotIndex) || _loaded || _isLoading) return;
+
+            _isLoading = true;
 
             var dispatcher = Window.Current.Dispatcher;
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
                 Loading = true;
-
                 _documents.Clear();
-
                 BuildDocumentGroups();
             });
 
             Task.Run(async () =>
             {
-                return await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+                var documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+
+                foreach (var entry in documents) entry.Active = true;
+
+                return documents;
+
             }).ContinueWith(async (t) =>
             {
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     try
                     {
-                        if (t.IsCompleted) _documents.AddRange(t.Result);
+                        if (t.IsCompleted)
+                        {
+                            _documents.AddRange(t.Result);
+                            _loaded = true;
+                        }
                         BuildDocumentGroups();
                     }
                     finally
                     {
-                        Loading = false;
+                        Loading = _isLoading = false;
                     }
                 });
             });
@@ -775,6 +802,12 @@ namespace Sage100AddressBook.ViewModels
 
                 if (active)
                 {
+                    if (_isLoading)
+                    {
+                        Loading = true;
+                        return;
+                    }
+
                     await Load();
                 }
                 else if (wasActive)
@@ -801,7 +834,6 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 Current = (sender as GridView)?.SelectedItem as DocumentEntry;
-
             }
             finally
             {
@@ -906,6 +938,14 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Refreshes the list.
+        /// </summary>
+        public DelegateCommand Refresh
+        {
+            get { return _refresh; }
+        }
+
+        /// <summary>
         /// Deletes an existing document.
         /// </summary>
         public DelegateCommand<DocumentEntry> Delete
@@ -918,7 +958,7 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool IsEmpty
         {
-            get { return (_documents.Count == 0); }
+            get { return ((_documents.Count == 0) || (_documents.Where(e => e.Active).Count() == 0)); }
         }
 
         /// <summary>
@@ -968,12 +1008,16 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool Loading
         {
-            get { return _owner.Loading; }
+            get { return _loading; }
             set
             {
-                _owner.Loading = value;
+                if (_loading != value)
+                {
+                    _loading = value;
+                    _owner.Loading = value;
 
-                RaisePropertyChanged("Loading");
+                    RaisePropertyChanged("Loading");
+                }
             }
         }
 

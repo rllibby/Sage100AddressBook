@@ -13,9 +13,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.NavigationService;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+
+#pragma warning disable 4014
 
 namespace Sage100AddressBook.ViewModels
 {
@@ -27,32 +31,52 @@ namespace Sage100AddressBook.ViewModels
         #region Private fields
 
         private ObservableCollectionEx<AddressGroup> _addressGroups = new ObservableCollectionEx<AddressGroup>();
-        private ObservableCollectionEx<AddressEntry> _addresses = new ObservableCollectionEx<AddressEntry>();
+        private List<AddressEntry> _addresses = new List<AddressEntry>();
         private CustomerSearchService _searchService;
         private AddressEntry _currentAddress;
+        private string _search;
         private bool _loading;
-        private string _search = "Default";
 
         #endregion
 
         #region Private methods
 
         /// <summary>
-        /// Gets the navigation event arguments.
+        /// Executes the search on a background thread.
         /// </summary>
-        /// <param name="entry">The address entry.</param>
-        /// <param name="removePage">True if the receiver should remove this page from the back stack.</param>
-        /// <returns>The navigation event args.</returns>
-        private NavigationArgs GetNavArgs(AddressEntry entry, bool removePage)
+        /// <param name="searchText">The text to search for.</param>
+        private void LoadSearchResults(string searchText)
         {
-            if (entry == null) throw new ArgumentNullException("entry");
+            var dispatcher = Window.Current.Dispatcher;
 
-            return new NavigationArgs()
+            dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { Loading = true; });
+
+            Task.Run(async () =>
             {
-                Id = (entry.Type == "contact") ? entry.ParentId : entry.Id,
-                CompanyCode = "ABC",
-                RemovePage = removePage ? typeof(SearchResultsPage) : null
-            };
+                _addresses.Clear();
+
+                return await _searchService.ExecuteSearchAsync(searchText);
+            }).ContinueWith(async (t) =>
+            {
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    try
+                    {
+                        if (t.IsFaulted)
+                        {
+                            if (t.Exception != null) await Dialogs.ShowException(string.Format("Failed to search the documents for '{0}'.", searchText), t.Exception, false);
+                        }
+
+                        if (t.IsCompleted) _addresses.AddRange(t.Result);
+
+                        BuildAddressGroups();
+                    }
+                    finally
+                    {
+                        Loading = false;
+                    }
+                });
+            });
         }
 
         /// <summary>
@@ -96,27 +120,14 @@ namespace Sage100AddressBook.ViewModels
         {
             Search = (suspensionState.ContainsKey(nameof(Search))) ? suspensionState[nameof(Search)]?.ToString() : parameter?.ToString();
 
-            Loading = true;
-
             try
             {
-                _addresses.Set(await _searchService.ExecuteSearchAsync(Search), Dispatcher);
-
-                if (_addresses.Count == 1)  
-                {
-                    NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_addresses.FirstOrDefault(), true), new SuppressNavigationTransitionInfo());
-
-                    return;
-                }
-
-                BuildAddressGroups();
+                LoadSearchResults(Search);
             }
             finally
             {
-                Loading = false;
+                await Task.CompletedTask;
             }
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -167,7 +178,7 @@ namespace Sage100AddressBook.ViewModels
 
             RecentAddress.Instance.AddRecent(_currentAddress);
 
-            NavigationService.Navigate(typeof(CustomerDetailPage), GetNavArgs(_currentAddress, false), new SuppressNavigationTransitionInfo());
+            NavigationService.Navigate(typeof(CustomerDetailPage), AddressEntry.GetNavArgs(_currentAddress), new SuppressNavigationTransitionInfo());
         }
 
         #endregion
@@ -194,14 +205,6 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollection<AddressGroup> AddressGroups
         {
             get { return _addressGroups; }
-        }
-
-        /// <summary>
-        /// Collection of addresses.
-        /// </summary>
-        public ObservableCollection<AddressEntry> Addresses
-        {
-            get { return _addresses; }
         }
 
         /// <summary>
