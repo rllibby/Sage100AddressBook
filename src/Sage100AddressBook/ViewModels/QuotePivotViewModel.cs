@@ -60,6 +60,8 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>True if the quote is not null.</returns>
         private async void SendAction(OrderSummary entry)
         {
+            if (entry == null) return;
+
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 var customer = (_owner as CustomerDetailPageViewModel)?.CurrentCustomer;
@@ -73,9 +75,23 @@ namespace Sage100AddressBook.ViewModels
 
                 if (result == null) return;
 
+                Loading = true;
 
+                try
+                {
+                    var quoteMessage = new SendQuoteMessage
+                    {
+                        CustomerId = _rootId,
+                        EmailAddress = result,
+                        OrderId = entry.Id
+                    };
 
-
+                    await OrderWebService.Instance.SendQuoteMessage(_companyCode, quoteMessage);
+                }
+                finally
+                {
+                    Loading = false;
+                }
             });
         }
 

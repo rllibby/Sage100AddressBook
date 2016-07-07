@@ -7,7 +7,7 @@ namespace Sage100AddressBook.Models
     /// <summary>
     /// POCO class for send quote message.
     /// </summary>
-    class SendQuoteMessage
+    public class SendQuoteMessage
     {
         /// <summary>
         /// The order identifier.

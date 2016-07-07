@@ -50,7 +50,7 @@
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
 
-            <!--<Controls:HamburgerButtonInfo PageType="views:DocumentsPage">
+            <Controls:HamburgerButtonInfo PageType="views:DocumentsPage">
                 <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
                     <SuppressNavigationTransitionInfo />
                 </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
@@ -63,28 +63,11 @@
                                VerticalAlignment="Center"
                                Text="Documents" />
                 </StackPanel>
-            </Controls:HamburgerButtonInfo>-->
+            </Controls:HamburgerButtonInfo>
 
         </Controls:HamburgerMenu.PrimaryButtons>
 
         <Controls:HamburgerMenu.SecondaryButtons>
-            <Controls:HamburgerButtonInfo PageType="views:DocumentsPage">
-                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-                    <SuppressNavigationTransitionInfo />
-                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
-                                Height="48"
-                                Symbol="Document" />
-                    <TextBlock Margin="12,0,0,0"
-                               VerticalAlignment="Center"
-                               Text="My Documents" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-
-
-
             <Controls:HamburgerButtonInfo x:Name="AccountsButton"
                                           ButtonType="Command"
                                           Command="{x:Bind ViewModel.Accounts}">
