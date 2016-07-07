@@ -34,12 +34,16 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
         private DelegateCommand<OrderSummary> _send;
+        private DelegateCommand<OrderSummary> _delete;
         private DelegateCommand _quickQuote;
+        private DelegateCommand _refresh;
         private OrderSummary _current;
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
         private bool _loading;
+        private bool _loaded;
+        private bool _isLoading;
 
         #endregion
 
@@ -57,7 +61,7 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// Sends the quote message.
         /// </summary>
-        /// <returns>True if the quote is not null.</returns>
+        /// <returns>The async action</returns>
         private async void SendAction(OrderSummary entry)
         {
             if (entry == null) return;
@@ -96,6 +100,45 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Deletes the quote.
+        /// </summary>
+        /// <returns>The async action.</returns>
+        private async void DeleteAction(OrderSummary entry)
+        {
+            if (entry == null) return;
+
+            await _owner.Dispatcher.DispatchAsync(async () =>
+            {
+                if (!(await Dialogs.ShowOkCancel(string.Format("Delete the quote \"{0}\"?", entry.SalesOrderNo)))) return;
+
+                Loading = true;
+
+                try
+                {
+                    var deleted = await OrderWebService.Instance.DeleteQuote(_companyCode, entry.Id);
+
+                    if (deleted) _quotes.Remove(entry);
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Performs the refresh on quotes.
+        /// </summary>
+        private async void RefreshAction()
+        {
+            if (_isLoading) return;
+
+            _loaded = false;
+
+            await Load();
+        }
+
+        /// <summary>
         /// Performs the quick quote action.
         /// </summary>
         private async void QuickQuoteAction()
@@ -125,7 +168,11 @@ namespace Sage100AddressBook.ViewModels
 
                     foreach (var quote in quotes)
                     {
-                        if (_quotes.FirstOrDefault(q => q.Id.Equals(quote.Id)) == null) _quotes.Add(quote);
+                        if (_quotes.FirstOrDefault(q => q.Id.Equals(quote.Id)) == null)
+                        {
+                            quote.Delete = _delete;
+                            _quotes.Add(quote);
+                        }
                     }
                 }
                 finally
@@ -147,7 +194,9 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _refresh = new DelegateCommand(new Action(RefreshAction));
             _send = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(SendAction), HasQuote);
+            _delete = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(DeleteAction), HasQuote);
             _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
 
@@ -172,7 +221,9 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public async Task Load()
         {
-            if (_index != PivotIndex) return;
+            if ((_index != PivotIndex) || _loaded || _isLoading) return;
+
+            _isLoading = true;
 
             var dispatcher = Window.Current.Dispatcher;
 
@@ -193,12 +244,18 @@ namespace Sage100AddressBook.ViewModels
                 {
                     try
                     {
-                        if (t.IsCompleted) _quotes.Set(t.Result);
+                        if (t.IsCompleted)
+                        {
+                            foreach (var entry in t.Result) entry.Delete = _delete;
+
+                            _quotes.Set(t.Result);
+                            _loaded = true;
+                        }
                         RaisePropertyChanged("IsEmpty");
                     }
                     finally
                     {
-                        Loading = false;
+                        Loading = _isLoading = false;
                     }
                 });
             });
@@ -219,6 +276,12 @@ namespace Sage100AddressBook.ViewModels
 
                 if (active)
                 {
+                    if (_isLoading)
+                    {
+                        Loading = true;
+                        return;
+                    }
+
                     await Load();
                 }
                 else if (wasActive)
@@ -277,6 +340,22 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand<OrderSummary> Send
         {
             get { return _send; }
+        }
+
+        /// <summary>
+        /// The action for deleting the quote.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Delete
+        {
+            get { return _delete; }
+        }
+
+        /// <summary>
+        /// The action for refreshing the quote list.
+        /// </summary>
+        public DelegateCommand Refresh
+        {
+            get { return _refresh; }
         }
 
         /// <summary>

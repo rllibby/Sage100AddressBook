@@ -31,7 +31,6 @@ namespace Sage100AddressBook.Services
         /// <param name="address">The web api address for the request.</param>
         /// <param name="payload">The object to serialize to json content.</param>
         /// <returns>The response content on success, null on failure.</returns>
-
         public static async Task<string> PostAsync(string address, object payload)
         {
             if (address == null) throw new ArgumentNullException("address");
@@ -102,6 +101,40 @@ namespace Sage100AddressBook.Services
             }
 #endif
             return await Task.FromResult<string>(null);
+        }
+
+        /// <summary>
+        /// Deletes the content at the specified address.
+        /// </summary>
+        /// <param name="address">The webapi address for the request.</param>
+        /// <returns>True on success, false on failure.</returns>
+        public static async Task<bool> DeleteAsync(string address)
+        {
+            if (address == null) throw new ArgumentNullException("address");
+
+#if (NGROK)
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+#if DEBUG
+                client.Timeout = TimeSpan.FromSeconds(_timeout);
+#endif
+                try
+                {
+                    using (var response = await client.DeleteAsync(new Uri(_baseAddress + address)))
+                    {
+                        return response.IsSuccessStatusCode;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    var cancelled = (exception as TaskCanceledException);
+
+                    if (cancelled != null) _timeout = 1;
+                }
+            }
+#endif
+            return false;
         }
 
         #endregion

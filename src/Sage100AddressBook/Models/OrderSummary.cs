@@ -4,6 +4,7 @@
 
 using Sage100AddressBook.Helpers;
 using System;
+using Template10.Mvvm;
 
 namespace Sage100AddressBook.Models
 {
@@ -81,6 +82,11 @@ namespace Sage100AddressBook.Models
         /// The quote or order total.
         /// </summary>
         public double Total { get; set; }
+
+        /// <summary>
+        /// Delegate command for the delete action.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Delete { get; set; }
 
         #endregion
     }

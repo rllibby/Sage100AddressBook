@@ -78,10 +78,7 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
 
-            //return dummy data if off-line
-            var result = GetFakeOrder();
-
-            return result;
+            return GetFakeOrder();
         }
 
         /// <summary>
@@ -138,9 +135,20 @@ namespace Sage100AddressBook.Services.Sage100Services
             return await NgrokService.PostAsync(companyCode + "/orders/SendQuote", payload);
         }
 
-        //RUSSELL SEE BELOW
+        /// <summary>
+        /// Deletes the specified quote.
+        /// </summary>
+        /// <param name="companyCode">The company for the request.</param>
+        /// <param name="quoteId">The quote identifier.</param>
+        /// <returns>The async task.</returns>
+        public async Task<bool> DeleteQuote(string companyCode, string quoteId)
+        {
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+            if (string.IsNullOrEmpty(quoteId)) throw new ArgumentNullException("quoteId");
 
-        // additional methods/endpoints
+            return await NgrokService.DeleteAsync(companyCode + "/quotes/" + quoteId);
+        }
+
         // AddLine (partially implemented above)
         // EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
         // DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}

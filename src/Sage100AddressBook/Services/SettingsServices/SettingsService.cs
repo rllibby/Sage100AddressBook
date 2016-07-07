@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Sage100AddressBook.Helpers;
 using System;
 using Template10.Common;
 using Template10.Utils;
@@ -60,8 +61,9 @@ namespace Sage100AddressBook.Services.SettingsServices
         {
             get
             {
-                var theme = ApplicationTheme.Light;
+                var theme = Device.IsMobile ? ApplicationTheme.Dark : ApplicationTheme.Light;
                 var value = _helper.Read<string>(nameof(AppTheme), theme.ToString());
+
                 return Enum.TryParse<ApplicationTheme>(value, out theme) ? theme : ApplicationTheme.Dark;
             }
             set

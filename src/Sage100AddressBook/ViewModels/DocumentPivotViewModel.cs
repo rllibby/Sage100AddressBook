@@ -780,8 +780,7 @@ namespace Sage100AddressBook.ViewModels
                     }
                     finally
                     {
-                        _isLoading = false;
-                        Loading = false;
+                        Loading = _isLoading = false;
                     }
                 });
             });

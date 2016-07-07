@@ -8,10 +8,6 @@
     <x:Double x:Key="NormalMinWidth">600</x:Double>
     <x:Double x:Key="WideMinWidth">1000</x:Double>
 
-    <Color x:Key="CustomColor">#00DC00</Color>
-    <Color x:Key="ContrastColor">White</Color>
-    <Color x:Key="SystemAccentColor">#00DC00</Color>
-
     <x:String x:Key="ida:ClientID">2585caa5-8695-4945-9da7-6d6a73c5b172</x:String>
     <x:String x:Key="ida:ReturnUrl">urn:ietf:wg:oauth:2.0:oob</x:String>
 
@@ -32,6 +28,10 @@
     <converters:StringToImageConverter x:Key="StringToImage" />
     <converters:StringToSymbolConverter x:Key="StringToSymbol" />
 
+    <Color x:Key="CustomColor">#00DC00</Color>
+    <Color x:Key="ContrastColor">White</Color>
+    <Color x:Key="SystemAccentColor">#00DC00</Color>
+    
     <ResourceDictionary.ThemeDictionaries>
 
         <ResourceDictionary x:Key="Light">

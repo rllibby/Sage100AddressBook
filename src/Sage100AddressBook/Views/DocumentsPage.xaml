@@ -177,6 +177,9 @@
                               Visibility="Collapsed" />
 
         <CommandBar x:Name="bottomBar" Grid.Row="2">
+            <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Refresh}"
+                          Icon="Refresh"
+                          Label="Refresh" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
                           Label="Upload"
