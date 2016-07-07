@@ -675,7 +675,7 @@
                 <Grid RelativePanel.AlignLeftWithPanel="True"
                       RelativePanel.AlignRightWithPanel="True"
                       RelativePanel.Below="pageHeader">
-                    <telerikGrid:RadDataGrid x:Name="DataGrid"  ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
+                    <telerikGrid:RadDataGrid x:Name="DataGrid" ItemsSource="{x:Bind ViewModel.RecentPurchasedModel.RecentPurchasedItems}" />
                 </Grid>
             </PivotItem>
         </Pivot>
@@ -689,28 +689,30 @@
         <custom:SearchControl x:Name="Find"
                               Grid.Row="1"
                               Visibility="Collapsed" />
-        <CommandBar x:Name="bottomBar" Grid.Row="2">
-            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
-                          Icon="Add"
-                          Label="Quick Quote"
-                          Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+
+        <!--  Command bar for customer at a glance  -->
+        <CommandBar x:Name="customerBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.ToggleFavorite}"
                           Icon="{x:Bind ViewModel.FavoriteSymbol, Converter={StaticResource StringToSymbol}, Mode=OneWay}"
-                          Label="Favorite"
-                          Visibility="{x:Bind ViewModel.GlanceCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Favorite" />
+        </CommandBar>
+
+        <!--  Command bar for documents  -->
+        <CommandBar x:Name="documentBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Upload}"
                           Icon="Upload"
-                          Label="Upload"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Upload" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Open}"
                           CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                           Icon="OpenFile"
-                          Label="Open"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                          Label="Open" />
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Share}"
                           CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
-                          Label="Share"
-                          Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+                          Label="Share">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE72D;" />
                 </AppBarButton.Icon>
@@ -719,20 +721,30 @@
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Move}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="MoveToFolder"
-                              Label="Move To"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
-                <AppBarSeparator Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Move To" />
+                <AppBarSeparator />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Delete}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Delete"
-                              Label="Delete"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Delete" />
                 <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Rename}"
                               CommandParameter="{x:Bind ViewModel.DocumentModel.Current, Mode=OneWay}"
                               Icon="Rename"
-                              Label="Rename"
-                              Visibility="{x:Bind ViewModel.DocumentModel.DocumentCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}" />
+                              Label="Rename" />
             </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+        <!--  Command bar for quotes  -->
+        <CommandBar x:Name="quoteBar"
+                    Grid.Row="2"
+                    Visibility="{x:Bind ViewModel.QuoteModel.QuoteCommandsVisible, Converter={StaticResource BooleanToVisibility}, Mode=OneWay}">
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
+                          Icon="Add"
+                          Label="Quick Quote" />
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send, Mode=OneWay}"
+                          CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
+                          Icon="Send"
+                          Label="Send" />
         </CommandBar>
 
         <VisualStateManager.VisualStateGroups>

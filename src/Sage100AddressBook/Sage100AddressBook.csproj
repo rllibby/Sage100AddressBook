@@ -107,6 +107,9 @@
     <Compile Include="CustomControls\GroupControl.xaml.cs">
       <DependentUpon>GroupControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\InputBox.xaml.cs">
+      <DependentUpon>InputBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\LinkTypeControl.xaml.cs">
       <DependentUpon>LinkTypeControl.xaml</DependentUpon>
     </Compile>
@@ -130,6 +133,7 @@
     <Compile Include="Helpers\OAuth2AuthenticationProvider.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\ObservableCollectionEx.cs" />
+    <Compile Include="Helpers\OfflineData.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\VisualTree.cs" />
     <Compile Include="Models\AddressEntry.cs" />
@@ -163,6 +167,7 @@
     <Compile Include="ViewModels\DocumentsPageViewModel.cs" />
     <Compile Include="ViewModels\OrderPivotModel.cs" />
     <Compile Include="ViewModels\QuotePivotViewModel.cs" />
+    <Compile Include="ViewModels\RecentItemPivotViewModel.cs" />
     <Compile Include="ViewModels\RecentPageViewModel.cs" />
     <Compile Include="ViewModels\RecentPurchasedPivotViewModel.cs" />
     <Compile Include="ViewModels\SearchResultsPageViewModel.cs" />
@@ -257,6 +262,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="CustomControls\GroupControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\InputBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

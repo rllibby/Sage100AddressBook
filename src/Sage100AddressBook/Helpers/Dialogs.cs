@@ -13,6 +13,7 @@ using Template10.Utils;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace Sage100AddressBook.Helpers
 {
@@ -67,6 +68,48 @@ namespace Sage100AddressBook.Helpers
         #endregion
 
         #region Public methods
+
+        /// <summary>
+        /// Shows a dialog that allows for text based user input.
+        /// </summary>
+        /// <param name="scope">The input scope for the text box.</param>
+        /// <param name="title">The title for the input box.</param>
+        /// <param name="value">The optional starting value.</param>
+        /// <param name="placeholder">The optional placeholder text for the input box.</param>
+        /// <returns>The resulting string on success, null on cancel.</returns>
+        public static async Task<string> Input(InputScope scope, string title, string value = null, string placeholder = null)
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxHeight = 210,
+            };
+
+            var control = new InputBox(dialog, title, value, placeholder)
+            {
+                Scope = scope,
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
+            dialog.Content = control;
+
+            var result = (string)null;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.ResultText; };
+            dialog.SecondaryButtonClick += delegate { result = null; };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
 
         /// <summary>
         /// Shows a dialog that allows a rename to occur.

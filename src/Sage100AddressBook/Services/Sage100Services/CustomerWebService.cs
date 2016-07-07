@@ -3,6 +3,7 @@
  */
 
 using Newtonsoft.Json;
+using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
@@ -38,39 +39,7 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Customer>(content);
 
-            var result = new Customer
-            {
-                CustomerId = "02-AUTOCR",
-                CustomerName = "Autocraft Accessories",
-                AddressLine1 = "310 Fernando Street",
-                AddressLine2 = "",
-                AddressLine3 = "",
-                City = "Newport Beach",
-                State = "CA",
-                ZipCode = "92661-0002",
-                TelephoneNo = "(949) 555-1212",
-                EmailAddress = "joe-bloggs@gmail.com",
-                DateEstablished = new DateTimeOffset(2019, 01, 01, 0, 0, 0, new TimeSpan()),
-                CaptionCurrrent = "Current",
-                CurrentBalance = 12940.31,
-                CaptionAging1 = "Over 30 Days",
-                AgingCategory1 = 4657,
-                CaptionAging2 = "Over 60 Days",
-                AgingCategory2 = 6406.53,
-                CaptionAging3 = "Over 90 Days",
-                AgingCategory3 = 4607.18,
-                CaptionAging4 = "Over 120 Days",
-                AgingCategory4 = 980.34,
-                DateLastPayment = new DateTimeOffset(2020, 05, 17, 0, 0, 0, new TimeSpan()),
-                DateLastStatemtent = null,
-                CreditLimit = 25000,
-                OpenOrderAmt = 1908,
-                AmountDue = 23954.02,
-                CreditRemaining = -862.0200000000004,
-                Id = "303141564E4554"
-            };
-
-            return result;
+            return JsonConvert.DeserializeObject<Customer>(OfflineData.CustomerData);
         }
 
         /// <summary>
@@ -106,51 +75,7 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
-            var result = new List<OrderSummary>();
-
-            result.Add(new OrderSummary
-            {
-                SalesOrderNo = "0000313",
-                OrderType = "Quote",
-                OrderStatus = "",
-                ShipExpireDate = DateTime.Parse("07/08/2106"),
-                BillToName = "American Business Futures",
-                TaxableAmt = 179.00,
-                NonTaxableAmt = 0,
-                SalesTaxAmt = 14.32,
-                DiscountAmt = 0,
-                Total = 193.32
-            });
-
-            result.Add(new OrderSummary
-            {
-                SalesOrderNo = "0000314",
-                OrderType = "Quote",
-                OrderStatus = "",
-                ShipExpireDate = DateTime.Parse("07/20/2106"),
-                BillToName = "Avnet Coporation",
-                TaxableAmt = 245.00,
-                NonTaxableAmt = 100,
-                SalesTaxAmt = 8.21,
-                DiscountAmt = 45.50,
-                Total = 207.71
-            });
-
-            result.Add(new OrderSummary
-            {
-                SalesOrderNo = "0000315",
-                OrderType = "Quote",
-                OrderStatus = "",
-                ShipExpireDate = DateTime.Parse("07/08/2106"),
-                BillToName = "American Business Futures",
-                TaxableAmt = 179.00,
-                NonTaxableAmt = 0,
-                SalesTaxAmt = 14.32,
-                DiscountAmt = 0,
-                Total = 193.32
-            });
-
-            return result;
+            return JsonConvert.DeserializeObject<List<OrderSummary>>(OfflineData.QuoteSummaryData);
         }
 
         /// <summary>
@@ -168,23 +93,7 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<List<OrderSummary>>(content);
 
-            var result = new List<OrderSummary>();
-
-            result.Add(new OrderSummary
-            {
-                SalesOrderNo = "0000313",
-                OrderType = "Standard Order",
-                OrderStatus = "Shipped",
-                ShipExpireDate = DateTime.Parse("07/03/2106"),
-                BillToName = "Avnet Processing Corp",
-                TaxableAmt = 179.00,
-                NonTaxableAmt = 0,
-                SalesTaxAmt = 14.32,
-                DiscountAmt = 0,
-                Total = 193.32,
-            });
-
-            return result;
+            return JsonConvert.DeserializeObject<List<OrderSummary>>(OfflineData.OrderSummaryData);
         }
 
         #endregion

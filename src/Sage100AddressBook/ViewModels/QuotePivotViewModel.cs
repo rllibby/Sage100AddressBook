@@ -12,6 +12,7 @@ using Template10.Mvvm;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 #pragma warning disable 4014
 
@@ -32,6 +33,7 @@ namespace Sage100AddressBook.ViewModels
 
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
+        private DelegateCommand<OrderSummary> _send;
         private DelegateCommand _quickQuote;
         private OrderSummary _current;
         private string _companyCode;
@@ -50,6 +52,47 @@ namespace Sage100AddressBook.ViewModels
         private bool HasQuote(OrderSummary entry)
         {
             return ((entry != null) || (_current != null));
+        }
+
+        /// <summary>
+        /// Sends the quote message.
+        /// </summary>
+        /// <returns>True if the quote is not null.</returns>
+        private async void SendAction(OrderSummary entry)
+        {
+            if (entry == null) return;
+
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                var customer = (_owner as CustomerDetailPageViewModel)?.CurrentCustomer;
+                var scope = new InputScope();
+                var name = new InputScopeName();
+
+                name.NameValue = InputScopeNameValue.EmailNameOrAddress;
+                scope.Names.Add(name);
+
+                var result = await Dialogs.Input(scope, "Recipient email address.", customer?.EmailAddress, "Email address...");
+
+                if (result == null) return;
+
+                Loading = true;
+
+                try
+                {
+                    var quoteMessage = new SendQuoteMessage
+                    {
+                        CustomerId = _rootId,
+                        EmailAddress = result,
+                        OrderId = entry.Id
+                    };
+
+                    await OrderWebService.Instance.SendQuoteMessage(_companyCode, quoteMessage);
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
         }
 
         /// <summary>
@@ -104,6 +147,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _send = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(SendAction), HasQuote);
             _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
 
@@ -198,10 +242,11 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 Current = (sender as GridView)?.SelectedItem as OrderSummary;
+                RaisePropertyChanged("QuoteCommandsVisible");
             }
             finally
             {
-                RaisePropertyChanged("QuoteCommandsVisible");
+                _send.RaiseCanExecuteChanged();
             }
         }
 
@@ -224,6 +269,14 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderSummary> Quotes
         {
             get { return _quotes; }
+        }
+
+        /// <summary>
+        /// The action for the send quote.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Send
+        {
+            get { return _send; }
         }
 
         /// <summary>

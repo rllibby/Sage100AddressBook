@@ -67,6 +67,7 @@ namespace Sage100AddressBook.ViewModels
         private string _rootId;
         private int _index = (-1);
         private bool _isSearch;
+        private bool _loaded;
         private bool _loading;
 
         #endregion
@@ -218,7 +219,6 @@ namespace Sage100AddressBook.ViewModels
                     {
                         var source = new List<DocumentEntry>();
 
-                        _documents.Clear();
                         source.AddRange(await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders));
 
                         var found = await DocumentRetrievalService.Instance.FindDocumentsAsync(_rootId, search);

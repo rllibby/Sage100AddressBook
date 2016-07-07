@@ -84,7 +84,6 @@ namespace Sage100AddressBook.Services.Sage100Services
             return result;
         }
 
-
         /// <summary>
         /// Add line to the specified order.
         /// </summary>
@@ -125,14 +124,28 @@ namespace Sage100AddressBook.Services.Sage100Services
             return null;
         }
 
+        /// <summary>
+        /// Sends the quote message payload to the web api endpoint.
+        /// </summary>
+        /// <param name="companyCode">The company for the request.</param>
+        /// <param name="payload">The send quote message payload for the request.</param>
+        /// <returns>Testing for now.</returns>
+        public async Task<string> SendQuoteMessage(string companyCode, SendQuoteMessage payload)
+        {
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+            if (payload == null) throw new ArgumentNullException("payload");
+
+            return await NgrokService.PostAsync(companyCode + "/orders/SendQuote", payload);
+        }
+
         //RUSSELL SEE BELOW
 
         // additional methods/endpoints
-        //Quick Quote: HttpPOST on: api/{company}/quotes using QuickQuote model as payload
-        //AddLine (partially implemented above)
-        //EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
-        //DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
-        //SendQuote: HttpPOST on: api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
+        // AddLine (partially implemented above)
+        // EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
+        // DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
+        // SendQuote: HTTP POST api/{company}/orders/SendQuote using SendQuoteMessage model as payload.  This will run quote and upload pdf to onedrive
+        // Delete a quote:  HTTP DELETE api/{company}/quotes/{orderId}
 
         #endregion
 
