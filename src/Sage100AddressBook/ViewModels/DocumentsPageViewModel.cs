@@ -16,7 +16,7 @@ namespace Sage100AddressBook.ViewModels
         #region Private constants
 
         private const string Documents = "Documents";
-        private const string CompanyCode = "ABC";
+        private const string CompanyCode = "abc";
 
         #endregion
 

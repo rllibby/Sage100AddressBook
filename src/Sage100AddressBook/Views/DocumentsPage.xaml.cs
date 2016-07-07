@@ -20,7 +20,7 @@ namespace Sage100AddressBook.Views
         public DocumentsPage()
         {
             InitializeComponent();
-            NavigationCacheMode = NavigationCacheMode.Disabled;
+            NavigationCacheMode = NavigationCacheMode.Enabled;
         }
 
         #endregion

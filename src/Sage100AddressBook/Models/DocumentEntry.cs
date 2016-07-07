@@ -114,6 +114,11 @@ namespace Sage100AddressBook.Models
             set { Set(ref _rename, value); }
         }
 
+        /// <summary>
+        /// Active state, which is set to false when search returns the filtered list.
+        /// </summary>
+        public bool Active { get; set; }
+
         #endregion
     }
 

@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Sage100AddressBook.Helpers;
 using System;
 
 namespace Sage100AddressBook.Models
@@ -11,7 +12,32 @@ namespace Sage100AddressBook.Models
     /// </summary>
     public class RecentPurchasedItem
     {
+        #region Private fields
+
+        private string _description;
+        private string _uom;
+
+        #endregion
+
         #region Public properties
+
+        /// <summary>
+        /// Gets the dynamic width based on the device being displayed.
+        /// </summary>
+        public int ItemWidth
+        {
+            get
+            {
+                if (Device.IsMobile)
+                {
+                    var bounds = App.Bounds;
+
+                    return Convert.ToInt32(bounds.Width - 30);
+                }
+
+                return 400;
+            }
+        }
 
         /// <summary>
         /// The item code.
@@ -21,7 +47,11 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The item code description.
         /// </summary>
-        public string ItemCodeDesc { get; set; }
+        public string ItemCodeDesc
+        {
+            get { return string.IsNullOrEmpty(_description) ? "(Blank)" : _description; }
+            set { _description = value; }
+        }
 
         /// <summary>
         /// The invoice date.
@@ -41,7 +71,11 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The unit of measure.
         /// </summary>
-        public string UnitOfMeasure { get; set; }
+        public string UnitOfMeasure
+        {
+            get { return _uom; }
+            set { _uom = value?.ProperCase(); }
+        }
 
         #endregion
     }

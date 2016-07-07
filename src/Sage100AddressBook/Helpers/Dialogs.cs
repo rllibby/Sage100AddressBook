@@ -82,7 +82,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 210,
             };
 
@@ -121,7 +121,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 210,
             };
 
@@ -157,7 +157,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(300, App.Bounds.Width),
+                MaxWidth = Math.Min(300, App.Bounds.Width - 2),
                 MaxHeight = 260,
             };
 
@@ -198,8 +198,8 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(600, App.Bounds.Width),
-                MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
+                MaxWidth = Math.Min(600, App.Bounds.Width - 2),
+                MaxHeight = Math.Min(420, Window.Current.Bounds.Height - 20),
             };
 
             var control = new CustomControls.QuickQuote(dialog, companyId, customerId)
@@ -248,7 +248,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = Math.Min(400, Window.Current.Bounds.Height - 100),
             };
 
@@ -291,7 +291,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = Title,
-                MaxWidth = App.Bounds.Width,
+                MaxWidth = App.Bounds.Width - 2,
                 MaxHeight = Window.Current.Bounds.Height - 40
             };
 
@@ -344,7 +344,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 200,
             };
 
@@ -378,7 +378,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
-                MaxWidth = Math.Min(400, App.Bounds.Width),
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
                 MaxHeight = 200,
             };
 

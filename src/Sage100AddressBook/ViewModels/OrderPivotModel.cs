@@ -32,10 +32,13 @@ namespace Sage100AddressBook.ViewModels
         private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
         private OrderSummary _current;
+        private DelegateCommand _refresh;
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
         private bool _loading;
+        private bool _loaded;
+        private bool _isLoading;
 
         #endregion
 
@@ -50,6 +53,18 @@ namespace Sage100AddressBook.ViewModels
             return ((entry != null) || (_current != null));
         }
 
+        /// <summary>
+        /// Performs the refresh on quotes.
+        /// </summary>
+        private async void RefreshAction()
+        {
+            if (_isLoading) return;
+
+            _loaded = false;
+
+            await Load();
+        }
+
         #endregion
 
         #region Constructor
@@ -62,6 +77,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _refresh = new DelegateCommand(new Action(RefreshAction));
         }
 
         #endregion
@@ -85,14 +101,15 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public async Task Load()
         {
-            if (_index != PivotIndex) return;
+            if ((_index != PivotIndex) || _loaded || _isLoading) return;
+
+            _isLoading = true;
 
             var dispatcher = Window.Current.Dispatcher;
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Loading = true;
-
                 _orders.Clear();
             });
 
@@ -106,12 +123,17 @@ namespace Sage100AddressBook.ViewModels
                 {
                     try
                     {
-                        if (t.IsCompleted) _orders.Set(t.Result);
+                        if (t.IsCompleted)
+                        {
+                            _orders.Set(t.Result);
+                            _loaded = true;
+                        }
+
                         RaisePropertyChanged("IsEmpty");
                     }
                     finally
                     {
-                        Loading = false;
+                        Loading = _isLoading = false;
                     }
                 });
             });
@@ -132,6 +154,12 @@ namespace Sage100AddressBook.ViewModels
 
                 if (active)
                 {
+                    if (_isLoading)
+                    {
+                        Loading = true;
+                        return;
+                    }
+
                     await Load();
                 }
                 else if (wasActive)
@@ -141,6 +169,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                RaisePropertyChanged("OrderCommandsVisible");
             }
         }
 
@@ -154,6 +183,8 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 Current = (sender as GridView)?.SelectedItem as OrderSummary;
+
+                RaisePropertyChanged("OrderCommandsVisible");
             }
             finally
             {
@@ -183,11 +214,27 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Delegate command action for the refresh.
+        /// </summary>
+        public DelegateCommand Refresh
+        {
+            get { return _refresh; }
+        }
+
+        /// <summary>
         /// Determines if the view is empty.
         /// </summary>
         public bool IsEmpty
         {
             get { return (_orders.Count == 0); }
+        }
+
+        /// <summary>
+        /// Determines if the order commands are available.
+        /// </summary>
+        public bool OrderCommandsVisible
+        {
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>

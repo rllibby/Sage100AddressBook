@@ -2,10 +2,14 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Sage100AddressBook.Helpers;
 using System;
 using Template10.Common;
 using Template10.Utils;
+using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace Sage100AddressBook.Services.SettingsServices
 {
@@ -29,6 +33,22 @@ namespace Sage100AddressBook.Services.SettingsServices
         private SettingsService()
         {
             _helper = new Template10.Services.SettingsService.SettingsHelper();
+        }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        /// Updates the brush for card drawing.
+        /// </summary>
+        /// <param name="theme">The theme to apply.</param>
+        public void UpdateCardBrush(ApplicationTheme? theme = null)
+        {
+            var currentTheme = (theme == null) ? Application.Current.RequestedTheme : theme.Value;
+            var brush = Application.Current.Resources["CardColorBrush"] as SolidColorBrush;
+
+            brush.Color = (currentTheme == ApplicationTheme.Light) ? Color.FromArgb(255, 250, 250, 250) : Color.FromArgb(255, 20, 20, 20);
         }
 
         #endregion
@@ -60,8 +80,9 @@ namespace Sage100AddressBook.Services.SettingsServices
         {
             get
             {
-                var theme = ApplicationTheme.Light;
+                var theme = Device.IsMobile ? ApplicationTheme.Dark : ApplicationTheme.Light;
                 var value = _helper.Read<string>(nameof(AppTheme), theme.ToString());
+
                 return Enum.TryParse<ApplicationTheme>(value, out theme) ? theme : ApplicationTheme.Dark;
             }
             set
@@ -69,6 +90,7 @@ namespace Sage100AddressBook.Services.SettingsServices
                 _helper.Write(nameof(AppTheme), value.ToString());
                 (Window.Current.Content as FrameworkElement).RequestedTheme = value.ToElementTheme();
                 Views.Shell.HamburgerMenu.RefreshStyles(value);
+                UpdateCardBrush(value);
             }
         }
 

@@ -2,18 +2,19 @@
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 #pragma warning disable 4014
 
 namespace Sage100AddressBook.ViewModels
 {
+    /// <summary>
+    /// View model for the recently purchased items pivot.
+    /// </summary>
     public class RecentPurchasedPivotViewModel : BindableBase
     {
         #region Private constants
@@ -24,18 +25,42 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        private ObservableCollectionEx<RecentPurchasedItem> _recentPurchased = new ObservableCollectionEx<RecentPurchasedItem>();
+        private ObservableCollectionEx<RecentPurchasedItem> _items = new ObservableCollectionEx<RecentPurchasedItem>();
         private ViewModelLoading _owner;
-        //private OrderSummary _current;
+        private RecentPurchasedItem _current;
+        private DelegateCommand _refresh;
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
         private bool _loading;
+        private bool _isLoading;
+        private bool _loaded;
 
         #endregion
 
         #region Private methods
 
+        /// <summary>
+        /// Determines if we have a current item.
+        /// </summary>
+        /// <param name="item">The item to evaluate.</param>
+        /// <returns>True if the item is not null.</returns>
+        private bool HasItem(RecentPurchasedItem item)
+        {
+            return ((item != null) || (_current != null));
+        }
+
+        /// <summary>
+        /// Performs the refresh on recently purchased items.
+        /// </summary>
+        private async void RefreshAction()
+        {
+            if (_isLoading) return;
+
+            _loaded = false;
+
+            await Load();
+        }
 
         #endregion
 
@@ -49,6 +74,7 @@ namespace Sage100AddressBook.ViewModels
             if (owner == null) throw new ArgumentNullException("owner");
 
             _owner = owner;
+            _refresh = new DelegateCommand(new Action(RefreshAction));
         }
 
         #endregion
@@ -72,7 +98,9 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public async Task Load()
         {
-            if (_index != PivotIndex) return;
+            if ((_index != PivotIndex) || _loaded || _isLoading) return;
+
+            _isLoading = true;
 
             var dispatcher = Window.Current.Dispatcher;
 
@@ -80,7 +108,7 @@ namespace Sage100AddressBook.ViewModels
             {
                 Loading = true;
 
-                _recentPurchased.Clear();
+                _items.Clear();
             });
 
             Task.Run(async () =>
@@ -93,12 +121,17 @@ namespace Sage100AddressBook.ViewModels
                 {
                     try
                     {
-                        if (t.IsCompleted) _recentPurchased.Set(t.Result);
+                        if (t.IsCompleted)
+                        {
+                            _items.Set(t.Result);
+                            _loaded = true;
+                        }
+
                         RaisePropertyChanged("IsEmpty");
                     }
                     finally
                     {
-                        Loading = false;
+                        Loading = _isLoading = false;
                     }
                 });
             });
@@ -119,6 +152,12 @@ namespace Sage100AddressBook.ViewModels
 
                 if (active)
                 {
+                    if (_isLoading)
+                    {
+                        Loading = true;
+                        return;
+                    }
+
                     await Load();
                 }
                 else if (wasActive)
@@ -128,21 +167,55 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                RaisePropertyChanged("RecentItemCommandsVisible");
             }
         }
 
+        /// <summary>
+        /// Event that is triggered when the selected item changes.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        public void RecentItemSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                Current = (sender as GridView)?.SelectedItem as RecentPurchasedItem;
+
+                RaisePropertyChanged("RecentItemCommandsVisible");
+            }
+            finally
+            {
+            }
+        }
 
         #endregion
 
         #region Public properties
 
+        /// <summary>
+        /// Returns the current recent item entry.
+        /// </summary>
+        public RecentPurchasedItem Current
+        {
+            get { return _current; }
+            set { Set(ref _current, value); }
+        }
 
         /// <summary>
         /// Collection of document groups.
         /// </summary>
-        public ObservableCollectionEx<RecentPurchasedItem> RecentPurchasedItems
+        public ObservableCollectionEx<RecentPurchasedItem> Items
         {
-            get { return _recentPurchased; }
+            get { return _items; }
+        }
+
+        /// <summary>
+        /// The action for refreshing the recent item list.
+        /// </summary>
+        public DelegateCommand Refresh
+        {
+            get { return _refresh; }
         }
 
         /// <summary>
@@ -150,7 +223,15 @@ namespace Sage100AddressBook.ViewModels
         /// </summary>
         public bool IsEmpty
         {
-            get { return (_recentPurchased.Count == 0); }
+            get { return (_items.Count == 0); }
+        }
+
+        /// <summary>
+        /// Determines if the recent item commands are available.
+        /// </summary>
+        public bool RecentItemCommandsVisible
+        {
+            get { return (_index == PivotIndex); }
         }
 
         /// <summary>

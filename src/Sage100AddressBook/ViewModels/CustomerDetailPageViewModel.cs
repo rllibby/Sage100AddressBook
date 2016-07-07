@@ -32,13 +32,10 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        //private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
-        //private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
-        //private ObservableCollectionEx<RecentPurchasedItem> _recentItems = new ObservableCollectionEx<RecentPurchasedItem>();
         private DocumentPivotViewModel _documentModel;
         private QuotePivotViewModel _quoteModel;
         private OrderPivotViewModel _orderModel;
-        private RecentPurchasedPivotViewModel _recentPurchasePVModel;
+        private RecentPurchasedPivotViewModel _recentItemModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
         private AddressEntry _customerAddress;
@@ -246,7 +243,7 @@ namespace Sage100AddressBook.ViewModels
             _documentModel = new DocumentPivotViewModel(this);
             _quoteModel = new QuotePivotViewModel(this);
             _orderModel = new OrderPivotViewModel(this);
-            _recentPurchasePVModel = new RecentPurchasedPivotViewModel(this);
+            _recentItemModel = new RecentPurchasedPivotViewModel(this);
             _toggleFavorites = new DelegateCommand(new Action(ToggleFavoritesAction));
             _showMap = new DelegateCommand(new Action(ShowMapAction), CanShowMap);
             _contact = new DelegateCommand<FrameworkElement>(new Action<FrameworkElement>(ContactAction), CanShowContact);
@@ -280,8 +277,8 @@ namespace Sage100AddressBook.ViewModels
                 _quoteModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
                 _orderModel.SetPivotIndex(Index);
                 _orderModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _recentPurchasePVModel.SetPivotIndex(Index);
-                _recentPurchasePVModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+                _recentItemModel.SetPivotIndex(Index);
+                _recentItemModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
                 CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
                 BuildChartData(CurrentCustomer);
@@ -329,7 +326,7 @@ namespace Sage100AddressBook.ViewModels
             _documentModel.SetPivotIndex(_index);
             _quoteModel.SetPivotIndex(_index);
             _orderModel.SetPivotIndex(_index);
-            _recentPurchasePVModel.SetPivotIndex(_index);
+            _recentItemModel.SetPivotIndex(_index);
         }
 
         #endregion
@@ -363,9 +360,9 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// The model handling the recent purchased items pivot page.
         /// </summary>
-        public RecentPurchasedPivotViewModel RecentPurchasedModel
+        public RecentPurchasedPivotViewModel RecentItemModel
         {
-            get { return _recentPurchasePVModel; }
+            get { return _recentItemModel; }
         }
 
         /// <summary>
