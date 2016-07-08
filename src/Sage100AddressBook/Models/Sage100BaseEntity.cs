@@ -2,12 +2,14 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Template10.Mvvm;
+
 namespace Sage100AddressBook.Models
 {
     /// <summary>
     /// Base class for Sage 100 entities.
     /// </summary>
-   public class Sage100BaseEntity
+   public class Sage100BaseEntity : BindableBase
    {
         #region Public methods
 

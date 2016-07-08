@@ -1,6 +1,9 @@
 ﻿/*
  *  Copyright © 2016, Sage Software, Inc. 
  */
+using Newtonsoft.Json;
+using Sage100AddressBook.Helpers;
+using System;
 using System.Collections.Generic;
 
 namespace Sage100AddressBook.Models
@@ -10,15 +13,19 @@ namespace Sage100AddressBook.Models
     /// </summary>
     public class Order : OrderSummary
     {
+        #region Private fields
+
+        private ObservableCollectionEx<OrderDetail> _lines = new ObservableCollectionEx<OrderDetail>();
+        private List<OrderDetail> _details = new List<OrderDetail>();
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Order()
-        {
-            Details = new List<OrderDetail>();
-        }
+        public Order() { }
 
         #endregion
 
@@ -27,7 +34,24 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The details for the order.
         /// </summary>
-        public List<OrderDetail> Details { get; set; }
+        public List<OrderDetail> Details
+        {
+            get { return _details; }
+            set
+            {
+                _details = value;
+                _lines.Set(value);
+            }
+        }
+
+        /// <summary>
+        /// The collection of lines that can be bound to and receive change notifications for.
+        /// </summary>
+        [JsonIgnore]
+        public ObservableCollectionEx<OrderDetail> Lines
+        {
+            get { return _lines; }
+        }
 
         #endregion
     }
@@ -37,7 +61,21 @@ namespace Sage100AddressBook.Models
     /// </summary>
     public class OrderDetail : Sage100BaseEntity
     {
+        #region Private fields
+
+        private double _quantityOrdered;
+        private string _description;
+        public bool _persisted;
+        public bool _modified;
+
+        #endregion
+
         #region Public properties
+
+        /// <summary>
+        /// Event handler for quantity ordered changed.
+        /// </summary>
+        public EventHandler QuantityOrderedChanged;
 
         /// <summary>
         /// The item identifier.
@@ -52,7 +90,11 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The item description.
         /// </summary>
-        public string ItemCodeDesc { get; set; }
+        public string ItemCodeDesc
+        {
+            get { return (string.IsNullOrEmpty(_description) ? ItemCode : _description); }
+            set { _description = value; }
+        }
 
         /// <summary>
         /// The unit of measure for the item.
@@ -62,7 +104,17 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// The quantity ordered.
         /// </summary>
-        public double QuantityOrdered { get; set; }
+        public double QuantityOrdered
+        {
+            get { return _quantityOrdered; }
+            set
+            {
+                Modified = true;
+                _quantityOrdered = value;
+
+                QuantityOrderedChanged?.Invoke(this, new EventArgs());
+            }
+        }
 
         /// <summary>
         /// The unit price for the item.
@@ -78,6 +130,24 @@ namespace Sage100AddressBook.Models
         /// The line sequence number.
         /// </summary>
         public string LineSeqNo { get; set; }
+
+        /// <summary>
+        /// True if this exists in the back office.
+        /// </summary>
+        public bool Peristed
+        {
+            get { return _persisted; }
+            set { _persisted = value; }
+        }
+
+        /// <summary>
+        /// True if this was added or modified.
+        /// </summary>
+        public bool Modified
+        {
+            get { return _modified; }
+            set { _modified = value; }
+        }
 
         #endregion
     }

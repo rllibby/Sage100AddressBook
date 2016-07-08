@@ -242,7 +242,11 @@ namespace Sage100AddressBook.CustomControls
         /// <summary>
         /// Constructor
         /// </summary>
-        public QuickQuote(ContentDialog dialog, string companyId, string customerId)
+        /// <param name="dialog">The content dialog that will be hosting this control.</param>
+        /// <param name="companyId">The company id that items will be obtained from.</param>
+        /// <param name="customerId">The customer id used to locate recommended items.</param>
+        /// <param name="title">Optional title to display when used as a line add method for orders and quotes.</param>
+        public QuickQuote(ContentDialog dialog, string companyId, string customerId, string title = null)
         {
             InitializeComponent();
 
@@ -250,6 +254,7 @@ namespace Sage100AddressBook.CustomControls
             if (string.IsNullOrEmpty(companyId)) throw new ArgumentNullException("companyId");
             if (string.IsNullOrEmpty(customerId)) throw new ArgumentNullException("customerId");
 
+            if (!string.IsNullOrEmpty(title)) Display.Text = title;
             Items.ItemsSource = _context;
             Find.IsEnabled = false;
 
