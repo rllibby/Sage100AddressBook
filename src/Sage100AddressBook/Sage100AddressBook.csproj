@@ -153,6 +153,7 @@
     <Compile Include="Models\Sage100BaseEntity.cs" />
     <Compile Include="Models\SendQuoteMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BitlyService.cs" />
     <Compile Include="Services\DocumentViewerServices\DocumentRetrievalService.cs" />
     <Compile Include="Services\NgrokService.cs" />
     <Compile Include="Services\Sage100Services\CustomerWebService.cs" />

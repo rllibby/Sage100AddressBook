@@ -43,6 +43,7 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<FrameworkElement> _contact;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
+        private bool _loaded;
         private int _index;
 
         #endregion
@@ -271,6 +272,8 @@ namespace Sage100AddressBook.ViewModels
 
                 Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
 
+                _loaded = true;
+
                 _documentModel.SetPivotIndex(Index);
                 _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
                 _quoteModel.SetPivotIndex(Index);
@@ -303,6 +306,7 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 suspensionState["Index"] = _index;
+                _loaded = false;
             }
             finally
             {
@@ -323,10 +327,13 @@ namespace Sage100AddressBook.ViewModels
 
             SetPivotIndex(_index);
 
-            _documentModel.SetPivotIndex(_index);
-            _quoteModel.SetPivotIndex(_index);
-            _orderModel.SetPivotIndex(_index);
-            _recentItemModel.SetPivotIndex(_index);
+            if (_loaded)
+            {
+                _documentModel.SetPivotIndex(_index);
+                _quoteModel.SetPivotIndex(_index);
+                _orderModel.SetPivotIndex(_index);
+                _recentItemModel.SetPivotIndex(_index);
+            }
         }
 
         #endregion

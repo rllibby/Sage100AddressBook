@@ -28,9 +28,9 @@
     <converters:StringToImageConverter x:Key="StringToImage" />
     <converters:StringToSymbolConverter x:Key="StringToSymbol" />
 
-    <Color x:Key="CustomColor">#00DC00</Color>
+    <Color x:Key="CustomColor">#2CB145</Color>
     <Color x:Key="ContrastColor">White</Color>
-    <Color x:Key="SystemAccentColor">#00DC00</Color>
+    <Color x:Key="SystemAccentColor">#2CB145</Color>
     <Color x:Key="CardColorDark">#0A0A0A</Color>
     <Color x:Key="CardColorLight">F0F0F0</Color>
 
