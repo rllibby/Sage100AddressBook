@@ -49,7 +49,7 @@ namespace Sage100AddressBook.Models
         /// </summary>
         public string ItemCodeDesc
         {
-            get { return string.IsNullOrEmpty(_description) ? "(Blank)" : _description; }
+            get { return string.IsNullOrEmpty(_description) ? ItemCode : _description; }
             set { _description = value; }
         }
 

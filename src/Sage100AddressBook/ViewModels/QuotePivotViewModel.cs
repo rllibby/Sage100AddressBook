@@ -40,6 +40,7 @@ namespace Sage100AddressBook.ViewModels
         private OrderSummary _current;
         private string _companyCode;
         private string _rootId;
+        private int _currentIndex = (-1);
         private int _index = (-1);
         private bool _loading;
         private bool _loaded;
@@ -172,6 +173,10 @@ namespace Sage100AddressBook.ViewModels
                         {
                             quote.Delete = _delete;
                             _quotes.Add(quote);
+
+                            CurrentIndex = _quotes.Count - 1;
+
+                            return;
                         }
                     }
                 }
@@ -304,8 +309,12 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                Current = (sender as GridView)?.SelectedItem as OrderSummary;
+                var grid = (sender as GridView);
+
+                Current = grid.SelectedItem as OrderSummary;
                 RaisePropertyChanged("QuoteCommandsVisible");
+
+                if ((Current != null) && (grid != null)) grid.ScrollIntoView(Current);
             }
             finally
             {
@@ -316,6 +325,15 @@ namespace Sage100AddressBook.ViewModels
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// Returns the current quote summary entry.
+        /// </summary>
+        public int CurrentIndex
+        {
+            get { return _currentIndex; }
+            set { Set(ref _currentIndex, value); }
+        }
 
         /// <summary>
         /// Returns the current quote summary entry.

@@ -152,6 +152,7 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection dialog for share link types.
         /// </summary>
+        /// <returns>The index of the selected item.</returns>
         public static async Task<int> SelectLink()
         {
             var dialog = new ContentDialog()
@@ -198,6 +199,7 @@ namespace Sage100AddressBook.Helpers
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
+                Name = "Dialog",
                 MaxWidth = Math.Min(600, App.Bounds.Width - 2),
                 MaxHeight = Math.Min(420, Window.Current.Bounds.Height - 20),
             };
@@ -257,7 +259,7 @@ namespace Sage100AddressBook.Helpers
                 DisplayText = string.Format("Select a group to {0} to.", operation.ToString().ToLower()),
                 Background = dialog.Background,
                 Width = dialog.MaxWidth - 40,
-                Height = dialog.MaxHeight - 120,
+                Height = dialog.MaxHeight - 160,
             };
 
             dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();

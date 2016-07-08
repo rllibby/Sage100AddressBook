@@ -737,6 +737,7 @@
                               RelativePanel.AlignRightWithPanel="True"
                               RelativePanel.Below="pageHeader"
                               ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectedIndex="{x:Bind ViewModel.QuoteModel.CurrentIndex, Mode=TwoWay}"
                               SelectionChanged="{x:Bind ViewModel.QuoteModel.QuoteSelectionChanged}"
                               SelectionMode="Single" />
                     <TextBlock Grid.Row="0"

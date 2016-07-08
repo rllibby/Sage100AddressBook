@@ -596,6 +596,7 @@ namespace Sage100AddressBook.ViewModels
 
             CloseSearchResults(_searchControl);
             _loaded = false;
+            _upload.RaiseCanExecuteChanged();
 
             await Load();
         }
@@ -691,6 +692,15 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Determines if the upload button is enabled.
+        /// </summary>
+        /// <returns>True if enabled, otherwise false.</returns>
+        private bool CanUpload()
+        {
+            return (_loaded);
+        }
+
+        /// <summary>
         /// Determines if we have a current document.
         /// </summary>
         /// <returns>True if the document is not null.</returns>
@@ -716,7 +726,7 @@ namespace Sage100AddressBook.ViewModels
             _dataTransferManager.DataRequested += OnDataRequested;
             _search = new DelegateCommand<SearchControl>(new Action<SearchControl>(ShowSearch));
             _closeSearch = new DelegateCommand<SearchControl>(new Action<SearchControl>(CloseSearchAction));
-            _upload = new DelegateCommand(new Action(UploadDocument));
+            _upload = new DelegateCommand(new Action(UploadDocument), CanUpload);
             _refresh = new DelegateCommand(new Action(RefreshAction));
             _open = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(OpenDocument), HasDocument);
             _move = new DelegateCommand<DocumentEntry>(new Action<DocumentEntry>(MoveDocument), HasDocument);
@@ -777,6 +787,7 @@ namespace Sage100AddressBook.ViewModels
                         {
                             _documents.AddRange(t.Result);
                             _loaded = true;
+                            _upload.RaiseCanExecuteChanged();
                         }
                         BuildDocumentGroups();
                     }
