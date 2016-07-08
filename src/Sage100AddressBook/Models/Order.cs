@@ -3,20 +3,19 @@
  */
 
 using Newtonsoft.Json;
-using Sage100AddressBook.Helpers;
+using Sage100AddressBook.Models;
 using System;
 using System.Collections.Generic;
 
 namespace Sage100AddressBook.Models
 {
     /// <summary>
-    /// POCO class for full order.
+    /// Model class for full quote/order.
     /// </summary>
     public class Order : OrderSummary
     {
         #region Private fields
 
-        private ObservableCollectionEx<OrderDetail> _lines = new ObservableCollectionEx<OrderDetail>();
         private List<OrderDetail> _details = new List<OrderDetail>();
 
         #endregion
@@ -38,27 +37,14 @@ namespace Sage100AddressBook.Models
         public List<OrderDetail> Details
         {
             get { return _details; }
-            set
-            {
-                _details = value;
-                _lines.Set(value);
-            }
-        }
-
-        /// <summary>
-        /// The collection of lines that can be bound to and receive change notifications for.
-        /// </summary>
-        [JsonIgnore]
-        public ObservableCollectionEx<OrderDetail> Lines
-        {
-            get { return _lines; }
-        }
+            set { _details = value; }
+         }
 
         #endregion
     }
 
     /// <summary>
-    /// POCO class for an order line.
+    /// Model class for an order line.
     /// </summary>
     public class OrderDetail : Sage100BaseEntity
     {
@@ -135,7 +121,8 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// True if this exists in the back office.
         /// </summary>
-        public bool Peristed
+        [JsonIgnore]
+        public bool Persisted
         {
             get { return _persisted; }
             set { _persisted = value; }
@@ -144,6 +131,7 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// True if this was added or modified.
         /// </summary>
+        [JsonIgnore]
         public bool Modified
         {
             get { return _modified; }

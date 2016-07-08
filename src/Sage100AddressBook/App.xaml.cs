@@ -16,6 +16,12 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.ApplicationModel;
 using Windows.Foundation.Metadata;
 using Windows.Foundation;
+using Windows.Graphics.Display;
+using Windows.UI.Xaml.Resources;
+using Telerik.UI.Xaml.Controls;
+using System;
+using System.Reflection;
+using Windows.UI.Xaml.Media;
 
 namespace Sage100AddressBook
 {
@@ -86,6 +92,11 @@ namespace Sage100AddressBook
             var view = ApplicationView.GetForCurrentView();
 
             _bounds = view.VisibleBounds;
+
+            if (Device.IsMobile)
+            {
+                DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
+            }
 
             SettingsService.Instance.UpdateCardBrush();
 

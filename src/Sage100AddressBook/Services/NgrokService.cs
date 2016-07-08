@@ -26,6 +26,49 @@ namespace Sage100AddressBook.Services
         #region Public methods
 
         /// <summary>
+        /// Patches the content to the specified address.
+        /// </summary>
+        /// <param name="address">The web api address for the request.</param>
+        /// <param name="payload">The object to serialize to json content.</param>
+        /// <returns>The response content on success, null on failure.</returns>
+        public static async Task<string> PatchAsync(string address, object payload)
+        {
+            if (address == null) throw new ArgumentNullException("address");
+            if (payload == null) throw new ArgumentException("payload");
+
+#if (NGROK)
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+#if DEBUG
+                client.Timeout = TimeSpan.FromSeconds(_timeout);
+#endif
+                try
+                {
+                    var request = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri(_baseAddress + address)) { Content = content };
+
+                    using (var response = await client.SendAsync(request))
+                    {
+                        if ((response != null) && (response.IsSuccessStatusCode == true))
+                        {
+                            return await response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    var cancelled = (exception as TaskCanceledException);
+
+                    if (cancelled != null) _timeout = 1;
+                }
+            }
+#endif
+            return await Task.FromResult<string>(null);
+        }
+
+        /// <summary>
         /// Posts the content to the specified address.
         /// </summary>
         /// <param name="address">The web api address for the request.</param>

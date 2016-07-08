@@ -35,6 +35,7 @@ namespace Sage100AddressBook.ViewModels
         private DocumentPivotViewModel _documentModel;
         private QuotePivotViewModel _quoteModel;
         private OrderPivotViewModel _orderModel;
+        private ObservableCollectionEx<PieChartData> _agingChartData = new ObservableCollectionEx<PieChartData>();
         private RecentPurchasedPivotViewModel _recentItemModel;
         private CustomerWebService _webService;
         private Customer _currentCustomer;
@@ -77,28 +78,30 @@ namespace Sage100AddressBook.ViewModels
             _customerAddress = currentCustomer.GetAddressEntry();
             _id = currentCustomer.Id;
 
-            AgingChartData = new ObservableCollection<PieChartData>();
+            var collection = new ObservableCollection<PieChartData>();
 
             if (currentCustomer.CurrentBalance != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + "\n(" + currentCustomer.CurrentBalance.ToString("C") + ")" });
+                collection.Add(new PieChartData() { Value = currentCustomer.CurrentBalance, Label = currentCustomer.CaptionCurrrent + "\n(" + currentCustomer.CurrentBalance.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory1 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + "\n(" + currentCustomer.AgingCategory1.ToString("C") + ")" });
+                collection.Add(new PieChartData() { Value = currentCustomer.AgingCategory1, Label = currentCustomer.CaptionAging1 + "\n(" + currentCustomer.AgingCategory1.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory2 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + "\n(" + currentCustomer.AgingCategory2.ToString("C") + ")" });
+                collection.Add(new PieChartData() { Value = currentCustomer.AgingCategory2, Label = currentCustomer.CaptionAging2 + "\n(" + currentCustomer.AgingCategory2.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory3 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + "\n(" + currentCustomer.AgingCategory3.ToString("C") + ")" });
+                collection.Add(new PieChartData() { Value = currentCustomer.AgingCategory3, Label = currentCustomer.CaptionAging3 + "\n(" + currentCustomer.AgingCategory3.ToString("C") + ")" });
             }
             if (currentCustomer.AgingCategory4 != 0)
             {
-                AgingChartData.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + "\n(" + currentCustomer.AgingCategory4.ToString("C") + ")" });
+                collection.Add(new PieChartData() { Value = currentCustomer.AgingCategory4, Label = currentCustomer.CaptionAging4 + "\n(" + currentCustomer.AgingCategory4.ToString("C") + ")" });
             }
+
+            _agingChartData.Set(collection);
         }
 
         /// <summary>
@@ -283,9 +286,11 @@ namespace Sage100AddressBook.ViewModels
                 _recentItemModel.SetPivotIndex(Index);
                 _recentItemModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
 
-                CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
-                BuildChartData(CurrentCustomer);
-                
+                await Dispatcher.DispatchAsync(async () =>
+                {
+                    CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
+                    BuildChartData(CurrentCustomer);
+                });
             }
             finally
             {
@@ -392,7 +397,10 @@ namespace Sage100AddressBook.ViewModels
         /// <summary>
         /// The collection of chart data.
         /// </summary>
-        public ObservableCollection<PieChartData> AgingChartData { get; private set; }
+        public ObservableCollectionEx<PieChartData> AgingChartData
+        {
+            get { return _agingChartData; }
+        }
 
         /// <summary>
         /// Determines if glance commands should be visible.

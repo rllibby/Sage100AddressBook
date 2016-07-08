@@ -168,6 +168,7 @@
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\DocumentsPageViewModel.cs" />
     <Compile Include="ViewModels\OrderPivotModel.cs" />
+    <Compile Include="ViewModels\QuoteOrderPageViewModel.cs" />
     <Compile Include="ViewModels\QuotePivotViewModel.cs" />
     <Compile Include="ViewModels\RecentPageViewModel.cs" />
     <Compile Include="ViewModels\RecentPurchasedPivotViewModel.cs" />
@@ -186,6 +187,9 @@
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\QuoteOrderPage.xaml.cs">
+      <DependentUpon>QuoteOrderPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RecentPage.xaml.cs">
       <DependentUpon>RecentPage.xaml</DependentUpon>
@@ -290,11 +294,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Resources\Custom.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
     <Page Include="Views\Busy.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -310,6 +309,10 @@
     <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\QuoteOrderPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RecentPage.xaml">
       <SubType>Designer</SubType>

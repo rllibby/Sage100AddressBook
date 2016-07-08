@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using System;
 
@@ -24,6 +25,7 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Gets the dynamic width based on the device being displayed.
         /// </summary>
+        [JsonIgnore]
         public int ItemWidth
         {
             get

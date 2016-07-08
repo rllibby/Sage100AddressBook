@@ -5,6 +5,7 @@
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
+using Sage100AddressBook.Views;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media.Animation;
 
 #pragma warning disable 4014
 
@@ -21,7 +23,7 @@ namespace Sage100AddressBook.ViewModels
     /// <summary>
     /// View model for the quotes pivot item.
     /// </summary>
-    public class QuotePivotViewModel : BindableBase
+    public class QuotePivotViewModel : ViewModelBase
     {
         #region Private constants
 
@@ -35,6 +37,7 @@ namespace Sage100AddressBook.ViewModels
         private ViewModelLoading _owner;
         private DelegateCommand<OrderSummary> _send;
         private DelegateCommand<OrderSummary> _delete;
+        private DelegateCommand<OrderSummary> _edit;
         private DelegateCommand _quickQuote;
         private DelegateCommand _refresh;
         private OrderSummary _current;
@@ -140,6 +143,24 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Performs the edit action on quotes.
+        /// </summary>
+        private void EditAction(OrderSummary entry)
+        {
+            if (entry == null) return;
+
+            var args = new QuoteOrderArgs
+            {
+                Type = OrderType.Quote,
+                Id = entry.Id,
+                CustomerId = _rootId,
+                CompanyId = _companyCode
+            };
+
+             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
+        }
+
+        /// <summary>
         /// Performs the quick quote action.
         /// </summary>
         private async void QuickQuoteAction()
@@ -172,6 +193,9 @@ namespace Sage100AddressBook.ViewModels
                         if (_quotes.FirstOrDefault(q => q.Id.Equals(quote.Id)) == null)
                         {
                             quote.Delete = _delete;
+                            quote.Send = _send;
+                            quote.Edit = _edit;
+
                             _quotes.Add(quote);
 
                             CurrentIndex = _quotes.Count - 1;
@@ -201,6 +225,7 @@ namespace Sage100AddressBook.ViewModels
             _owner = owner;
             _refresh = new DelegateCommand(new Action(RefreshAction));
             _send = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(SendAction), HasQuote);
+            _edit = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(EditAction), HasQuote);
             _delete = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(DeleteAction), HasQuote);
             _quickQuote = new DelegateCommand(new Action(QuickQuoteAction));
         }
@@ -251,7 +276,12 @@ namespace Sage100AddressBook.ViewModels
                     {
                         if (t.IsCompleted)
                         {
-                            foreach (var entry in t.Result) entry.Delete = _delete;
+                            foreach (var entry in t.Result)
+                            {
+                                entry.Delete = _delete;
+                                entry.Edit = _edit;
+                                entry.Send = _send;
+                            }
 
                             _quotes.Set(t.Result);
                             _loaded = true;
@@ -264,6 +294,26 @@ namespace Sage100AddressBook.ViewModels
                     }
                 });
             });
+        }
+
+        /// <summary>
+        /// Event that is triggered when the quote is double tapped.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        public void QuoteDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (_current == null) return;
+
+            var args = new QuoteOrderArgs
+            {
+                Type = OrderType.Quote,
+                Id = _current.Id,
+                CustomerId = _rootId,
+                CompanyId = _companyCode
+            };
+
+            _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
         /// <summary>
@@ -358,6 +408,14 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand<OrderSummary> Send
         {
             get { return _send; }
+        }
+
+        /// <summary>
+        /// The action for the send quote.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Edit
+        {
+            get { return _edit; }
         }
 
         /// <summary>

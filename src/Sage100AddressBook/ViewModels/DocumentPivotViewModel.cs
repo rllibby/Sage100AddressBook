@@ -789,6 +789,7 @@ namespace Sage100AddressBook.ViewModels
                             _loaded = true;
                             _upload.RaiseCanExecuteChanged();
                         }
+
                         BuildDocumentGroups();
                     }
                     finally
