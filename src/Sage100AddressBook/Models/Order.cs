@@ -1,6 +1,7 @@
 ﻿/*
  *  Copyright © 2016, Sage Software, Inc. 
  */
+
 using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using System;

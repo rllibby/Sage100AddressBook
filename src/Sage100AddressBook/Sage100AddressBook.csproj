@@ -148,6 +148,7 @@
     <Compile Include="Models\OrderSummary.cs" />
     <Compile Include="Models\PieChartData.cs" />
     <Compile Include="Models\QuickQuote.cs" />
+    <Compile Include="Models\QuoteOrderArgs.cs" />
     <Compile Include="Models\RecentAddress.cs" />
     <Compile Include="Models\RecentPurchasedItem.cs" />
     <Compile Include="Models\Sage100BaseEntity.cs" />
