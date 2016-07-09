@@ -8,12 +8,8 @@ using Sage100AddressBook.Services.Sage100Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Telerik.UI.Xaml.Controls;
 using Telerik.UI.Xaml.Controls.Grid;
 using Template10.Mvvm;
-using Windows.UI;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.ViewModels
@@ -63,6 +59,31 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
+        /// Loads the order and copies the lines to our observable collection.
+        /// </summary>
+        /// <returns>The async task to wait on.</returns>
+        private async Task LoadOrder()
+        {
+            var order = await OrderWebService.Instance.GetOrderAsync(_args.Id, _args.CompanyId);
+            var temp = new List<OrderDetail>();
+
+            Item = order;
+
+            foreach (var line in order.Details)
+            {
+                var copy = line.Copy();
+
+                copy.QuantityOrderedChanged += OnQuantityChanged;
+                copy.Persisted = true;
+                copy.Modified = false;
+
+                temp.Add(copy);
+            }
+
+            _lines.Set(temp);
+        }
+
+        /// <summary>
         /// Performs the save on the modified line collection.
         /// </summary>
         private async void SaveAction()
@@ -102,6 +123,8 @@ namespace Sage100AddressBook.ViewModels
 
                         line.Modified = false;
                     }
+
+                    await LoadOrder();
 
                     SetModified(false);
                 }
@@ -262,6 +285,7 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
+                    await LoadOrder();
                     var order = await OrderWebService.Instance.GetOrderAsync(_args.Id, _args.CompanyId);
                     var temp = new List<OrderDetail>();
 
