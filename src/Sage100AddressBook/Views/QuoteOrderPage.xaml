@@ -209,8 +209,8 @@
                           Icon="Save"
                           Label="Save" />
             <AppBarButton Command="{x:Bind ViewModel.Cancel}"
-                          Icon="Cancel"
-                          Label="Cancel" />
+                          Icon="Undo"
+                          Label="Undo" />
         </CommandBar>
 
     </Grid>
