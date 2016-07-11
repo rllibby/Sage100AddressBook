@@ -6,19 +6,19 @@
              xmlns:local="using:Sage100AddressBook.CustomControls"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="using:Telerik.UI.Xaml.Controls.Input"
+             VerticalContentAlignment="Stretch"
              d:DesignHeight="300"
              d:DesignWidth="400"
              mc:Ignorable="d">
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <TextBlock x:Name="Display"
@@ -32,7 +32,7 @@
                  Margin="10,10,0,10"
                  HorizontalAlignment="Stretch"
                  KeyDown="OnSearchKeyDown"
-                 PlaceholderText="Enter item search criteria..."
+                 PlaceholderText="Enter item search..."
                  TextChanged="OnSearchTextChanged" />
         <Button x:Name="Find"
                 Grid.Row="1"
@@ -42,16 +42,24 @@
                 Click="ItemFindClick">
             <SymbolIcon Symbol="Find" />
         </Button>
+        <Button x:Name="Recommended"
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,10,10,10"
+                HorizontalAlignment="Right"
+                Click="RecommendedClick">
+            <SymbolIcon Symbol="Like" />
+        </Button>
         <ProgressRing x:Name="Progress"
                       Grid.Row="2"
-                      Grid.ColumnSpan="2"
+                      Grid.ColumnSpan="3"
                       Width="100"
                       Height="100"
                       IsActive="False" />
 
         <grid:RadDataGrid x:Name="Items"
                           Grid.Row="2"
-                          Grid.ColumnSpan="2"
+                          Grid.ColumnSpan="3"
                           Margin="10,4,10,2"
                           AutoGenerateColumns="False"
                           FontSize="12"
@@ -76,10 +84,5 @@
 
             </grid:RadDataGrid.Columns>
         </grid:RadDataGrid>
-        <HyperlinkButton Grid.Row="3"
-                         Grid.ColumnSpan="2"
-                         Margin="10,0,0,0"
-                         Click="RecommendedClick"
-                         Content="See recommended items..." />
     </Grid>
 </UserControl>

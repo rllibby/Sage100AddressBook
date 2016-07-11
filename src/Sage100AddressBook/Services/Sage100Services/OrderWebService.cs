@@ -87,17 +87,55 @@ namespace Sage100AddressBook.Services.Sage100Services
         /// <param name="orderId">The order id.</param>
         /// <param name="companyCode">The company code for the customer.</param>
         /// <returns>The Order on success with updated information (totals, etc.)</returns>
-        public async Task<Order> AddLineAsync(string orderId, string companyCode, OrderDetail orderDetail)
+        public async Task<Order> AddLine(string companyCode, string orderId, OrderDetail orderDetail)
         {
             if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException("orderId");
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
 
-            //to-do add PostAsync
-            var content = await NgrokService.GetAsync(companyCode + "/Orders/" + orderId + "/lines");
+            var content = await NgrokService.PostAsync(companyCode + "/Orders/" + orderId + "/lines", orderDetail);
 
             if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
 
-            //return dummy data if off-line
+            var result = GetFakeOrder();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Deletes a line from an existing order.
+        /// </summary>
+        /// <param name="companyCode">The company for the request.</param>
+        /// <param name="orderId">The order to remove the line from.</param>
+        /// <param name="lineId">The line id to remove.</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteLine(string companyCode, string orderId, string lineId)
+        {
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+            if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException("orderId");
+            if (string.IsNullOrEmpty(lineId)) throw new ArgumentNullException("lineId");
+
+            return await NgrokService.DeleteAsync(companyCode + "/orders/" + orderId + "/lines/" + lineId);
+        }
+
+        /// <summary>
+        /// Updates a line in an existing order.
+        /// </summary>
+        /// <param name="companyCode">The company for the request.</param>
+        /// <param name="orderId">The order to update the line in.</param>
+        /// <param name="lineId">The line id to update.</param>
+        /// <param name="detailLine">The order detail line with the update quantity.</param>
+        /// <returns></returns>
+        public async Task<Order> UpdateLine(string companyCode, string orderId, string lineId, OrderDetail detailLine)
+        {
+            if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
+            if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException("orderId");
+            if (string.IsNullOrEmpty(lineId)) throw new ArgumentNullException("lineId");
+            if (detailLine == null) throw new ArgumentNullException("detailLine");
+
+            var content = await NgrokService.PatchAsync(companyCode + "/orders/" + orderId + "/lines/" + lineId, detailLine);
+
+            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
+
             var result = GetFakeOrder();
 
             return result;
@@ -148,11 +186,6 @@ namespace Sage100AddressBook.Services.Sage100Services
 
             return await NgrokService.DeleteAsync(companyCode + "/quotes/" + quoteId);
         }
-
-        // AddLine (partially implemented above)
-        // EditLine:  HttpPATCH on: api/{company}/orders/{orderId}/lines/{lineId} - using OrderDetail model as payload - only QuantityOrdered is supported atm
-        // DeleteLine: HttpDELETE on: api/{company}/orders/{orderId}/lines/{lineId}
-        // Delete a quote:  HTTP DELETE api/{company}/quotes/{orderId}
 
         #endregion
 

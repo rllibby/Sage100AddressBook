@@ -152,6 +152,7 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Show a selection dialog for share link types.
         /// </summary>
+        /// <returns>The index of the selected item.</returns>
         public static async Task<int> SelectLink()
         {
             var dialog = new ContentDialog()
@@ -190,21 +191,23 @@ namespace Sage100AddressBook.Helpers
         /// </summary>
         /// <param name="companyId">The company identifier.<param>
         /// <param name="customerId">The customer identifier.<param>
+        /// <param name="title">The optional title when used in other areas.</param>
         /// <returns>The QuickQuoteLine on success, null on failure.</returns>
-        public static async Task<QuickQuoteLine> GetQuickQuoteItem(string companyId, string customerId)
+        public static async Task<QuickQuoteLine> GetQuickQuoteItem(string companyId, string customerId, string title = null)
         {
             if (string.IsNullOrEmpty(companyId) || string.IsNullOrEmpty(customerId)) return (null);
 
             var dialog = new ContentDialog()
             {
                 Title = string.Empty,
+                Name = "Dialog",
                 MaxWidth = Math.Min(600, App.Bounds.Width - 2),
                 MaxHeight = Math.Min(420, Window.Current.Bounds.Height - 20),
             };
 
             var control = new CustomControls.QuickQuote(dialog, companyId, customerId)
             {
-                DisplayText = "New Quick Quote",
+                DisplayText = title ?? "New Quick Quote",
                 Background = dialog.Background,
                 Width = dialog.MaxWidth - 40,
                 Height = dialog.MaxHeight - 120,
@@ -224,7 +227,7 @@ namespace Sage100AddressBook.Helpers
 
             await dialog.ShowAsync();
 
-            if (result != null)
+            if ((result != null) && (title == null))
             {
                 var ok = await ShowOkCancel(string.Format("Create a new quick quote for:\n\n({0}) - {1}", result.Quantity, result.Description));
 
@@ -257,7 +260,7 @@ namespace Sage100AddressBook.Helpers
                 DisplayText = string.Format("Select a group to {0} to.", operation.ToString().ToLower()),
                 Background = dialog.Background,
                 Width = dialog.MaxWidth - 40,
-                Height = dialog.MaxHeight - 120,
+                Height = dialog.MaxHeight - 160,
             };
 
             dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();

@@ -49,9 +49,15 @@
                   Padding="10,10">
                 <helpers:MenuFlyoutService.MenuFlyout>
                     <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Edit}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Edit" />
                         <MenuFlyoutItem Command="{x:Bind Delete}"
                                         CommandParameter="{x:Bind}"
                                         Text="Delete" />
+                        <MenuFlyoutItem Command="{x:Bind Send}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Send" />
                     </MenuFlyout>
                 </helpers:MenuFlyoutService.MenuFlyout>
                 <Grid.ColumnDefinitions>
@@ -177,6 +183,13 @@
                   MinHeight="220"
                   Background="{StaticResource CardColorBrush}"
                   Padding="10,10">
+                <helpers:MenuFlyoutService.MenuFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind Edit}"
+                                        CommandParameter="{x:Bind}"
+                                        Text="Edit" />
+                    </MenuFlyout>
+                </helpers:MenuFlyoutService.MenuFlyout>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="65*" />
                     <ColumnDefinition Width="35*" />
@@ -628,7 +641,7 @@
                                 <telerikChart:DoughnutSeries HorizontalContentAlignment="Stretch"
                                                              VerticalContentAlignment="Stretch"
                                                              FontSize="10"
-                                                             InnerRadiusFactor="0.3"
+                                                             InnerRadiusFactor="0.5"
                                                              ItemsSource="{x:Bind ViewModel.AgingChartData}"
                                                              ShowLabels="False">
                                     <telerikChart:DoughnutSeries.ValueBinding>
@@ -729,6 +742,7 @@
                     </Grid.RowDefinitions>
                     <GridView x:Name="QuotesGrid"
                               Grid.Row="0"
+                              DoubleTapped="{x:Bind ViewModel.QuoteModel.QuoteDoubleTapped}"
                               IsItemClickEnabled="True"
                               ItemContainerStyle="{StaticResource GridViewItemExpanded}"
                               ItemTemplate="{StaticResource QuoteTemplate}"
@@ -737,6 +751,7 @@
                               RelativePanel.AlignRightWithPanel="True"
                               RelativePanel.Below="pageHeader"
                               ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectedIndex="{x:Bind ViewModel.QuoteModel.CurrentIndex, Mode=TwoWay}"
                               SelectionChanged="{x:Bind ViewModel.QuoteModel.QuoteSelectionChanged}"
                               SelectionMode="Single" />
                     <TextBlock Grid.Row="0"
@@ -758,6 +773,7 @@
                     </Grid.RowDefinitions>
                     <GridView x:Name="OrdersGrid"
                               Grid.Row="0"
+                              DoubleTapped="{x:Bind ViewModel.OrderModel.OrderDoubleTapped}"
                               IsItemClickEnabled="True"
                               ItemContainerStyle="{StaticResource GridViewItemExpanded}"
                               ItemTemplate="{StaticResource OrderTemplate}"
@@ -875,15 +891,19 @@
             <AppBarButton Command="{x:Bind ViewModel.QuoteModel.QuickQuote}"
                           Icon="Add"
                           Label="Quick Quote" />
-            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send, Mode=OneWay}"
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Edit}"
                           CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
-                          Icon="Send"
-                          Label="Send" />
+                          Icon="Edit"
+                          Label="Edit" />
+            <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Delete}"
+                          CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
+                          Icon="Delete"
+                          Label="Delete" />
             <CommandBar.SecondaryCommands>
-                <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Delete}"
+                <AppBarButton Command="{x:Bind ViewModel.QuoteModel.Send, Mode=OneWay}"
                               CommandParameter="{x:Bind ViewModel.QuoteModel.Current, Mode=OneWay}"
-                              Icon="Delete"
-                              Label="Delete" />
+                              Icon="Send"
+                              Label="Send" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
 
@@ -894,6 +914,10 @@
             <AppBarButton Command="{x:Bind ViewModel.OrderModel.Refresh}"
                           Icon="Refresh"
                           Label="Refresh" />
+            <AppBarButton Command="{x:Bind ViewModel.OrderModel.Edit}"
+                          CommandParameter="{x:Bind ViewModel.OrderModel.Current, Mode=OneWay}"
+                          Icon="Edit"
+                          Label="Edit" />
         </CommandBar>
 
         <!--  Command bar for recently purchased items  -->

@@ -5,12 +5,15 @@
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
+using Sage100AddressBook.Views;
 using System;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media.Animation;
 
 #pragma warning disable 4014
 
@@ -19,7 +22,7 @@ namespace Sage100AddressBook.ViewModels
     /// <summary>
     /// View model for the orders pivot item.
     /// </summary>
-    public class OrderPivotViewModel : BindableBase
+    public class OrderPivotViewModel : ViewModelBase
     {
         #region Private constants
 
@@ -33,6 +36,7 @@ namespace Sage100AddressBook.ViewModels
         private ViewModelLoading _owner;
         private OrderSummary _current;
         private DelegateCommand _refresh;
+        private DelegateCommand<OrderSummary> _edit;
         private string _companyCode;
         private string _rootId;
         private int _index = (-1);
@@ -65,6 +69,24 @@ namespace Sage100AddressBook.ViewModels
             await Load();
         }
 
+        /// <summary>
+        /// Performs the edit action on orders.
+        /// </summary>
+        private void EditAction(OrderSummary entry)
+        {
+            if (entry == null) return;
+
+            var args = new QuoteOrderArgs
+            {
+                Type = OrderType.Order,
+                Id = entry.Id,
+                CustomerId = _rootId,
+                CompanyId = _companyCode
+            };
+
+            _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
+        }
+
         #endregion
 
         #region Constructor
@@ -78,6 +100,7 @@ namespace Sage100AddressBook.ViewModels
 
             _owner = owner;
             _refresh = new DelegateCommand(new Action(RefreshAction));
+            _edit = new DelegateCommand<OrderSummary>(new Action<OrderSummary>(EditAction), HasOrder);
         }
 
         #endregion
@@ -93,6 +116,26 @@ namespace Sage100AddressBook.ViewModels
         {
             _rootId = id;
             _companyCode = companyCode.ToLower();
+        }
+
+        /// <summary>
+        /// Event that is triggered when the quote is double tapped.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
+        public void OrderDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (_current == null) return;
+
+            var args = new QuoteOrderArgs
+            {
+                Type = OrderType.Order,
+                Id = _current.Id,
+                CustomerId = _rootId,
+                CompanyId = _companyCode
+            };
+
+            _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
         /// <summary>
@@ -125,6 +168,8 @@ namespace Sage100AddressBook.ViewModels
                     {
                         if (t.IsCompleted)
                         {
+                            foreach (var entry in t.Result) entry.Edit = _edit;
+
                             _orders.Set(t.Result);
                             _loaded = true;
                         }
@@ -211,6 +256,14 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderSummary> Orders
         {
             get { return _orders; }
+        }
+
+        /// <summary>
+        /// Delegate command action for the refresh.
+        /// </summary>
+        public DelegateCommand<OrderSummary> Edit
+        {
+            get { return _edit; }
         }
 
         /// <summary>

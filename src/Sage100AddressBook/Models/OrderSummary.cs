@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using System;
 using Template10.Mvvm;
@@ -18,6 +19,7 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Gets the dynamic width based on the device being displayed.
         /// </summary>
+        [JsonIgnore]
         public int ItemWidth
         {
             get
@@ -86,7 +88,20 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Delegate command for the delete action.
         /// </summary>
+        [JsonIgnore]
         public DelegateCommand<OrderSummary> Delete { get; set; }
+
+        /// <summary>
+        /// Delegate command for the edit action.
+        /// </summary>
+        [JsonIgnore]
+        public DelegateCommand<OrderSummary> Edit { get; set; }
+
+        /// <summary>
+        /// Delegate command for the send action.
+        /// </summary>
+        [JsonIgnore]
+        public DelegateCommand<OrderSummary> Send { get; set; }
 
         #endregion
     }
