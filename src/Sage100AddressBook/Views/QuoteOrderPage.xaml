@@ -65,7 +65,7 @@
                        HorizontalAlignment="Left"
                        MaxLines="1"
                        Style="{StaticResource SubtitleTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.BillToName}"
+                       Text="{x:Bind ViewModel.Item.BillToName, Mode=OneWay}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="0"
                        Grid.Column="1"
@@ -73,7 +73,7 @@
                        HorizontalAlignment="Right"
                        Foreground="{StaticResource CustomColorBrush}"
                        Style="{StaticResource SubtitleTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.SalesOrderNo}"
+                       Text="{x:Bind ViewModel.Item.SalesOrderNo, Mode=OneWay}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="1"
                        Grid.Column="0"
@@ -81,7 +81,7 @@
                        HorizontalAlignment="Left"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.ShipExpireDate, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                       Text="{x:Bind ViewModel.Item.ShipExpireDate, Mode=OneWay, Converter ={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
@@ -95,7 +95,7 @@
                        HorizontalAlignment="Right"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.TaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.TaxableAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="4"
                        Grid.Column="0"
@@ -111,7 +111,7 @@
                        HorizontalAlignment="Right"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.NonTaxableAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.NonTaxableAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="5"
                        Grid.Column="0"
@@ -127,7 +127,7 @@
                        HorizontalAlignment="Right"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.SalesTaxAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.SalesTaxAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="6"
                        Grid.Column="0"
@@ -143,7 +143,7 @@
                        HorizontalAlignment="Right"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.DiscountAmt, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.DiscountAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="7"
                        Grid.Column="0"
@@ -157,7 +157,7 @@
                        Margin="0,20,0,0"
                        HorizontalAlignment="Right"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.Total, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.Total, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
 
             <grid:RadDataGrid x:Name="Items"

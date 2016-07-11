@@ -58,6 +58,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
+            GlobalCache.RecentCache.Clear();
 
             await Load();
         }
@@ -113,7 +114,15 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                return await CustomerWebService.Instance.GetRecentlyPurchasedItemsAsync(_rootId, _companyCode);
+                var recent = GlobalCache.RecentCache.Get(_companyCode, _rootId);
+
+                if (recent != null) return recent;
+
+                recent = await CustomerWebService.Instance.GetRecentlyPurchasedItemsAsync(_rootId, _companyCode);
+
+                GlobalCache.RecentCache.Set(_companyCode, _rootId, recent);
+
+                return recent;
 
             }).ContinueWith(async (t) =>
             {
@@ -181,11 +190,10 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 Current = (sender as GridView)?.SelectedItem as RecentPurchasedItem;
-
-                RaisePropertyChanged("RecentItemCommandsVisible");
             }
             finally
             {
+                RaisePropertyChanged("RecentItemCommandsVisible");
             }
         }
 

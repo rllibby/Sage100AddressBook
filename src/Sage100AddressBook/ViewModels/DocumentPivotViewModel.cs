@@ -471,6 +471,8 @@ namespace Sage100AddressBook.ViewModels
                             await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
+                        GlobalCache.DocumentCache.Set(_companyCode, _rootId, _documents);
+
                         BuildDocumentGroups();
                     }
                     finally
@@ -536,6 +538,8 @@ namespace Sage100AddressBook.ViewModels
                             await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
+                        GlobalCache.DocumentCache.Set(_companyCode, _rootId, _documents);
+
                         BuildDocumentGroups();
                     }
                     finally
@@ -576,7 +580,7 @@ namespace Sage100AddressBook.ViewModels
                     }
 
                     _documents.Remove(entry);
-
+                    GlobalCache.DocumentCache.Set(_companyCode, _rootId, _documents);
                     BuildDocumentGroups();
                 }
                 finally
@@ -597,6 +601,9 @@ namespace Sage100AddressBook.ViewModels
             CloseSearchResults(_searchControl);
             _loaded = false;
             _upload.RaiseCanExecuteChanged();
+
+            GlobalCache.FolderCache.Clear();
+            GlobalCache.DocumentCache.Clear();
 
             await Load();
         }
@@ -678,6 +685,7 @@ namespace Sage100AddressBook.ViewModels
                         entry.MetadataId = metadataItem.Id;
                     }
 
+                    GlobalCache.DocumentCache.Set(_companyCode, _rootId, _documents);
                     BuildDocumentGroups();
                 }
                 catch (Exception exception)
@@ -771,9 +779,25 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+                var documents = GlobalCache.DocumentCache.Get(_companyCode, _rootId);
+                var folders = GlobalCache.FolderCache.Get(_companyCode, _rootId);
+
+                if ((documents != null) && (folders != null))
+                {
+                    _folders.Clear();
+                    _folders.AddRange(folders);
+
+                    foreach (var entry in documents) entry.Active = true;
+
+                    return documents;
+                }
+
+                documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
 
                 foreach (var entry in documents) entry.Active = true;
+
+                GlobalCache.DocumentCache.Set(_companyCode, _rootId, documents);
+                GlobalCache.FolderCache.Set(_companyCode, _rootId, _folders);
 
                 return documents;
 

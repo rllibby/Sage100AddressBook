@@ -31,7 +31,7 @@ namespace Sage100AddressBook.Services
         /// <param name="address">The web api address for the request.</param>
         /// <param name="payload">The object to serialize to json content.</param>
         /// <returns>The response content on success, null on failure.</returns>
-        public static async Task<string> PatchAsync(string address, object payload)
+        public static async Task<bool> PatchAsync(string address, object payload)
         {
             if (address == null) throw new ArgumentNullException("address");
             if (payload == null) throw new ArgumentException("payload");
@@ -51,10 +51,7 @@ namespace Sage100AddressBook.Services
 
                     using (var response = await client.SendAsync(request))
                     {
-                        if ((response != null) && (response.IsSuccessStatusCode == true))
-                        {
-                            return await response.Content.ReadAsStringAsync();
-                        }
+                        return ((response != null) && (response.IsSuccessStatusCode == true));
                     }
                 }
                 catch (Exception exception)
@@ -65,7 +62,7 @@ namespace Sage100AddressBook.Services
                 }
             }
 #endif
-            return await Task.FromResult<string>(null);
+            return false;
         }
 
         /// <summary>

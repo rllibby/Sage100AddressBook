@@ -122,6 +122,8 @@ namespace Sage100AddressBook.ViewModels
                     var deleted = await OrderWebService.Instance.DeleteQuote(_companyCode, entry.Id);
 
                     if (deleted) _quotes.Remove(entry);
+
+                    GlobalCache.QuoteCache.Set(_companyCode, _rootId, _quotes);
                 }
                 finally
                 {
@@ -138,6 +140,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
+            GlobalCache.QuoteCache.Clear();
 
             await Load();
         }
@@ -154,7 +157,7 @@ namespace Sage100AddressBook.ViewModels
                 Type = OrderType.Quote,
                 Id = entry.Id,
                 CustomerId = _rootId,
-                CompanyId = _companyCode
+                CompanyId = _companyCode,
             };
 
              _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
@@ -200,9 +203,13 @@ namespace Sage100AddressBook.ViewModels
 
                             CurrentIndex = _quotes.Count - 1;
 
-                            return;
+                            break;
                         }
                     }
+
+                    GlobalCache.QuoteCache.Set(_companyCode, _rootId, _quotes);
+
+                    EditAction(_current);
                 }
                 finally
                 {
@@ -266,8 +273,15 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                return await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
+                var quotes = GlobalCache.QuoteCache.Get(_companyCode, _rootId);
 
+                if (quotes != null) return quotes;
+
+                quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
+
+                GlobalCache.QuoteCache.Set(_companyCode, _rootId, quotes);
+
+                return quotes;
             }).ContinueWith(async (t) =>
             {
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
