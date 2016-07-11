@@ -126,6 +126,7 @@
       <DependentUpon>SearchControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AuthenticationHelper.cs" />
+    <Compile Include="Helpers\CollectionCache.cs" />
     <Compile Include="Helpers\Device.cs" />
     <Compile Include="Helpers\Dialogs.cs" />
     <Compile Include="Helpers\MenuFlyoutService.cs" />

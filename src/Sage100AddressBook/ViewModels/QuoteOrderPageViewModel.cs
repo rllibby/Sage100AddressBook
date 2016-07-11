@@ -38,6 +38,23 @@ namespace Sage100AddressBook.ViewModels
         #region Private methods
 
         /// <summary>
+        /// Ensures the grid is out of an edit state.
+        /// </summary>
+        private void ClearEditState()
+        {
+            try
+            {
+                _grid?.CancelEdit();
+                _grid = null;
+                _selected = null;
+            }
+            finally
+            {
+                _deleteLine.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
         /// Event that is fired when line a line quantity changes.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
@@ -94,16 +111,9 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    _grid?.CancelEdit();
-                    _grid = null;
-                    _selected = null;
+                    ClearEditState();
 
-                    _deleteLine.RaiseCanExecuteChanged();
-
-                    foreach (var line in _deleted)
-                    {
-                        await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
-                    }
+                    foreach (var line in _deleted) await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
 
                     foreach (var line in _lines)
                     {
@@ -146,18 +156,18 @@ namespace Sage100AddressBook.ViewModels
 
             await Dispatcher.DispatchAsync(() =>
             {
-                _grid?.CancelEdit();
-                _grid = null;
-                _selected = null;
+                ClearEditState();
 
-                _lines.Remove(line);
-
-                line.Modified = true;
-                if (line.Persisted) _deleted.Add(line);
-  
-                _deleteLine.RaiseCanExecuteChanged();
-
-                SetModified(true);
+                try
+                {
+                    _lines.Remove(line);
+                    line.Modified = true;
+                    if (line.Persisted) _deleted.Add(line);
+                }
+                finally
+                {
+                    SetModified(true);
+                }
             });
         }
 
@@ -203,11 +213,7 @@ namespace Sage100AddressBook.ViewModels
         {
             await Dispatcher.DispatchAsync(() =>
             {
-                _grid?.CancelEdit();
-                _grid = null;
-                _selected = null;
-
-                _deleteLine.RaiseCanExecuteChanged();
+                ClearEditState();
                 _deleted.Clear();
 
                 var temp = new List<OrderDetail>();

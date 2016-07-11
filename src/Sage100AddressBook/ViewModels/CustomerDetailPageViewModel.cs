@@ -78,7 +78,7 @@ namespace Sage100AddressBook.ViewModels
             _customerAddress = currentCustomer.GetAddressEntry();
             _id = currentCustomer.Id;
 
-            var collection = new ObservableCollection<PieChartData>();
+            var collection = new List<PieChartData>();
 
             if (currentCustomer.CurrentBalance != 0)
             {

@@ -47,6 +47,8 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
+        private static CollectionCache<DocumentEntry> _documentCache = new CollectionCache<DocumentEntry>();
+        private static CollectionCache<DocumentFolder> _folderCache = new CollectionCache<DocumentFolder>();
         private ObservableCollectionEx<DocumentGroup> _documentGroups = new ObservableCollectionEx<DocumentGroup>();
         private List<DocumentEntry> _documents = new List<DocumentEntry>();
         private List<DocumentFolder> _folders = new List<DocumentFolder>();
@@ -771,11 +773,24 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+                var documents = _documentCache.Get(_companyCode, _rootId);
+                var folders = _folderCache.Get(_companyCode, _rootId);
 
-                foreach (var entry in documents) entry.Active = true;
+                if ((documents != null) && (folders != null))
+                {
+                    _folders.Clear();
+                    _folders.AddRange(folders);
 
-                return documents;
+                    foreach (var entry in documents) entry.Active = true;
+
+                    return documents;
+                }
+
+                var temp = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+
+                foreach (var entry in temp) entry.Active = true;
+
+                return temp;
 
             }).ContinueWith(async (t) =>
             {
