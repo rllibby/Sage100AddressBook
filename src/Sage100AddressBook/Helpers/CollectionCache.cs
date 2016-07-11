@@ -18,9 +18,10 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Constructor.
         /// </summary>
-        public CacheData()
+        /// <param name="expires">The expiration time in minutes.</param>
+        public CacheData(int expires)
         {
-            Expires = DateTime.Now.AddMinutes(5);
+            Expires = DateTime.Now.AddMinutes(expires);
         }
 
         #endregion
@@ -30,7 +31,7 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// The cached data.
         /// </summary>
-        public ICollection<T> Data { get; set; }
+        public IEnumerable<T> Data { get; set; }
 
         /// <summary>
         /// The expiration date time.
@@ -57,6 +58,7 @@ namespace Sage100AddressBook.Helpers
         #region Private fields
 
         private Dictionary<string, CacheData<T>> _cache = new Dictionary<string, CacheData<T>>();
+        private static int _expiresInMinutes = 5;
 
         #endregion
 
@@ -73,7 +75,28 @@ namespace Sage100AddressBook.Helpers
             if (string.IsNullOrEmpty(company)) throw new ArgumentNullException("company");
             if (string.IsNullOrEmpty(customer)) throw new ArgumentNullException("customer");
 
-            return string.Format("{0,10:}{0,30}", company.ToLower() + customer.ToLower());
+            return string.Format("{0,10:}{1,30}", company.ToLower(), customer.ToLower());
+        }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public CollectionCache()
+        {
+            _expiresInMinutes = 5;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="expiresInMinutes">The time toe expire entries, in minutes.</param>
+        public CollectionCache(int expiresInMinutes)
+        {
+            _expiresInMinutes = Math.Max(expiresInMinutes, 1);
         }
 
         #endregion
@@ -86,7 +109,7 @@ namespace Sage100AddressBook.Helpers
         /// <param name="company">The company code used for the key.</param>
         /// <param name="customer">The customer id used for the key.</param>
         /// <param name="collection">The collection to cache.</param>
-        public void Set(string company, string customer, ICollection<T> collection)
+        public void Set(string company, string customer, IEnumerable<T> collection)
         {
             if (collection == null) throw new ArgumentNullException("collection");
 
@@ -94,7 +117,7 @@ namespace Sage100AddressBook.Helpers
 
             if (_cache.ContainsKey(key)) _cache.Remove(key);
 
-            var entry = new CacheData<T>();
+            var entry = new CacheData<T>(_expiresInMinutes);
 
             entry.Data = collection;
 
@@ -107,7 +130,7 @@ namespace Sage100AddressBook.Helpers
         /// <param name="company">The company code used for the key.</param>
         /// <param name="customer">The customer id used for the key.</param>
         /// <returns>The collection on success, null on failure.</returns>
-        public ICollection<T> Get(string company, string customer)
+        public IEnumerable<T> Get(string company, string customer)
         {
             var key = GetKey(company, customer);
 

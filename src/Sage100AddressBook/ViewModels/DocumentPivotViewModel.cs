@@ -473,6 +473,8 @@ namespace Sage100AddressBook.ViewModels
                             await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
+                        _documentCache.Set(_companyCode, _rootId, _documents);
+
                         BuildDocumentGroups();
                     }
                     finally
@@ -538,6 +540,8 @@ namespace Sage100AddressBook.ViewModels
                             await client.Me.Drive.Items[entry.MetadataId].Request().UpdateAsync(metadataItem);
                         }
 
+                        _documentCache.Set(_companyCode, _rootId, _documents);
+
                         BuildDocumentGroups();
                     }
                     finally
@@ -578,6 +582,7 @@ namespace Sage100AddressBook.ViewModels
                     }
 
                     _documents.Remove(entry);
+                    _documentCache.Set(_companyCode, _rootId, _documents);
 
                     BuildDocumentGroups();
                 }
@@ -599,6 +604,8 @@ namespace Sage100AddressBook.ViewModels
             CloseSearchResults(_searchControl);
             _loaded = false;
             _upload.RaiseCanExecuteChanged();
+            _folderCache.Clear();
+            _documentCache.Clear();
 
             await Load();
         }
@@ -680,6 +687,7 @@ namespace Sage100AddressBook.ViewModels
                         entry.MetadataId = metadataItem.Id;
                     }
 
+                    _documentCache.Set(_companyCode, _rootId, _documents);
                     BuildDocumentGroups();
                 }
                 catch (Exception exception)
@@ -786,11 +794,14 @@ namespace Sage100AddressBook.ViewModels
                     return documents;
                 }
 
-                var temp = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+                documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
 
-                foreach (var entry in temp) entry.Active = true;
+                foreach (var entry in documents) entry.Active = true;
 
-                return temp;
+                _documentCache.Set(_companyCode, _rootId, documents);
+                _folderCache.Set(_companyCode, _rootId, _folders);
+
+                return documents;
 
             }).ContinueWith(async (t) =>
             {

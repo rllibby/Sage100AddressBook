@@ -29,6 +29,7 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand _deleteLine;
         private DelegateCommand _cancel;
         private DelegateCommand _save;
+        private Order _changedOrder = null;
         private Order _order = new Order();
         private QuoteOrderArgs _args;
         private bool _modified;
@@ -135,6 +136,8 @@ namespace Sage100AddressBook.ViewModels
                     }
 
                     await LoadOrder();
+
+                    _changedOrder = _order;
 
                     SetModified(false);
                 }
@@ -331,7 +334,14 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task.</returns>
         public override async Task OnNavigatedFromAsync(IDictionary<string, object> suspensionState, bool suspending)
         {
-            await Task.CompletedTask;
+            try
+            {
+
+            }
+            finally
+            {
+                await Task.CompletedTask;
+            }
         }
 
         /// <summary>

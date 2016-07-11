@@ -2,6 +2,8 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Sage100AddressBook.Helpers;
+
 namespace Sage100AddressBook.Models
 {
     /// <summary>
