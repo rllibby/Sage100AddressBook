@@ -33,7 +33,6 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        private static CollectionCache<OrderSummary> _quoteCache = new CollectionCache<OrderSummary>();
         private ObservableCollectionEx<OrderSummary> _quotes = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
         private DelegateCommand<OrderSummary> _send;
@@ -124,7 +123,7 @@ namespace Sage100AddressBook.ViewModels
 
                     if (deleted) _quotes.Remove(entry);
 
-                    _quoteCache.Set(_companyCode, _rootId, _quotes);
+                    GlobalCache.QuoteCache.Set(_companyCode, _rootId, _quotes);
                 }
                 finally
                 {
@@ -141,7 +140,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
-            _quoteCache.Clear();
+            GlobalCache.QuoteCache.Clear();
 
             await Load();
         }
@@ -204,11 +203,13 @@ namespace Sage100AddressBook.ViewModels
 
                             CurrentIndex = _quotes.Count - 1;
 
-                            return;
+                            break;
                         }
                     }
 
-                    _quoteCache.Set(_companyCode, _rootId, _quotes);
+                    GlobalCache.QuoteCache.Set(_companyCode, _rootId, _quotes);
+
+                    EditAction(_current);
                 }
                 finally
                 {
@@ -272,13 +273,13 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var quotes = _quoteCache.Get(_companyCode, _rootId);
+                var quotes = GlobalCache.QuoteCache.Get(_companyCode, _rootId);
 
                 if (quotes != null) return quotes;
 
                 quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
 
-                _quoteCache.Set(_companyCode, _rootId, quotes);
+                GlobalCache.QuoteCache.Set(_companyCode, _rootId, quotes);
 
                 return quotes;
             }).ContinueWith(async (t) =>

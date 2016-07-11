@@ -92,6 +92,7 @@ namespace Sage100AddressBook.CustomControls
                         {
                             Quantity = (item.QuantityToBuy > 0) ? (int)item.QuantityToBuy : 1,
                             Id = item.Id,
+                            ItemCode = item.ItemCode,
                             Description = item.ItemCodeDesc,
                         };
 
@@ -147,6 +148,7 @@ namespace Sage100AddressBook.CustomControls
                         {
                             Quantity = (item.QuantityToBuy > 0) ? (int)item.QuantityToBuy : 1,
                             Id = item.Id,
+                            ItemCode = item.ItemCode,
                             Description = item.ItemCodeDesc,
                         };
 

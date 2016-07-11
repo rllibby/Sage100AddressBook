@@ -14,6 +14,30 @@ namespace Sage100AddressBook.Models
     /// </summary>
     public class OrderSummary : Sage100BaseEntity
     {
+        #region Public methods
+
+        /// <summary>
+        /// Assign summary fields from a full order.
+        /// </summary>
+        /// <param name="order"></param>
+        public void Assign(Order order)
+        {
+            if (order == null) return;
+
+            SalesOrderNo = order.SalesOrderNo;
+            OrderType = order.OrderType;
+            OrderStatus = order.OrderStatus;
+            ShipExpireDate = order.ShipExpireDate;
+            BillToName = order.BillToName;
+            TaxableAmt = order.TaxableAmt;
+            NonTaxableAmt = order.NonTaxableAmt;
+            SalesTaxAmt = order.SalesTaxAmt;
+            DiscountAmt = order.DiscountAmt;
+            Total = order.Total;
+        }
+
+        #endregion
+
         #region Public properties
 
         /// <summary>

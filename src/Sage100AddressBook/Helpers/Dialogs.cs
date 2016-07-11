@@ -227,13 +227,6 @@ namespace Sage100AddressBook.Helpers
 
             await dialog.ShowAsync();
 
-            if ((result != null) && (title == null))
-            {
-                var ok = await ShowOkCancel(string.Format("Create a new quick quote for:\n\n({0}) - {1}", result.Quantity, result.Description));
-
-                if (!ok) result = null;
-            }
-
             return result;
         }
 

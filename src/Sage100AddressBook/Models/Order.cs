@@ -62,6 +62,7 @@ namespace Sage100AddressBook.Models
         /// <summary>
         /// Event handler for quantity ordered changed.
         /// </summary>
+        [JsonIgnore]
         public EventHandler QuantityOrderedChanged;
 
         /// <summary>

@@ -32,7 +32,6 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        private static CollectionCache<OrderSummary> _orderCache = new CollectionCache<OrderSummary>();
         private ObservableCollectionEx<OrderSummary> _orders = new ObservableCollectionEx<OrderSummary>();
         private ViewModelLoading _owner;
         private OrderSummary _current;
@@ -66,7 +65,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
-            _orderCache.Clear();
+            GlobalCache.OrderCache.Clear();
 
             await Load();
         }
@@ -160,13 +159,13 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var orders = _orderCache.Get(_companyCode, _rootId);
+                var orders = GlobalCache.OrderCache.Get(_companyCode, _rootId);
 
                 if (orders != null) return orders;
                     
                 orders = await CustomerWebService.Instance.GetOrdersSummaryAsync(_rootId, _companyCode);
 
-                _orderCache.Set(_companyCode, _rootId, orders);
+                GlobalCache.OrderCache.Set(_companyCode, _rootId, orders);
 
                 return orders;
 

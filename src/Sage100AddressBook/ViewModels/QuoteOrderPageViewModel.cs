@@ -29,7 +29,6 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand _deleteLine;
         private DelegateCommand _cancel;
         private DelegateCommand _save;
-        private Order _changedOrder = null;
         private Order _order = new Order();
         private QuoteOrderArgs _args;
         private bool _modified;
@@ -137,8 +136,7 @@ namespace Sage100AddressBook.ViewModels
 
                     await LoadOrder();
 
-                    _changedOrder = _order;
-
+                    RaisePropertyChanged("Order");
                     SetModified(false);
                 }
                 finally
@@ -295,23 +293,6 @@ namespace Sage100AddressBook.ViewModels
                 try
                 {
                     await LoadOrder();
-                    var order = await OrderWebService.Instance.GetOrderAsync(_args.Id, _args.CompanyId);
-                    var temp = new List<OrderDetail>();
-
-                    Item = order;
-
-                    foreach (var line in order.Details)
-                    {
-                        var copy = line.Copy();
-
-                        copy.QuantityOrderedChanged += OnQuantityChanged;
-                        copy.Persisted = true;
-                        copy.Modified = false;
-
-                        temp.Add(copy);
-                    }
-
-                    _lines.Set(temp);
                 }
                 catch
                 {
@@ -336,7 +317,38 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
+                if (_args.Type == OrderType.Order)
+                {
+                    var orders = GlobalCache.OrderCache.Get(_args.CompanyId, _args.CustomerId);
 
+                    if (orders == null) return;
+
+                    foreach (var item in orders)
+                    {
+                        if (item.Id.Equals(_order.Id))
+                        {
+                            item.Assign(_order);
+                            GlobalCache.OrderCache.Set(_args.CompanyId, _args.CustomerId, orders);
+
+                            return;
+                        }
+                    }
+                }
+
+                var quotes = GlobalCache.QuoteCache.Get(_args.CompanyId, _args.CustomerId);
+
+                if (quotes == null) return;
+
+                foreach (var item in quotes)
+                {
+                    if (item.Id.Equals(_order.Id))
+                    {
+                        item.Assign(_order);
+                        GlobalCache.QuoteCache.Set(_args.CompanyId, _args.CustomerId, quotes);
+
+                        return;
+                    }
+                }
             }
             finally
             {

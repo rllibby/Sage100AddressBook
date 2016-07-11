@@ -25,7 +25,6 @@ namespace Sage100AddressBook.ViewModels
 
         #region Private fields
 
-        private static CollectionCache<RecentPurchasedItem> _recentCache = new CollectionCache<RecentPurchasedItem>(5);
         private ObservableCollectionEx<RecentPurchasedItem> _items = new ObservableCollectionEx<RecentPurchasedItem>();
         private ViewModelLoading _owner;
         private RecentPurchasedItem _current;
@@ -59,7 +58,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
-            _recentCache.Clear();
+            GlobalCache.RecentCache.Clear();
 
             await Load();
         }
@@ -115,13 +114,13 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var recent = _recentCache.Get(_companyCode, _rootId);
+                var recent = GlobalCache.RecentCache.Get(_companyCode, _rootId);
 
                 if (recent != null) return recent;
 
                 recent = await CustomerWebService.Instance.GetRecentlyPurchasedItemsAsync(_rootId, _companyCode);
 
-                _recentCache.Set(_companyCode, _rootId, recent);
+                GlobalCache.RecentCache.Set(_companyCode, _rootId, recent);
 
                 return recent;
 
