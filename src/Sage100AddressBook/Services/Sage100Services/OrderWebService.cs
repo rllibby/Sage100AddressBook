@@ -125,20 +125,14 @@ namespace Sage100AddressBook.Services.Sage100Services
         /// <param name="lineId">The line id to update.</param>
         /// <param name="detailLine">The order detail line with the update quantity.</param>
         /// <returns></returns>
-        public async Task<Order> UpdateLine(string companyCode, string orderId, string lineId, OrderDetail detailLine)
+        public async Task<bool> UpdateLine(string companyCode, string orderId, string lineId, OrderDetail detailLine)
         {
             if (string.IsNullOrEmpty(companyCode)) throw new ArgumentNullException("companyCode");
             if (string.IsNullOrEmpty(orderId)) throw new ArgumentNullException("orderId");
             if (string.IsNullOrEmpty(lineId)) throw new ArgumentNullException("lineId");
             if (detailLine == null) throw new ArgumentNullException("detailLine");
 
-            var content = await NgrokService.PatchAsync(companyCode + "/orders/" + orderId + "/lines/" + lineId, detailLine);
-
-            if (!string.IsNullOrEmpty(content)) return JsonConvert.DeserializeObject<Order>(content);
-
-            var result = GetFakeOrder();
-
-            return result;
+            return await NgrokService.PatchAsync(companyCode + "/orders/" + orderId + "/lines/" + lineId, detailLine);
         }
 
         /// <summary>

@@ -65,6 +65,7 @@ namespace Sage100AddressBook.ViewModels
             if (_isLoading) return;
 
             _loaded = false;
+            GlobalCache.OrderCache.Clear();
 
             await Load();
         }
@@ -81,7 +82,7 @@ namespace Sage100AddressBook.ViewModels
                 Type = OrderType.Order,
                 Id = entry.Id,
                 CustomerId = _rootId,
-                CompanyId = _companyCode
+                CompanyId = _companyCode,
             };
 
             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
@@ -158,7 +159,15 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                return await CustomerWebService.Instance.GetOrdersSummaryAsync(_rootId, _companyCode);
+                var orders = GlobalCache.OrderCache.Get(_companyCode, _rootId);
+
+                if (orders != null) return orders;
+                    
+                orders = await CustomerWebService.Instance.GetOrdersSummaryAsync(_rootId, _companyCode);
+
+                GlobalCache.OrderCache.Set(_companyCode, _rootId, orders);
+
+                return orders;
 
             }).ContinueWith(async (t) =>
             {
@@ -175,6 +184,7 @@ namespace Sage100AddressBook.ViewModels
                         }
 
                         RaisePropertyChanged("IsEmpty");
+
                     }
                     finally
                     {

@@ -71,6 +71,11 @@ namespace Sage100AddressBook.Models
         public string Id { get; set; }
 
         /// <summary>
+        /// The item code.
+        /// </summary>
+        public string ItemCode { get; set; }
+
+        /// <summary>
         /// The item description.
         /// </summary>
         public string Description { get; set; }

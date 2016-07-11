@@ -638,7 +638,9 @@
                                                       MinZoom="1,1"
                                                       PaletteName="DefaultDark"
                                                       Zoom="1,1">
-                                <telerikChart:DoughnutSeries HorizontalContentAlignment="Stretch"
+                                <telerikChart:DoughnutSeries MinWidth="1"
+                                                             MinHeight="1"
+                                                             HorizontalContentAlignment="Stretch"
                                                              VerticalContentAlignment="Stretch"
                                                              FontSize="10"
                                                              InnerRadiusFactor="0.5"

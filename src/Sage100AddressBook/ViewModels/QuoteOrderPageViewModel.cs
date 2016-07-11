@@ -38,6 +38,23 @@ namespace Sage100AddressBook.ViewModels
         #region Private methods
 
         /// <summary>
+        /// Ensures the grid is out of an edit state.
+        /// </summary>
+        private void ClearEditState()
+        {
+            try
+            {
+                _grid?.CancelEdit();
+                _grid = null;
+                _selected = null;
+            }
+            finally
+            {
+                _deleteLine.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
         /// Event that is fired when line a line quantity changes.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
@@ -94,16 +111,9 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    _grid?.CancelEdit();
-                    _grid = null;
-                    _selected = null;
+                    ClearEditState();
 
-                    _deleteLine.RaiseCanExecuteChanged();
-
-                    foreach (var line in _deleted)
-                    {
-                        await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
-                    }
+                    foreach (var line in _deleted) await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
 
                     foreach (var line in _lines)
                     {
@@ -126,6 +136,7 @@ namespace Sage100AddressBook.ViewModels
 
                     await LoadOrder();
 
+                    RaisePropertyChanged("Order");
                     SetModified(false);
                 }
                 finally
@@ -146,18 +157,18 @@ namespace Sage100AddressBook.ViewModels
 
             await Dispatcher.DispatchAsync(() =>
             {
-                _grid?.CancelEdit();
-                _grid = null;
-                _selected = null;
+                ClearEditState();
 
-                _lines.Remove(line);
-
-                line.Modified = true;
-                if (line.Persisted) _deleted.Add(line);
-  
-                _deleteLine.RaiseCanExecuteChanged();
-
-                SetModified(true);
+                try
+                {
+                    _lines.Remove(line);
+                    line.Modified = true;
+                    if (line.Persisted) _deleted.Add(line);
+                }
+                finally
+                {
+                    SetModified(true);
+                }
             });
         }
 
@@ -203,11 +214,7 @@ namespace Sage100AddressBook.ViewModels
         {
             await Dispatcher.DispatchAsync(() =>
             {
-                _grid?.CancelEdit();
-                _grid = null;
-                _selected = null;
-
-                _deleteLine.RaiseCanExecuteChanged();
+                ClearEditState();
                 _deleted.Clear();
 
                 var temp = new List<OrderDetail>();
@@ -286,23 +293,6 @@ namespace Sage100AddressBook.ViewModels
                 try
                 {
                     await LoadOrder();
-                    var order = await OrderWebService.Instance.GetOrderAsync(_args.Id, _args.CompanyId);
-                    var temp = new List<OrderDetail>();
-
-                    Item = order;
-
-                    foreach (var line in order.Details)
-                    {
-                        var copy = line.Copy();
-
-                        copy.QuantityOrderedChanged += OnQuantityChanged;
-                        copy.Persisted = true;
-                        copy.Modified = false;
-
-                        temp.Add(copy);
-                    }
-
-                    _lines.Set(temp);
                 }
                 catch
                 {
@@ -325,7 +315,45 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task.</returns>
         public override async Task OnNavigatedFromAsync(IDictionary<string, object> suspensionState, bool suspending)
         {
-            await Task.CompletedTask;
+            try
+            {
+                if (_args.Type == OrderType.Order)
+                {
+                    var orders = GlobalCache.OrderCache.Get(_args.CompanyId, _args.CustomerId);
+
+                    if (orders == null) return;
+
+                    foreach (var item in orders)
+                    {
+                        if (item.Id.Equals(_order.Id))
+                        {
+                            item.Assign(_order);
+                            GlobalCache.OrderCache.Set(_args.CompanyId, _args.CustomerId, orders);
+
+                            return;
+                        }
+                    }
+                }
+
+                var quotes = GlobalCache.QuoteCache.Get(_args.CompanyId, _args.CustomerId);
+
+                if (quotes == null) return;
+
+                foreach (var item in quotes)
+                {
+                    if (item.Id.Equals(_order.Id))
+                    {
+                        item.Assign(_order);
+                        GlobalCache.QuoteCache.Set(_args.CompanyId, _args.CustomerId, quotes);
+
+                        return;
+                    }
+                }
+            }
+            finally
+            {
+                await Task.CompletedTask;
+            }
         }
 
         /// <summary>

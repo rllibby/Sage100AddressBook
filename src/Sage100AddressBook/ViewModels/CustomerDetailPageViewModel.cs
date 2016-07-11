@@ -44,6 +44,7 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<FrameworkElement> _contact;
         private DelegateCommand _toggleFavorites;
         private string _id = string.Empty;
+        private bool _loading;
         private bool _loaded;
         private int _index;
 
@@ -59,7 +60,10 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-
+                if (index != PivotIndex)
+                {
+                    if (_loading) Loading = _loading = false;
+                }
             }
             finally
             {
@@ -78,7 +82,7 @@ namespace Sage100AddressBook.ViewModels
             _customerAddress = currentCustomer.GetAddressEntry();
             _id = currentCustomer.Id;
 
-            var collection = new ObservableCollection<PieChartData>();
+            var collection = new List<PieChartData>();
 
             if (currentCustomer.CurrentBalance != 0)
             {
@@ -266,7 +270,7 @@ namespace Sage100AddressBook.ViewModels
         /// <returns>The async task to wait on.</returns>
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
-            Loading = true;
+            Loading = _loading = true;
 
             try
             {
@@ -294,7 +298,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
-                Loading = false;
+                Loading = _loading = false;
             }
 
             await Task.CompletedTask;
