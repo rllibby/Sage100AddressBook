@@ -72,6 +72,45 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// Shows a dialog that allows for text based user input.
         /// </summary>
+        /// <param name="title">The title for the input box.</param>
+        /// <param name="value">The optional starting value.</param>
+        /// <returns>The resulting numeric on success, null on cancel.</returns>
+        public static async Task<int> NumericInput(string title, int value = 0)
+        {
+            var dialog = new ContentDialog()
+            {
+                Title = string.Empty,
+                MaxWidth = Math.Min(400, App.Bounds.Width - 2),
+                MaxHeight = 210,
+            };
+
+            var control = new NumericInputBox(dialog, title, value)
+            {
+                Background = dialog.Background,
+                Width = dialog.MaxWidth - 40,
+                Height = dialog.MaxHeight - 120,
+            };
+
+            dialog.RequestedTheme = SettingsService.Instance.AppTheme.ToElementTheme();
+            dialog.Content = control;
+
+            var result = value;
+
+            dialog.PrimaryButtonText = Ok;
+            dialog.SecondaryButtonText = Cancel;
+            dialog.IsPrimaryButtonEnabled = true;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonClick += delegate { result = control.Value; };
+            dialog.SecondaryButtonClick += delegate { result = (-1); };
+
+            await dialog.ShowAsync();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Shows a dialog that allows for text based user input.
+        /// </summary>
         /// <param name="scope">The input scope for the text box.</param>
         /// <param name="title">The title for the input box.</param>
         /// <param name="value">The optional starting value.</param>

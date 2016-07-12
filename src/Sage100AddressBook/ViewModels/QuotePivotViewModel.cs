@@ -218,6 +218,30 @@ namespace Sage100AddressBook.ViewModels
             });
         }
 
+        /// <summary>
+        /// Attempts to reload the data from cache.
+        /// </summary>
+        /// <returns>True if loaded from cache, otherwise false.</returns>
+        private bool LoadFromCache()
+        {
+            var quotes = GlobalCache.QuoteCache.Get(_companyCode, _rootId);
+
+            if (quotes == null) return false;
+
+            foreach (var entry in quotes)
+            {
+                entry.Delete = _delete;
+                entry.Edit = _edit;
+                entry.Send = _send;
+            }
+
+            _quotes.Set(quotes);
+
+            RaisePropertyChanged("IsEmpty");
+
+            return true;
+        }
+
         #endregion
 
         #region Constructor
@@ -262,6 +286,14 @@ namespace Sage100AddressBook.ViewModels
 
             _isLoading = true;
 
+            if (LoadFromCache())
+            {
+                _loaded = true;
+                _isLoading = false;
+
+                return;
+            }
+
             var dispatcher = Window.Current.Dispatcher;
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -273,11 +305,7 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var quotes = GlobalCache.QuoteCache.Get(_companyCode, _rootId);
-
-                if (quotes != null) return quotes;
-
-                quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
+                var quotes = await CustomerWebService.Instance.GetQuotesSummaryAsync(_rootId, _companyCode);
 
                 GlobalCache.QuoteCache.Set(_companyCode, _rootId, quotes);
 

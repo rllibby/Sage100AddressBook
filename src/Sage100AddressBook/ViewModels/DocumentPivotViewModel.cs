@@ -717,6 +717,31 @@ namespace Sage100AddressBook.ViewModels
             return ((entry != null) || (_current != null));
         }
 
+        /// <summary>
+        /// Attempts to reload the data from cache.
+        /// </summary>
+        /// <returns>True if loaded from cache, otherwise false.</returns>
+        private bool LoadFromCache()
+        {
+            var documents = GlobalCache.DocumentCache.Get(_companyCode, _rootId);
+            var folders = GlobalCache.FolderCache.Get(_companyCode, _rootId);
+
+            if ((documents == null) || (folders == null)) return false;
+
+            _folders.Clear();
+            _folders.AddRange(folders);
+
+            foreach (var entry in documents) entry.Active = true;
+
+            _documents.Clear();
+            _documents.AddRange(documents);
+            _upload.RaiseCanExecuteChanged();
+
+            BuildDocumentGroups();
+
+            return true;
+        }
+
         #endregion
 
         #region Constructor
@@ -770,6 +795,15 @@ namespace Sage100AddressBook.ViewModels
 
             var dispatcher = Window.Current.Dispatcher;
 
+            if (LoadFromCache())
+            {
+                _loaded = true;
+                _isLoading = false;
+
+                return;
+            }
+
+
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
                 Loading = true;
@@ -779,20 +813,7 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var documents = GlobalCache.DocumentCache.Get(_companyCode, _rootId);
-                var folders = GlobalCache.FolderCache.Get(_companyCode, _rootId);
-
-                if ((documents != null) && (folders != null))
-                {
-                    _folders.Clear();
-                    _folders.AddRange(folders);
-
-                    foreach (var entry in documents) entry.Active = true;
-
-                    return documents;
-                }
-
-                documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
+                var documents = await DocumentRetrievalService.Instance.RetrieveDocumentsAsync(_rootId, _companyCode, _folders);
 
                 foreach (var entry in documents) entry.Active = true;
 

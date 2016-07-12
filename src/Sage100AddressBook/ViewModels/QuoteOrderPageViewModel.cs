@@ -62,31 +62,22 @@ namespace Sage100AddressBook.ViewModels
 
                 try
                 {
-                    var scope = new InputScope();
-                    var name = new InputScopeName();
+                    var result = await Dialogs.NumericInput(selected.ItemCodeDesc, Convert.ToInt32(selected.QuantityOrdered));
 
-                    name.NameValue = InputScopeNameValue.Number;
-                    scope.Names.Add(name);
-
-                    var result = await Dialogs.Input(scope, selected.ItemCodeDesc, selected.QuantityOrdered.ToString(), "Quantity...");
-                    var quantity = 0;
-
-                    if (int.TryParse(result, out quantity))
+                    if (result < 0) return;
+                    if (result == 0)
                     {
-                        if (quantity < 1)
-                        {
-                            await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, selected.Id);
-                        }
-                        else
-                        {
-                            selected.QuantityOrdered = quantity;
-                            await OrderWebService.Instance.UpdateLine(_args.CompanyId, _args.Id, selected.Id, selected);
-                        }
-
-                        await LoadOrder();
-
-                        RaisePropertyChanged("Item");
+                        await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, selected.Id);
                     }
+                    else
+                    {
+                        selected.QuantityOrdered = result;
+                        await OrderWebService.Instance.UpdateLine(_args.CompanyId, _args.Id, selected.Id, selected);
+                    }
+
+                    await LoadOrder();
+
+                    RaisePropertyChanged("Item");
                 }
                 finally
                 {
