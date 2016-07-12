@@ -81,7 +81,7 @@
                        HorizontalAlignment="Left"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.ShipExpireDate, Mode=OneWay, Converter ={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
+                       Text="{x:Bind ViewModel.Item.ShipExpireDate, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:D\}}"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
@@ -170,7 +170,7 @@
                               SelectionChanged="{x:Bind ViewModel.OnSelectionChanged}"
                               SelectionMode="Single"
                               UserColumnReorderMode="None"
-                              UserEditMode="Inline"
+                              UserEditMode="None"
                               UserGroupMode="Disabled"
                               UserSortMode="None">
                 <grid:RadDataGrid.Columns>
@@ -202,15 +202,12 @@
             <AppBarButton Command="{x:Bind ViewModel.AddLine}"
                           Icon="Add"
                           Label="Add Line" />
+            <AppBarButton Command="{x:Bind ViewModel.EditLine}"
+                          Icon="Edit"
+                          Label="Edit Line" />
             <AppBarButton Command="{x:Bind ViewModel.DeleteLine}"
                           Icon="Delete"
                           Label="Delete Line" />
-            <AppBarButton Command="{x:Bind ViewModel.Save}"
-                          Icon="Save"
-                          Label="Save" />
-            <AppBarButton Command="{x:Bind ViewModel.Cancel}"
-                          Icon="Undo"
-                          Label="Undo" />
         </CommandBar>
 
     </Grid>

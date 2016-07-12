@@ -32,6 +32,20 @@ namespace Sage100AddressBook.CustomControls
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                if (InputText.InputScope.Names[0].NameValue.Equals(InputScopeNameValue.Number) && !string.IsNullOrEmpty(InputText.Text))
+                {
+                    var value = 0;
+
+                    if (int.TryParse(InputText.Text, out  value))
+                    {
+                        if (value < 0) InputText.Text = "0";
+                    }
+                    else
+                    {
+                        InputText.Text = "0";
+                    }
+                }
+
                 _dialog.IsPrimaryButtonEnabled = (!string.IsNullOrEmpty(InputText.Text));
             });
         }
