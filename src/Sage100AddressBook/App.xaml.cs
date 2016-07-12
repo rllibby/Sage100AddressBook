@@ -17,11 +17,6 @@ using Windows.ApplicationModel;
 using Windows.Foundation.Metadata;
 using Windows.Foundation;
 using Windows.Graphics.Display;
-using Windows.UI.Xaml.Resources;
-using Telerik.UI.Xaml.Controls;
-using System;
-using System.Reflection;
-using Windows.UI.Xaml.Media;
 
 namespace Sage100AddressBook
 {
@@ -33,6 +28,7 @@ namespace Sage100AddressBook
     {
         #region Private fields
 
+        private bool _protocolLaunch;
         private static Rect _bounds;
 
         #endregion
@@ -77,6 +73,8 @@ namespace Sage100AddressBook
                     ModalContent = new Views.Busy(),
                 };
             }
+
+            _protocolLaunch = (args.Kind == ActivationKind.Protocol);
 
             await Task.CompletedTask;
         }
@@ -124,6 +122,12 @@ namespace Sage100AddressBook
             try
             {
                 await AuthenticationHelper.Instance.SignIn();
+
+                if (startKind == StartKind.Activate)
+                {
+
+
+                }
 
                 NavigationService.Navigate(typeof(Views.MainPage), null, new SuppressNavigationTransitionInfo());
             }
