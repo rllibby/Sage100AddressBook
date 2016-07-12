@@ -22,8 +22,8 @@ namespace Sage100AddressBook.Models
         public string CompanyCode { get; set; }
 
         /// <summary>
-        /// The page type to remove from the stack.
+        /// The page was launched into directly via a protocol uri.
         /// </summary>
-        public Type RemovePage { get; set; }
+        public bool ProtocolLaunch { get; set; }
     }
 }

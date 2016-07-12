@@ -17,6 +17,8 @@ using Windows.ApplicationModel;
 using Windows.Foundation.Metadata;
 using Windows.Foundation;
 using Windows.Graphics.Display;
+using System;
+using Sage100AddressBook.Models;
 
 namespace Sage100AddressBook
 {
@@ -28,8 +30,7 @@ namespace Sage100AddressBook
     {
         #region Private fields
 
-        private bool _protocolLaunch;
-        private static Rect _bounds;
+        private static Rect _bounds = new Rect(0, 0, 360, 600);
 
         #endregion
 
@@ -73,8 +74,6 @@ namespace Sage100AddressBook
                     ModalContent = new Views.Busy(),
                 };
             }
-
-            _protocolLaunch = (args.Kind == ActivationKind.Protocol);
 
             await Task.CompletedTask;
         }
@@ -125,8 +124,27 @@ namespace Sage100AddressBook
 
                 if (startKind == StartKind.Activate)
                 {
+                    var eventArgs = args as ProtocolActivatedEventArgs;
+                    
+                    if (eventArgs !=  null)
+                    {
+                        var content = eventArgs.Uri.AbsolutePath;
+                        var values = content.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                        if ((values.Length == 2) && values[0].Equals("customer", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var navArgs = new NavigationArgs()
+                            {
+                                Id = values[1],
+                                CompanyCode = "abc",
+                                ProtocolLaunch = true
+                            };
 
+                            NavigationService.Navigate(typeof(Views.CustomerDetailPage), navArgs, new SuppressNavigationTransitionInfo());
+                        }
 
+                        return;
+                    }
                 }
 
                 NavigationService.Navigate(typeof(Views.MainPage), null, new SuppressNavigationTransitionInfo());

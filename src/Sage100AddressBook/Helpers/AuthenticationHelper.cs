@@ -2,11 +2,13 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using System;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Windows.Storage;
 using Microsoft.Graph;
 using Windows.UI.Xaml;
+using Windows.UI.Core;
 
 /*
  *  Application Registration:
@@ -103,24 +105,27 @@ namespace Sage100AddressBook.Helpers
         /// <returns>The async task which can be awaited.</returns>
         public async Task SignIn()
         {
-            Views.Busy.SetBusy(true, "Signing in...");
-
-            try
+            await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (_graphClient == null) await AquireGraphClient();
-                if (_graphClient != null)
+                Views.Busy.SetBusy(true, "Signing in...");
+
+                try
                 {
-                    var me = await _graphClient.Me.Request().GetAsync();
+                    if (_graphClient == null) await AquireGraphClient();
+                    if (_graphClient != null)
+                    {
+                        var me = await _graphClient.Me.Request().GetAsync();
 
-                    UserName = me.DisplayName;
+                        UserName = me.DisplayName;
+                    }
+
+                    Notify();
                 }
-
-                Notify();
-            }
-            finally
-            {
-                Views.Busy.SetBusy(false);
-            }
+                finally
+                {
+                    Views.Busy.SetBusy(false);
+                }
+            });
         }
 
         /// <summary>

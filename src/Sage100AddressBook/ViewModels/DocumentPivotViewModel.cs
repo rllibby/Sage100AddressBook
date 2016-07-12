@@ -803,7 +803,6 @@ namespace Sage100AddressBook.ViewModels
                 return;
             }
 
-
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
                 Loading = true;

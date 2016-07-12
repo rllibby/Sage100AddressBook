@@ -42,8 +42,8 @@ namespace Sage100AddressBook.Models
             return new NavigationArgs()
             {
                 Id = (string.IsNullOrEmpty(entry.ParentId) ? id : entry.ParentId),
-                CompanyCode = "ABC",
-                RemovePage = null
+                CompanyCode = "abc",
+                ProtocolLaunch = false
             };
         }
         #endregion
