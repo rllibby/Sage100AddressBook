@@ -277,6 +277,8 @@ namespace Sage100AddressBook.ViewModels
                 var navArgs = (NavigationArgs)parameter;
                 var index = (suspensionState.ContainsKey("Index")) ? suspensionState["Index"]?.ToString() : "0";
 
+                if (navArgs.ProtocolLaunch) NavigationService.ClearHistory();
+
                 _loaded = true;
 
                 _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);

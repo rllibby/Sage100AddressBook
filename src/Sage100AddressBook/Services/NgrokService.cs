@@ -19,7 +19,7 @@ namespace Sage100AddressBook.Services
         #region Private fields
 
         private static string _baseAddress = "https://sage100poc.ngrok.io/api/";
-        private static int _timeout = 5;
+        private static int _timeout = 10;
 
         #endregion
 
@@ -99,7 +99,7 @@ namespace Sage100AddressBook.Services
                 {
                     var cancelled = (exception as TaskCanceledException);
 
-                    if (cancelled != null) _timeout = 1;
+                    if (cancelled != null) _timeout = 5;
                 }
             }
 #endif
@@ -136,7 +136,7 @@ namespace Sage100AddressBook.Services
                 {
                     var cancelled = (exception as TaskCanceledException);
 
-                    if (cancelled != null) _timeout = 1;
+                    if (cancelled != null) _timeout = 5;
                 }
             }
 #endif
