@@ -116,6 +116,9 @@
     <Compile Include="CustomControls\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\NumericInputBox.xaml.cs">
+      <DependentUpon>NumericInputBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\QuickQuote.xaml.cs">
       <DependentUpon>QuickQuote.xaml</DependentUpon>
     </Compile>
@@ -281,6 +284,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\NumericInputBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

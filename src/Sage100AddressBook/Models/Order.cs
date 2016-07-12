@@ -60,12 +60,6 @@ namespace Sage100AddressBook.Models
         #region Public properties
 
         /// <summary>
-        /// Event handler for quantity ordered changed.
-        /// </summary>
-        [JsonIgnore]
-        public EventHandler QuantityOrderedChanged;
-
-        /// <summary>
         /// The item identifier.
         /// </summary>
         public string ItemId { get; set; }
@@ -95,13 +89,7 @@ namespace Sage100AddressBook.Models
         public double QuantityOrdered
         {
             get { return _quantityOrdered; }
-            set
-            {
-                Modified = true;
-                _quantityOrdered = value;
-
-                QuantityOrderedChanged?.Invoke(this, new EventArgs());
-            }
+            set { Set(ref _quantityOrdered, value); }
         }
 
         /// <summary>

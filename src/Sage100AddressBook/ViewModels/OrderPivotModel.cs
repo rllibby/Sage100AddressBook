@@ -88,6 +88,25 @@ namespace Sage100AddressBook.ViewModels
             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
+        /// <summary>
+        /// Attempts to reload the data from cache.
+        /// </summary>
+        /// <returns>True if loaded from cache, otherwise false.</returns>
+        private bool LoadFromCache()
+        {
+            var orders = GlobalCache.OrderCache.Get(_companyCode, _rootId);
+
+            if (orders == null) return false;
+
+            foreach (var entry in orders) entry.Edit = _edit;
+
+            _orders.Set(orders);
+
+            RaisePropertyChanged("IsEmpty");
+
+            return true;
+        }
+
         #endregion
 
         #region Constructor
@@ -149,6 +168,14 @@ namespace Sage100AddressBook.ViewModels
 
             _isLoading = true;
 
+            if (LoadFromCache())
+            {
+                _loaded = true;
+                _isLoading = false;
+
+                return;
+            }
+
             var dispatcher = Window.Current.Dispatcher;
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -159,11 +186,7 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var orders = GlobalCache.OrderCache.Get(_companyCode, _rootId);
-
-                if (orders != null) return orders;
-                    
-                orders = await CustomerWebService.Instance.GetOrdersSummaryAsync(_rootId, _companyCode);
+                var orders = await CustomerWebService.Instance.GetOrdersSummaryAsync(_rootId, _companyCode);
 
                 GlobalCache.OrderCache.Set(_companyCode, _rootId, orders);
 

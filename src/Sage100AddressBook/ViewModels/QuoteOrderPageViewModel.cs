@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telerik.UI.Xaml.Controls.Grid;
 using Template10.Mvvm;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 namespace Sage100AddressBook.ViewModels
@@ -22,57 +23,67 @@ namespace Sage100AddressBook.ViewModels
         #region Private fields
 
         private ObservableCollectionEx<OrderDetail> _lines = new ObservableCollectionEx<OrderDetail>();
-        private List<OrderDetail> _deleted = new List<OrderDetail>();
         private RadDataGrid _grid;
         private OrderDetail _selected;
         private DelegateCommand _addLine;
         private DelegateCommand _deleteLine;
-        private DelegateCommand _cancel;
-        private DelegateCommand _save;
+        private DelegateCommand _editLine;
         private Order _order = new Order();
         private QuoteOrderArgs _args;
-        private bool _modified;
 
         #endregion
 
         #region Private methods
 
         /// <summary>
-        /// Ensures the grid is out of an edit state.
+        /// Clear the current selection.
         /// </summary>
-        private void ClearEditState()
+        private void ClearSelection()
         {
-            try
-            {
-                _grid?.CancelEdit();
-                _grid = null;
-                _selected = null;
-            }
-            finally
-            {
-                _deleteLine.RaiseCanExecuteChanged();
-            }
+            _grid = null;
+            _selected = null;
+
+            _editLine.RaiseCanExecuteChanged();
+            _deleteLine.RaiseCanExecuteChanged();
         }
 
         /// <summary>
-        /// Event that is fired when line a line quantity changes.
+        /// Event that is fired when editing a line,.
         /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="args">The event argument.</param>
-        private void OnQuantityChanged(object sender, EventArgs args)
+        private async void EditLineAction()
         {
-            SetModified(true);
-        }
+            if (_selected == null) return;
 
-        /// <summary>
-        /// Sets the modified state.
-        /// </summary>
-        /// <param name="modified">True if modified, otherwise false.</param>
-        private void SetModified(bool modified)
-        {
-            _modified = modified;
-            _save.RaiseCanExecuteChanged();
-            _cancel.RaiseCanExecuteChanged();
+            var selected = _selected;
+
+            await Dispatcher.DispatchAsync(async () =>
+            {
+                Loading = true;
+
+                try
+                {
+                    var result = await Dialogs.NumericInput(selected.ItemCodeDesc, Convert.ToInt32(selected.QuantityOrdered));
+
+                    if (result < 0) return;
+                    if (result == 0)
+                    {
+                        await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, selected.Id);
+                    }
+                    else
+                    {
+                        selected.QuantityOrdered = result;
+                        await OrderWebService.Instance.UpdateLine(_args.CompanyId, _args.Id, selected.Id, selected);
+                    }
+
+                    await LoadOrder();
+
+                    RaisePropertyChanged("Item");
+                }
+                finally
+                {
+                    Loading = false;
+                }
+            });
         }
 
         /// <summary>
@@ -90,7 +101,6 @@ namespace Sage100AddressBook.ViewModels
             {
                 var copy = line.Copy();
 
-                copy.QuantityOrderedChanged += OnQuantityChanged;
                 copy.Persisted = true;
                 copy.Modified = false;
 
@@ -98,52 +108,8 @@ namespace Sage100AddressBook.ViewModels
             }
 
             _lines.Set(temp);
-        }
 
-        /// <summary>
-        /// Performs the save on the modified line collection.
-        /// </summary>
-        private async void SaveAction()
-        {
-            await Dispatcher.DispatchAsync(async () =>
-            {
-                Loading = true;
-
-                try
-                {
-                    ClearEditState();
-
-                    foreach (var line in _deleted) await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
-
-                    foreach (var line in _lines)
-                    {
-                        if (line.Persisted == false)
-                        {
-                            await OrderWebService.Instance.AddLine(_args.CompanyId, _args.Id, line);
-
-                            line.Persisted = true;
-                            line.Modified = false;
-
-                            continue;
-                        }
-
-                        if (!line.Modified) continue;
-
-                        await OrderWebService.Instance.UpdateLine(_args.CompanyId, _args.Id, line.Id, line);
-
-                        line.Modified = false;
-                    }
-
-                    await LoadOrder();
-
-                    RaisePropertyChanged("Order");
-                    SetModified(false);
-                }
-                finally
-                {
-                    Loading = false;
-                }
-            });
+            ClearSelection();
         }
 
         /// <summary>
@@ -155,19 +121,18 @@ namespace Sage100AddressBook.ViewModels
 
             if (line == null) return;
 
-            await Dispatcher.DispatchAsync(() =>
+            await Dispatcher.DispatchAsync(async () =>
             {
-                ClearEditState();
+                Loading = true;
 
                 try
                 {
-                    _lines.Remove(line);
-                    line.Modified = true;
-                    if (line.Persisted) _deleted.Add(line);
+                    await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, line.Id);
+                    await LoadOrder();
                 }
                 finally
                 {
-                    SetModified(true);
+                    Loading = false;
                 }
             });
         }
@@ -196,9 +161,10 @@ namespace Sage100AddressBook.ViewModels
                         Modified = true
                     };
 
-                    SetModified(true);
+                    await OrderWebService.Instance.AddLine(_args.CompanyId, _args.Id, detailLine);
+                    await LoadOrder();
 
-                    _lines.Add(detailLine);
+                    RaisePropertyChanged("Item");
                 }
                 finally
                 {
@@ -208,50 +174,12 @@ namespace Sage100AddressBook.ViewModels
         }
 
         /// <summary>
-        /// Performs the cancel on the modified line collection and restores the details.
-        /// </summary>
-        private async void CancelAction()
-        {
-            await Dispatcher.DispatchAsync(() =>
-            {
-                ClearEditState();
-                _deleted.Clear();
-
-                var temp = new List<OrderDetail>();
-
-                foreach (var line in Item.Details)
-                {
-                    var copy = line.Copy();
-
-                    copy.QuantityOrderedChanged += OnQuantityChanged;
-                    copy.Persisted = true;
-                    copy.Modified = false;
-
-                    temp.Add(copy);
-                }
-
-                _lines.Set(temp);
-
-                SetModified(false);
-            });
-        }
-
-        /// <summary>
         /// Determines if a line can be deleted.
         /// </summary>
         /// <returns>True if the line can be deleted, otherwise false.</returns>
-        private bool CanDeleteLine()
+        private bool CanEditDeleteLine()
         {
             return ((_grid != null) && (_selected != null));
-        }
-
-        /// <summary>
-        /// Save is enabled if the lines are modified.
-        /// </summary>
-        /// <returns></returns>
-        private bool CanSaveCancel()
-        {
-            return _modified;
         }
 
         #endregion
@@ -265,10 +193,9 @@ namespace Sage100AddressBook.ViewModels
         {
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled) { }
 
-            _save = new DelegateCommand(new Action(SaveAction), CanSaveCancel);
-            _cancel = new DelegateCommand(new Action(CancelAction), CanSaveCancel);
             _addLine = new DelegateCommand(new Action(AddLineAction));
-            _deleteLine = new DelegateCommand(new Action(DeleteLineAction), CanDeleteLine);
+            _deleteLine = new DelegateCommand(new Action(DeleteLineAction), CanEditDeleteLine);
+            _editLine = new DelegateCommand(new Action(EditLineAction), CanEditDeleteLine);
         }
 
         #endregion
@@ -368,7 +295,7 @@ namespace Sage100AddressBook.ViewModels
                 _grid = (sender as RadDataGrid);
                 _selected = _grid?.SelectedItem as OrderDetail;
 
-                _addLine.RaiseCanExecuteChanged();
+                _editLine.RaiseCanExecuteChanged();
                 _deleteLine.RaiseCanExecuteChanged();
             });
         }
@@ -376,22 +303,6 @@ namespace Sage100AddressBook.ViewModels
         #endregion
 
         #region Public properties
-
-        /// <summary>
-        /// The save command.
-        /// </summary>
-        public DelegateCommand Save
-        {
-            get { return _save; }
-        }
-
-        /// <summary>
-        /// The cancel command.
-        /// </summary>
-        public DelegateCommand Cancel
-        {
-            get { return _cancel; }
-        }
 
         /// <summary>
         /// The add line command.
@@ -407,6 +318,14 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand DeleteLine
         {
             get { return _deleteLine; }
+        }
+
+        /// <summary>
+        /// The edit line command.
+        /// </summary>
+        public DelegateCommand EditLine
+        {
+            get { return _editLine; }
         }
 
         /// <summary>

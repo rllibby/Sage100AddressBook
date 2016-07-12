@@ -55,8 +55,8 @@ namespace Sage100AddressBook.ViewModels
 
             try
             {
-                _documentModel.SetPivotIndex(1);
                 _documentModel.SetArguments(Documents, CompanyCode);
+                _documentModel.SetPivotIndex(1);
             }
             finally
             {

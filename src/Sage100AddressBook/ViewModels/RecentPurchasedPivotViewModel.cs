@@ -63,6 +63,23 @@ namespace Sage100AddressBook.ViewModels
             await Load();
         }
 
+        /// <summary>
+        /// Attempts to reload the data from cache.
+        /// </summary>
+        /// <returns>True if loaded from cache, otherwise false.</returns>
+        private bool LoadFromCache()
+        {
+            var recent = GlobalCache.RecentCache.Get(_companyCode, _rootId);
+
+            if (recent == null) return false;
+
+            _items.Set(recent);
+
+            RaisePropertyChanged("IsEmpty");
+
+            return true;
+        }
+
         #endregion
 
         #region Constructor
@@ -103,6 +120,14 @@ namespace Sage100AddressBook.ViewModels
 
             _isLoading = true;
 
+            if (LoadFromCache())
+            {
+                _loaded = true;
+                _isLoading = false;
+
+                return;
+            }
+
             var dispatcher = Window.Current.Dispatcher;
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -114,11 +139,7 @@ namespace Sage100AddressBook.ViewModels
 
             Task.Run(async () =>
             {
-                var recent = GlobalCache.RecentCache.Get(_companyCode, _rootId);
-
-                if (recent != null) return recent;
-
-                recent = await CustomerWebService.Instance.GetRecentlyPurchasedItemsAsync(_rootId, _companyCode);
+                var recent = await CustomerWebService.Instance.GetRecentlyPurchasedItemsAsync(_rootId, _companyCode);
 
                 GlobalCache.RecentCache.Set(_companyCode, _rootId, recent);
 

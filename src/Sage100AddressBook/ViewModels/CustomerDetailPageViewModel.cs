@@ -277,18 +277,14 @@ namespace Sage100AddressBook.ViewModels
                 var navArgs = (NavigationArgs)parameter;
                 var index = (suspensionState.ContainsKey("Index")) ? suspensionState["Index"]?.ToString() : "0";
 
-                Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
-
                 _loaded = true;
 
-                _documentModel.SetPivotIndex(Index);
                 _documentModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _quoteModel.SetPivotIndex(Index);
                 _quoteModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _orderModel.SetPivotIndex(Index);
                 _orderModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
-                _recentItemModel.SetPivotIndex(Index);
                 _recentItemModel.SetArguments(navArgs.Id, navArgs.CompanyCode);
+
+                Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
 
                 await Dispatcher.DispatchAsync(async () =>
                 {
