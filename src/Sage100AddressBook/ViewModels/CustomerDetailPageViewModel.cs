@@ -291,6 +291,7 @@ namespace Sage100AddressBook.ViewModels
                 await Dispatcher.DispatchAsync(async () =>
                 {
                     CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
+                    RaisePropertyChanged("Title");
                     BuildChartData(CurrentCustomer);
                 });
             }
@@ -434,6 +435,14 @@ namespace Sage100AddressBook.ViewModels
         public DelegateCommand<FrameworkElement> Contact
         {
             get { return _contact; }
+        }
+
+        /// <summary>
+        /// Returns the customer name.
+        /// </summary>
+        public string Title
+        {
+            get { return CurrentCustomer?.CustomerName; }
         }
 
         /// <summary>
