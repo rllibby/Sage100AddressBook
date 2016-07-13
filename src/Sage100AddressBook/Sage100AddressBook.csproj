@@ -352,7 +352,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="Telerik UI For Universal Windows Platform, Version=2016.2.608.45">
+    <SDKReference Include="Telerik UI For Universal Windows Platform, Version=2016.2.711.45">
       <Name>Telerik UI For Universal Windows Platform</Name>
     </SDKReference>
     <SDKReference Include="WindowsMobile, Version=10.0.10586.0">

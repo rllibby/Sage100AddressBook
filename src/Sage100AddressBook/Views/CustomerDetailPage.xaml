@@ -499,7 +499,7 @@
         <controls:PageHeader x:Name="pageHeader"
                              Grid.Row="0"
                              Frame="{x:Bind Frame}"
-                             Text="Customer Detail">
+                             Text="{x:Bind ViewModel.Title}">
             <AppBarButton Command="{x:Bind ViewModel.DocumentModel.Search}"
                           CommandParameter="{x:Bind Find}"
                           Foreground="{StaticResource ContrastColorBrush}"

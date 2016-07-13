@@ -13,6 +13,12 @@ namespace Sage100AddressBook.Helpers
     /// <typeparam name="T">The collection type being cached.</typeparam>
     internal class CacheData<T> where T : class
     {
+        #region Private fields
+
+        private List<T> _collection = new List<T>();
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -31,7 +37,18 @@ namespace Sage100AddressBook.Helpers
         /// <summary>
         /// The cached data.
         /// </summary>
-        public IEnumerable<T> Data { get; set; }
+        public IEnumerable<T> Data
+        {
+            get { return (_collection.Count == 0) ? null : _collection; }
+            set
+            {
+                _collection.Clear();
+
+                if (value == null) return;
+
+                _collection.AddRange(value);
+            }
+        }
 
         /// <summary>
         /// The expiration date time.
