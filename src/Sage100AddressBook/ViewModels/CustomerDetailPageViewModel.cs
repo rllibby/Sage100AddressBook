@@ -313,7 +313,7 @@ namespace Sage100AddressBook.ViewModels
             try
             {
                 suspensionState["Index"] = _index;
-                _loaded = false;
+                _loaded = suspending;
             }
             finally
             {
