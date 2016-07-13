@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
@@ -160,7 +161,8 @@ namespace Sage100AddressBook.ViewModels
                 CompanyId = _companyCode,
             };
 
-             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
+            _owner.SessionState.Add("QuoteArgs", JsonConvert.SerializeObject(args));
+            _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
         /// <summary>
@@ -216,6 +218,34 @@ namespace Sage100AddressBook.ViewModels
                     Loading = false;
                 }
             });
+        }
+
+        /// <summary>
+        /// Handles back state.
+        /// </summary>
+        private void UpdateState()
+        {
+            _currentIndex = (-1);
+
+            if (!_owner.SessionState.ContainsKey("QuoteArgs")) return;
+
+            var state = _owner.SessionState.Get<string>("QuoteArgs");
+
+            _owner.SessionState.Remove("QuoteArgs");
+
+            var args = JsonConvert.DeserializeObject<QuoteOrderArgs>(state);
+
+            if (!_companyCode.Equals(args.CompanyId, StringComparison.OrdinalIgnoreCase)) return;
+            if (!_rootId.Equals(args.CustomerId, StringComparison.OrdinalIgnoreCase)) return;
+
+            for (var i = 0; i < _quotes.Count; i++)
+            {
+                if (_quotes[i].Id.Equals(args.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    _currentIndex = i;
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -355,6 +385,7 @@ namespace Sage100AddressBook.ViewModels
                 CompanyId = _companyCode
             };
 
+            _owner.SessionState.Add("QuoteArgs", JsonConvert.SerializeObject(args));
             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
@@ -388,6 +419,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                UpdateState();
                 RaisePropertyChanged("QuoteCommandsVisible");
             }
         }

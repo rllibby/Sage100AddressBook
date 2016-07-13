@@ -638,8 +638,8 @@
                                                       MinZoom="1,1"
                                                       PaletteName="DefaultDark"
                                                       Zoom="1,1">
-                                <telerikChart:DoughnutSeries MinWidth="1"
-                                                             MinHeight="1"
+                                <telerikChart:DoughnutSeries MinWidth="20"
+                                                             MinHeight="20"
                                                              HorizontalContentAlignment="Stretch"
                                                              VerticalContentAlignment="Stretch"
                                                              FontSize="10"
@@ -753,7 +753,7 @@
                               RelativePanel.AlignRightWithPanel="True"
                               RelativePanel.Below="pageHeader"
                               ScrollViewer.IsVerticalScrollChainingEnabled="False"
-                              SelectedIndex="{x:Bind ViewModel.QuoteModel.CurrentIndex, Mode=TwoWay}"
+                              SelectedIndex="{x:Bind ViewModel.QuoteModel.CurrentIndex, Mode=OneWay}"
                               SelectionChanged="{x:Bind ViewModel.QuoteModel.QuoteSelectionChanged}"
                               SelectionMode="Single" />
                     <TextBlock Grid.Row="0"
@@ -784,6 +784,7 @@
                               RelativePanel.AlignRightWithPanel="True"
                               RelativePanel.Below="pageHeader"
                               ScrollViewer.IsVerticalScrollChainingEnabled="False"
+                              SelectedIndex="{x:Bind ViewModel.OrderModel.CurrentIndex, Mode=OneWay}"
                               SelectionChanged="{x:Bind ViewModel.OrderModel.OrderSelectionChanged}"
                               SelectionMode="Single" />
                     <TextBlock Grid.Row="0"

@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Sage100AddressBook.Models;
@@ -288,12 +287,9 @@ namespace Sage100AddressBook.ViewModels
 
                 Index = (!string.IsNullOrEmpty(index) ? Convert.ToInt32(index) : 0);
 
-                await Dispatcher.DispatchAsync(async () =>
-                {
-                    CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
-                    RaisePropertyChanged("Title");
-                    BuildChartData(CurrentCustomer);
-                });
+                CurrentCustomer = await _webService.GetCustomerAsync(navArgs.Id, navArgs.CompanyCode);
+                RaisePropertyChanged("Title");
+                BuildChartData(CurrentCustomer);
             }
             finally
             {

@@ -55,7 +55,10 @@ namespace Sage100AddressBook.ViewModels
             {
                 _addresses.Clear();
 
-                return await _searchService.ExecuteSearchAsync(searchText);
+                var temp = await _searchService.ExecuteSearchAsync(searchText);
+
+                return temp.Where(i => !(i.Type.Equals("vendor", StringComparison.OrdinalIgnoreCase))).ToList();
+
             }).ContinueWith(async (t) =>
             {
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
