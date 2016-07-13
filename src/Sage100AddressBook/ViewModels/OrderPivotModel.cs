@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using Newtonsoft.Json;
 using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.Sage100Services;
@@ -39,6 +40,7 @@ namespace Sage100AddressBook.ViewModels
         private DelegateCommand<OrderSummary> _edit;
         private string _companyCode;
         private string _rootId;
+        private int _currentIndex = (-1);
         private int _index = (-1);
         private bool _loading;
         private bool _loaded;
@@ -85,7 +87,36 @@ namespace Sage100AddressBook.ViewModels
                 CompanyId = _companyCode,
             };
 
+            _owner.SessionState.Add("OrderArgs", JsonConvert.SerializeObject(args));
             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
+        }
+
+        /// <summary>
+        /// Handles back state.
+        /// </summary>
+        private void UpdateState()
+        {
+            _currentIndex = (-1);
+
+            if (!_owner.SessionState.ContainsKey("OrderArgs")) return;
+
+            var state = _owner.SessionState.Get<string>("OrderArgs");
+
+            _owner.SessionState.Remove("OrderArgs");
+
+            var args = JsonConvert.DeserializeObject<QuoteOrderArgs>(state);
+
+            if (!_companyCode.Equals(args.CompanyId, StringComparison.OrdinalIgnoreCase)) return;
+            if (!_rootId.Equals(args.CustomerId, StringComparison.OrdinalIgnoreCase)) return;
+
+            for (var i = 0; i < _orders.Count; i++)
+            {
+                if (_orders[i].Id.Equals(args.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    _currentIndex = i;
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -155,6 +186,7 @@ namespace Sage100AddressBook.ViewModels
                 CompanyId = _companyCode
             };
 
+            _owner.SessionState.Add("OrderArgs", JsonConvert.SerializeObject(args));
             _owner.NavigationService.Navigate(typeof(QuoteOrderPage), args, new SuppressNavigationTransitionInfo());
         }
 
@@ -247,6 +279,7 @@ namespace Sage100AddressBook.ViewModels
             }
             finally
             {
+                UpdateState();
                 RaisePropertyChanged("OrderCommandsVisible");
             }
         }
@@ -260,9 +293,12 @@ namespace Sage100AddressBook.ViewModels
         {
             try
             {
-                Current = (sender as GridView)?.SelectedItem as OrderSummary;
+                var grid = (sender as GridView);
 
+                Current = grid.SelectedItem as OrderSummary;
                 RaisePropertyChanged("OrderCommandsVisible");
+
+                if ((Current != null) && (grid != null)) grid.ScrollIntoView(Current);
             }
             finally
             {
@@ -273,6 +309,15 @@ namespace Sage100AddressBook.ViewModels
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// Returns the current quote summary entry.
+        /// </summary>
+        public int CurrentIndex
+        {
+            get { return _currentIndex; }
+            set { Set(ref _currentIndex, value); }
+        }
 
         /// <summary>
         /// Returns the current order summary entry.

@@ -64,7 +64,7 @@ namespace Sage100AddressBook.ViewModels
                 {
                     var result = await Dialogs.NumericInput(selected.ItemCodeDesc, Convert.ToInt32(selected.QuantityOrdered));
 
-                    if (result < 0) return;
+                    if ((result == selected.QuantityOrdered) || (result < 0)) return;
                     if (result == 0)
                     {
                         await OrderWebService.Instance.DeleteLine(_args.CompanyId, _args.Id, selected.Id);
@@ -297,6 +297,26 @@ namespace Sage100AddressBook.ViewModels
 
                 _editLine.RaiseCanExecuteChanged();
                 _deleteLine.RaiseCanExecuteChanged();
+            });
+        }
+
+        /// <summary>
+        /// Event that is triggered on grid double tap.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">THe event arguments.</param>
+        public async void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            await Dispatcher.DispatchAsync(() =>
+            {
+                _grid = (sender as RadDataGrid);
+
+                var pt = e.GetPosition(_grid);
+                var row = _grid.HitTestService.RowItemFromPoint(pt);
+
+                if (row == null) return;
+
+                EditLineAction();
             });
         }
 
