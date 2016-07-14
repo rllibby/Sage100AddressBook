@@ -43,10 +43,14 @@
 
             <SolidColorBrush x:Key="CardColorBrush" Color="{StaticResource CardColorDark}" />
 
+            <!-- <telerik:UserThemeResources x:Key="ResourceLoaderInitializer" /> -->
+
             <ResourceDictionary.ThemeDictionaries>
 
                 <ResourceDictionary x:Key="Light">
                     <ResourceDictionary.MergedDictionaries>
+                        <!-- <ResourceDictionary Source="ms-appx:///Telerik.UI.Xaml.Grid.UWP/Themes/ThemeResourcesLight.xaml" />
+                        <ResourceDictionary Source="{CustomResource LightResourcesPath}" />-->
                         <ResourceDictionary>
                             <SolidColorBrush x:Key="CustomColorBrush" Color="{StaticResource CustomColor}" />
                             <SolidColorBrush x:Key="ContrastColorBrush" Color="{StaticResource ContrastColor}" />
@@ -77,6 +81,8 @@
 
                 <ResourceDictionary x:Key="Default">
                     <ResourceDictionary.MergedDictionaries>
+                        <!-- <ResourceDictionary Source="ms-appx:///Telerik.UI.Xaml.Grid.UWP/Themes/ThemeResourcesDark.xaml" />
+                        <ResourceDictionary Source="{CustomResource DarkResourcesPath}" />-->
                         <ResourceDictionary>
                             <SolidColorBrush x:Key="CustomColorBrush" Color="{StaticResource CustomColor}" />
                             <SolidColorBrush x:Key="ContrastColorBrush" Color="{StaticResource ContrastColor}" />
