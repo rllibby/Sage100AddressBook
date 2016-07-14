@@ -744,7 +744,7 @@
                     </Grid.RowDefinitions>
                     <GridView x:Name="QuotesGrid"
                               Grid.Row="0"
-                              DoubleTapped="{x:Bind ViewModel.QuoteModel.QuoteDoubleTapped}"
+                              DoubleTapped="{x:Bind ViewModel.QuoteModel.OnDoubleTapped}"
                               IsItemClickEnabled="True"
                               ItemContainerStyle="{StaticResource GridViewItemExpanded}"
                               ItemTemplate="{StaticResource QuoteTemplate}"
@@ -775,7 +775,7 @@
                     </Grid.RowDefinitions>
                     <GridView x:Name="OrdersGrid"
                               Grid.Row="0"
-                              DoubleTapped="{x:Bind ViewModel.OrderModel.OrderDoubleTapped}"
+                              DoubleTapped="{x:Bind ViewModel.OrderModel.OnDoubleTapped}"
                               IsItemClickEnabled="True"
                               ItemContainerStyle="{StaticResource GridViewItemExpanded}"
                               ItemTemplate="{StaticResource OrderTemplate}"
