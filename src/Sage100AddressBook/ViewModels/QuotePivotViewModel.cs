@@ -173,6 +173,7 @@ namespace Sage100AddressBook.ViewModels
                     }
 
                     GlobalCache.QuoteCache.Set(CompanyCode, RootId, _quotes);
+                    Current = _quotes[_quotes.Count - 1];
 
                     EditAction(Current);
                 }

@@ -25,6 +25,7 @@ namespace Sage100AddressBook.Models
             if (order == null) return;
 
             SalesOrderNo = order.SalesOrderNo;
+            CustomerPONo = order.CustomerPONo;
             OrderType = order.OrderType;
             OrderStatus = order.OrderStatus;
             ShipExpireDate = order.ShipExpireDate;
@@ -63,6 +64,11 @@ namespace Sage100AddressBook.Models
         /// The quote or order number.
         /// </summary>
         public string SalesOrderNo { get; set; }
+
+        /// <summary>
+        /// The customer PO number.
+        /// </summary>
+        public string CustomerPONo { get; set; }
 
         /// <summary>
         /// The order or quote type.
