@@ -2,6 +2,7 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -44,6 +45,27 @@ namespace Sage100AddressBook.Helpers
             }
 
             return default(T);
+        }
+
+        /// <summary>
+        /// Gets the collection of children for the specified object.
+        /// </summary>
+        /// <param name="origin">The object to obtain the children for.</param>
+        /// <returns>The collection of children.</returns>
+        public static IList<DependencyObject> GetChildren(DependencyObject origin)
+        {
+            var children = new List<DependencyObject>();
+
+            if (origin == null) return children;
+
+            var count = VisualTreeHelper.GetChildrenCount(origin);
+
+            for (var i = 0; i < count; i++)
+            {
+                children.Add(VisualTreeHelper.GetChild(origin, i));
+            }
+
+            return children;
         }
 
         /// <summary>

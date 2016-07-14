@@ -141,6 +141,7 @@ namespace Sage100AddressBook.CustomControls
                 try
                 {
                     var items = await ItemSearchService.Instance.ExecuteSearchAsync(_companyId, searchText);
+                    _selected = null;
 
                     foreach (var item in items)
                     {
@@ -154,7 +155,11 @@ namespace Sage100AddressBook.CustomControls
 
                         entry.QuantityChanged += OnQuantityChanged;
                         _context.Add(entry);
+
+                        if (_selected == null) _selected = entry;
                     }
+
+                    Items.SelectedItem = _selected;
                 }
                 catch (ServiceException exception)
                 {
@@ -229,10 +234,8 @@ namespace Sage100AddressBook.CustomControls
         {
             await Window.Current.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                var selected = Items.SelectedItem as QuickQuoteLine;
-
-                _dialog.IsPrimaryButtonEnabled = ((selected != null) && (selected.Quantity > 0));
-                _selected = selected;
+                _selected = Items.SelectedItem as QuickQuoteLine;
+                _dialog.IsPrimaryButtonEnabled = ((_selected != null) && (_selected.Quantity > 0));
             });
         }
 

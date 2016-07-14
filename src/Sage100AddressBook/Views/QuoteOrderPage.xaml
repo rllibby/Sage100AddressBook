@@ -54,6 +54,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="20" />
+                <RowDefinition Height="{x:Bind ViewModel.PoHeight, Mode=OneWay}" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -89,16 +90,31 @@
                        HorizontalAlignment="Left"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="Taxable Amount:"
+                       Text="Customer PO:"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="3"
                        Grid.Column="1"
                        HorizontalAlignment="Right"
                        Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Text="{x:Bind ViewModel.Item.TaxableAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       Text="{x:Bind ViewModel.Item.CustomerPONo, Mode=OneWay}" />
+            <TextBlock Grid.Row="4"
+                       Grid.Column="0"
+                       Margin="0,4,0,0"
+                       HorizontalAlignment="Left"
+                       Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       Text="Taxable Amount:"
                        TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Row="4"
+                       Grid.Column="1"
+                       Margin="0,4,0,0"
+                       HorizontalAlignment="Right"
+                       Foreground="{ThemeResource TextBoxDisabledForegroundThemeBrush}"
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       Text="{x:Bind ViewModel.Item.TaxableAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock Grid.Row="5"
                        Grid.Column="0"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Left"
@@ -106,7 +122,7 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="Non Taxable Amount:"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="4"
+            <TextBlock Grid.Row="5"
                        Grid.Column="1"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Right"
@@ -114,7 +130,7 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="{x:Bind ViewModel.Item.NonTaxableAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="5"
+            <TextBlock Grid.Row="6"
                        Grid.Column="0"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Left"
@@ -122,7 +138,7 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="Sales Tax Amount:"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="5"
+            <TextBlock Grid.Row="6"
                        Grid.Column="1"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Right"
@@ -130,7 +146,7 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="{x:Bind ViewModel.Item.SalesTaxAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="6"
+            <TextBlock Grid.Row="7"
                        Grid.Column="0"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Left"
@@ -138,7 +154,7 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="Discount Amount:"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="6"
+            <TextBlock Grid.Row="7"
                        Grid.Column="1"
                        Margin="0,4,0,0"
                        HorizontalAlignment="Right"
@@ -146,14 +162,14 @@
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="{x:Bind ViewModel.Item.DiscountAmt, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter=\{0:C\}}"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="7"
+            <TextBlock Grid.Row="8"
                        Grid.Column="0"
                        Margin="0,20,0,0"
                        HorizontalAlignment="Left"
                        Style="{StaticResource BodyTextBlockStyle}"
                        Text="Total:"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock Grid.Row="7"
+            <TextBlock Grid.Row="8"
                        Grid.Column="1"
                        Margin="0,20,0,0"
                        HorizontalAlignment="Right"
@@ -162,7 +178,7 @@
                        TextTrimming="CharacterEllipsis" />
 
             <grid:RadDataGrid x:Name="Items"
-                              Grid.Row="8"
+                              Grid.Row="9"
                               Grid.ColumnSpan="2"
                               Margin="0,10,0,0"
                               AutoGenerateColumns="False"
@@ -203,6 +219,13 @@
                                              CellContentFormat="{}{0,0:C2}"
                                              Header="Unit Price"
                                              PropertyName="UnitPrice" />
+                    <grid:DataGridTextColumn Name="ExtensionAmt"
+                                             Width="100"
+                                             CanUserEdit="False"
+                                             CanUserFilter="False"
+                                             CellContentFormat="{}{0,0:C2}"
+                                             Header="Extension Amount"
+                                             PropertyName="ExtensionAmt" />
 
                 </grid:RadDataGrid.Columns>
             </grid:RadDataGrid>

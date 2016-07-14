@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telerik.UI.Xaml.Controls.Grid;
 using Template10.Mvvm;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
@@ -220,6 +221,8 @@ namespace Sage100AddressBook.ViewModels
                 try
                 {
                     await LoadOrder();
+
+                    RaisePropertyChanged("PoHeight");
                 }
                 catch
                 {
@@ -354,6 +357,17 @@ namespace Sage100AddressBook.ViewModels
         public ObservableCollectionEx<OrderDetail> Lines
         {
             get { return _lines; }
+        }
+
+        /// <summary>
+        /// Returns the height for the PO grid row based on quote/order type.
+        /// </summary>
+        public GridLength PoHeight
+        {
+            get
+            {
+                return ((_order == null) || (_args == null) ||  (_args.Type == OrderType.Quote)) ? new GridLength(0) : new GridLength(1, GridUnitType.Auto);
+            }
         }
 
         /// <summary>

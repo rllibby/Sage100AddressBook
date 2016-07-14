@@ -26,6 +26,7 @@ namespace Sage100AddressBook.Views
 
             Items.Columns[2].IsVisible = show;
             Items.Columns[3].IsVisible = show;
+            Items.Columns[4].IsVisible = show;
         }
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace Sage100AddressBook.Views
 
             Items.Columns[2].IsVisible = show;
             Items.Columns[3].IsVisible = show;
+            Items.Columns[4].IsVisible = show;
         }
 
         #endregion
