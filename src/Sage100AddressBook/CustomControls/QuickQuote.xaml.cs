@@ -7,10 +7,13 @@ using Sage100AddressBook.Helpers;
 using Sage100AddressBook.Models;
 using Sage100AddressBook.Services.SearchServices;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Telerik.UI.Xaml.Controls.Grid;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation.Peers;
+using Windows.UI.Xaml.Automation.Provider;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
@@ -28,6 +31,7 @@ namespace Sage100AddressBook.CustomControls
         private QuickQuoteLine _selected;
         private string _companyId;
         private string _customerId;
+        private bool _found;
 
         #endregion
 
@@ -80,6 +84,7 @@ namespace Sage100AddressBook.CustomControls
             {
                 SetBusy(true);
 
+                _found = false;
                 _context.Clear();
 
                 try
@@ -136,6 +141,7 @@ namespace Sage100AddressBook.CustomControls
             {
                 SetBusy(true);
 
+                _found = false;
                 _context.Clear();
 
                 try
@@ -157,6 +163,8 @@ namespace Sage100AddressBook.CustomControls
                         _context.Add(entry);
 
                         if (_selected == null) _selected = entry;
+
+                        _found = ((entry != null) && (items.Count() == 1));
                     }
 
                     Items.SelectedItem = _selected;
@@ -236,6 +244,17 @@ namespace Sage100AddressBook.CustomControls
             {
                 _selected = Items.SelectedItem as QuickQuoteLine;
                 _dialog.IsPrimaryButtonEnabled = ((_selected != null) && (_selected.Quantity > 0));
+
+                if (_found)
+                {
+                    _found = false;
+
+                    var button = _dialog.Child(0).Child(0).Child(0).Child(0).Child(1).Child(0).Child<Button>(0);
+                    var peer = new ButtonAutomationPeer(button);
+                    var provider = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+
+                    provider.Invoke();
+                }
             });
         }
 
