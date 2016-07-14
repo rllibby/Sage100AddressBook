@@ -16,6 +16,7 @@
       xmlns:telerik="using:Telerik.UI.Xaml.Controls.Input"
       xmlns:vm="using:Sage100AddressBook.ViewModels"
       x:Name="ThisPage"
+      Loaded="OnLoaded"
       mc:Ignorable="d">
 
     <Page.Resources>
@@ -189,6 +190,19 @@
                                              Header="Description"
                                              IsVisible="True"
                                              PropertyName="ItemCodeDesc" />
+                    <grid:DataGridTextColumn Name="UnitOfMeasure"
+                                             Width="100"
+                                             CanUserEdit="False"
+                                             CanUserFilter="False"
+                                             Header="Unit Of Measure"
+                                             PropertyName="UnitOfMeasure" />
+                    <grid:DataGridTextColumn Name="UnitPrice"
+                                             Width="100"
+                                             CanUserEdit="False"
+                                             CanUserFilter="False"
+                                             CellContentFormat="{}{0,0:C2}"
+                                             Header="Unit Price"
+                                             PropertyName="UnitPrice" />
 
                 </grid:RadDataGrid.Columns>
             </grid:RadDataGrid>
@@ -211,5 +225,27 @@
                           Label="Delete Line" />
         </CommandBar>
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup" CurrentStateChanged="CurrentVisualStateChanged">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NarrowMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters />
+                </VisualState>
+                <VisualState x:Name="VisualStateNormal">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource NormalMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters />
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource WideMinWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters />
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

@@ -176,6 +176,7 @@
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\DocumentsPageViewModel.cs" />
     <Compile Include="ViewModels\OrderPivotModel.cs" />
+    <Compile Include="ViewModels\OrderSummaryViewModel.cs" />
     <Compile Include="ViewModels\QuoteOrderPageViewModel.cs" />
     <Compile Include="ViewModels\QuotePivotViewModel.cs" />
     <Compile Include="ViewModels\RecentPageViewModel.cs" />
