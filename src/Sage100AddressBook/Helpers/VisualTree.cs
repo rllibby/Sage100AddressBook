@@ -2,9 +2,10 @@
  *  Copyright © 2016, Sage Software, Inc. 
  */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 namespace Sage100AddressBook.Helpers
@@ -14,6 +15,58 @@ namespace Sage100AddressBook.Helpers
     /// </summary>
     public static class DependencyObjectExtensions
     {
+        #region Private methods
+
+        /// <summary>
+        /// Recurse the dependency object looking for children of type T.
+        /// </summary>
+        /// <typeparam name="T">The type to locate.</typeparam>
+        /// <param name="origin">The object to recurse.</param>
+        /// <param name="list">The list to store items of type T.</param>
+        private static void RecurseCollect<T>(DependencyObject origin, IList<T> list) where T : class
+        {
+            if (origin == null) return;
+
+            for (var i = 0; i < origin.ChildCount(); i++)
+            {
+                var child = origin.Child(i);
+                var typedChild = child as T;
+
+                if ((list != null) && (typedChild != null)) list.Add(typedChild);
+
+                RecurseCollect(child, list);
+            }
+        }
+
+        /// <summary>
+        /// Iterates over all children to locate those that are of type T.
+        /// </summary>
+        /// <typeparam name="T">The type to locate.</typeparam>
+        /// <param name="origin">The object to recurse.</param>
+        /// <returns>The collection of children that are of type T.</returns>
+        private static IEnumerable<T> Collect<T>(DependencyObject origin) where T : class
+        {
+            var result = new List<T>();
+
+            if (origin == null) return result;
+
+            for (var i = 0; i < origin.ChildCount(); i++)
+            {
+                var child = origin.Child(i);
+                var typedChild = child as T;
+
+                if (typedChild != null) result.Add(typedChild);
+
+                RecurseCollect(child, result);
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Public methods
+
         /// <summary>
         /// Return the parent for the dependency object
         /// </summary>
@@ -135,112 +188,98 @@ namespace Sage100AddressBook.Helpers
         {
             return Child(origin, index) as T;
         }
-    }
 
-    /// <summary>
-    /// Helper class for dependancy tree walking.
-    /// </summary>
-    public static class VisualTree
-    {
         /// <summary>
-        /// Gets the parent in the visual tree.
+        /// Gets the collection of children for the dependency object.
         /// </summary>
-        /// <param name="origin">The dependency object to start with.</param>
-        /// <returns>The parent.</returns>
-        public static DependencyObject GetParent(DependencyObject origin)
+        /// <param name="origin">The object to obatin the children for.</param>
+        /// <returns>The collection of children on success, null on failure.</returns>
+        public static IEnumerable<DependencyObject> Children(this DependencyObject origin)
         {
             if (origin == null) return null;
 
-            return VisualTreeHelper.GetParent(origin);
+            var result = new List<DependencyObject>();
+            var count = origin.ChildCount();
+     
+            for (var i = 0; i < count; i++) result.Add(Child(origin, i));
+
+            return result;
         }
 
         /// <summary>
-        /// Gets the parent in the visual tree, optionally walking upwards to find the parent of type T.
+        /// Linq extension that determines whether all elements of a sequence satisfy a condition.
         /// </summary>
-        /// <param name="origin">The dependency object to start with.</param>
-        /// <returns>The parent of type T if found, otherwise null.</returns>
-        public static T GetParent<T>(DependencyObject origin) where T : DependencyObject
+        /// <typeparam name="T">The child type to locate.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>True if all items match the predicate, otherwise false.</returns>
+        public static bool All<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
         {
-            if (origin == null) return null;
-
-            var parent = GetParent(origin);
-
-            while (parent != null)
-            {
-                if (parent is T) return parent as T;
-
-                parent = GetParent(parent);
-            }
-
-            return default(T);
+            return Collect<T>(origin).All(predicate);
         }
 
         /// <summary>
-        /// Gets the collection of children for the specified object.
+        /// Linq extension that determines whether any of the elements of a sequence satisfy a condition.
         /// </summary>
-        /// <param name="origin">The object to obtain the children for.</param>
-        /// <returns>The collection of children.</returns>
-        public static IList<DependencyObject> GetChildren(DependencyObject origin)
+        /// <typeparam name="T">The child type to locate.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>True if any item matches the predicate, otherwise false.</returns>
+        public static bool Any<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
         {
-            var children = new List<DependencyObject>();
-
-            if (origin == null) return children;
-
-            var count = VisualTreeHelper.GetChildrenCount(origin);
-
-            for (var i = 0; i < count; i++)
-            {
-                children.Add(VisualTreeHelper.GetChild(origin, i));
-            }
-
-            return children;
+            return Collect<T>(origin).Any(predicate);
         }
 
         /// <summary>
-        /// Gets the next sibling in the visual tree.
+        /// Linq extension to allow for child searching based on the predicate.
         /// </summary>
-        /// <param name="origin">The dependency object to start with.</param>
-        /// <returns>The next sibling.</returns>
-        public static DependencyObject GetNextSibling(DependencyObject origin)
+        /// <typeparam name="T">The child type to locate.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>The collection of matching children.</returns>
+        public static IEnumerable<T> Where<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
         {
-            if (origin == null) return null;
-
-            var parent = VisualTreeHelper.GetParent(origin);
-
-            if (parent != null)
-            {
-                int childIndex = -1;
-
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); ++i)
-                {
-                    if (origin == VisualTreeHelper.GetChild(parent, i))
-                    {
-                        childIndex = i;
-                        break;
-                    }
-                }
-
-                var nextIndex = childIndex + 1;
-
-                if (nextIndex < VisualTreeHelper.GetChildrenCount(parent))
-                {
-                    var result = VisualTreeHelper.GetChild(parent, nextIndex);
-
-                    if ((result is TextBox) || (result is Button)) return result;
-
-                    parent = result;
-                    origin = VisualTreeHelper.GetChild(parent, 0);
-
-                    if (origin is Control)
-                    {
-                        if (((Control)origin).IsEnabled) return origin;
-
-                        return GetNextSibling(origin);
-                    }
-                }
-            }
-
-            return null;
+            return Collect<T>(origin).Where(predicate);
         }
+
+        /// <summary>
+        /// Linq extension that returns a number that represents how many elements in the specified sequence satisfy a condition. 
+        /// </summary>
+        /// <typeparam name="T">The child type to operate on.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>The count of matching children.</returns>
+        public static int Count<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
+        {
+            return Collect<T>(origin).Count(predicate);
+        }
+
+        /// <summary>
+        /// Linq extension that returns the first element of a sequence matching the predicate,
+        /// or a null value if no element is found.
+        /// </summary>
+        /// <typeparam name="T">The child type to operate on.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>The first child that matches the predicate, on null.</returns>
+        public static T FirstOrDefault<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
+        {
+            return Collect<T>(origin).FirstOrDefault(predicate);
+        }
+
+        /// <summary>
+        /// Linq extension that returns the first element of a sequence matching the predicate,
+        /// or a null value if no element is found.
+        /// </summary>
+        /// <typeparam name="T">The child type to operate on.</typeparam>
+        /// <param name="origin">The dependency object to start the search at.</param>
+        /// <param name="predicate">The predicate for child matching.</param>
+        /// <returns>The first child that matches the predicate, on null.</returns>
+        public static T LastOrDefault<T>(this DependencyObject origin, Func<T, bool> predicate) where T : class
+        {
+            return Collect<T>(origin).LastOrDefault(predicate);
+        }
+
+        #endregion
     }
 }

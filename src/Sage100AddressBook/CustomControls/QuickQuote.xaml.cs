@@ -249,7 +249,7 @@ namespace Sage100AddressBook.CustomControls
                 {
                     _found = false;
 
-                    var button = _dialog.Child(0).Child(0).Child(0).Child(0).Child(1).Child(0).Child<Button>(0);
+                    var button = _dialog.FirstOrDefault<Button>(b => Equals(b.Content, "OK"));
                     var peer = new ButtonAutomationPeer(button);
                     var provider = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
 
